@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import '../models/chat_message.dart';
+import '../models/chat_message_model.dart';
 
 class GeminiService {
   // ⚠️ REPLACE WITH YOUR GEMINI API KEY

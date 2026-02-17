@@ -1,7 +1,8 @@
 import 'package:get/get.dart';
 
 import '../controllers/auth_controller.dart';
-
+import '../controllers/chat_controller.dart';
+import '../controllers/nav_controller.dart';
 
 class AppBindings extends Bindings {
   @override

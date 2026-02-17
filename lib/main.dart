@@ -1,15 +1,14 @@
 import 'package:doctalk/resources/AppRoutes.dart';
 import 'package:doctalk/resources/AppTheme.dart';
+import 'package:doctalk/screens/Auth/login_screen.dart';
+import 'package:doctalk/screens/Auth/signUp_screen.dart';
+import 'package:doctalk/screens/Auth/splash_screen.dart';
+import 'package:doctalk/screens/HomeScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
 import 'firebase_options.dart';
-import 'utils/app_theme.dart';
-import 'screens/splash_screen.dart';
-import 'screens/login_screen.dart';
-import 'screens/signup_screen.dart';
-import 'screens/home_screen.dart';
 import 'screens/chat_screen.dart';
 import 'bindings/app_bindings.dart';
 
@@ -31,9 +30,7 @@ void main() async {
   );
 
   // Initialize Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(const MediSaathiApp());
 }
