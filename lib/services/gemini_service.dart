@@ -5,7 +5,7 @@ import '../models/chat_message_model.dart';
 class GeminiService {
   // ⚠️ REPLACE WITH YOUR GEMINI API KEY
   // Get free key at: https://aistudio.google.com/app/apikey
-  static const String _apiKey = 'YOUR_GEMINI_API_KEY_HERE';
+  static const String _apiKey = 'AIzaSyCb1OUAb0PwaV5X8ZYiib2ENEZnFCGshtY';
 
   static const String _systemPrompt = '''
 You are MediSaathi, a warm, empathetic AI health assistant built specifically for Indian users.
