@@ -17,6 +17,12 @@ class ChatController extends GetxController {
   final RxBool showDoctorFinder = false.obs;
   final Rx<AssessmentData?> currentAssessment = Rx<AssessmentData?>(null);
 
+  // ══════════════════════════════════════════════════
+  // 🛡️ DUPLICATE SEND PROTECTION
+  // ══════════════════════════════════════════════════
+  bool _isSending = false;
+  String? _lastSentMessage;
+
   @override
   void onInit() {
     super.onInit();
@@ -27,86 +33,159 @@ class ChatController extends GetxController {
     // Add initial greeting message
     messages.add(ChatMessage.ai(
       'Namaste! 🙏 Main MediSaathi hoon — aapka AI health companion.\n\nAaj aap kaisa feel kar rahe hain? Please mujhe batayein ki aap kya symptoms feel kar rahe hain. Main aapki poori koshish se help karoonga.',
-      quickReplies: ['Sar dard hai', 'Bukhar hai', 'Pet mein dard', 'Khasi / Nazla', 'Kuch aur'],
+      quickReplies: [
+        'Sar dard hai',
+        'Bukhar hai',
+        'Pet mein dard',
+        'Khasi / Nazla',
+        'Kuch aur'
+      ],
     ));
     isSessionStarted.value = true;
   }
 
   Future<void> sendMessage(String text) async {
-    if (text.trim().isEmpty) return;
+    final trimmedText = text.trim();
+    if (trimmedText.isEmpty) return;
 
-    final userMessage = ChatMessage.user(text.trim());
-    messages.add(userMessage);
-
-    // Create session in Firebase on first user message
-    if (sessionId.value.isEmpty) {
-      await _createFirebaseSession(text.trim());
+    // ══════════════════════════════════════════════════
+    // 🔒 PROTECTION 1: Block if already sending
+    // ══════════════════════════════════════════════════
+    if (_isSending) {
+      print('⚠️ ChatController: Blocked duplicate send - already processing');
+      return;
     }
 
-    // Save user message
-    _saveMessageToFirebase(userMessage);
+    // ══════════════════════════════════════════════════
+    // 🔒 PROTECTION 2: Block exact duplicate message
+    // (user clicked same button twice rapidly)
+    // ══════════════════════════════════════════════════
+    if (_lastSentMessage == trimmedText) {
+      print('⚠️ ChatController: Blocked exact duplicate: "$trimmedText"');
+      // Wait 1 second before allowing same message again
+      await Future.delayed(const Duration(seconds: 1));
+    }
 
-    // Show typing indicator
-    isTyping.value = true;
-    messages.add(ChatMessage.typing());
+    // ══════════════════════════════════════════════════
+    // 🔐 LOCK SENDING
+    // ══════════════════════════════════════════════════
+    _isSending = true;
+    _lastSentMessage = trimmedText;
 
-    // Get AI response
-    final response = await _geminiService.sendMessage(text.trim());
+    try {
+      // Add user message to chat
+      final userMessage = ChatMessage.user(trimmedText);
+      messages.add(userMessage);
 
-    // Remove typing indicator
-    messages.removeWhere((m) => m.isTyping);
-    isTyping.value = false;
-
-    // Handle assessment
-    if (response.hasAssessment) {
-      // Add the summary text message
-      final summaryMsg = ChatMessage.ai(
-        response.text,
-        quickReplies: response.hasQuickReplies ? response.quickReplies : null,
-      );
-      messages.add(summaryMsg);
-      _saveMessageToFirebase(summaryMsg);
-
-      // Add assessment card
-      final assessmentMsg = ChatMessage.assessment(response.assessment!);
-      messages.add(assessmentMsg);
-      currentAssessment.value = response.assessment;
-
-      // Save assessment to Firebase
-      if (sessionId.value.isNotEmpty) {
-        await _historyService.saveAssessment(
-          userId: _authController.currentUserId,
-          sessionId: sessionId.value,
-          assessment: response.assessment!,
-        );
+      // Create session in Firebase on first user message
+      if (sessionId.value.isEmpty) {
+        await _createFirebaseSession(trimmedText);
       }
 
-      // Show doctor finder prompt after a short delay
-      await Future.delayed(const Duration(milliseconds: 800));
-      final doctorPromptMsg = ChatMessage.ai(
-        'Kya aap apne paas ke ${response.assessment!.recommendedSpecialist} ko dhundna chahenge? Main aapko best doctors Google Maps par dikha sakta hoon. 🗺️',
-        quickReplies: ['📍 Haan, Doctor Dhundho', '🏠 Ghar pe manage karoonga', '❓ Aur questions hain'],
-      );
-      messages.add(doctorPromptMsg);
-      _saveMessageToFirebase(doctorPromptMsg);
+      // Save user message to Firebase
+      _saveMessageToFirebase(userMessage);
 
-    } else {
-      // Regular message
-      final aiMsg = ChatMessage.ai(
-        response.text,
-        quickReplies: response.hasQuickReplies ? response.quickReplies : null,
-      );
-      messages.add(aiMsg);
-      _saveMessageToFirebase(aiMsg);
-    }
+      // Show typing indicator
+      isTyping.value = true;
+      messages.add(ChatMessage.typing());
 
-    // Handle doctor finder trigger
-    if (text.toLowerCase().contains('doctor dhundho') ||
-        text.toLowerCase().contains('find doctor') ||
-        text == '📍 Haan, Doctor Dhundho') {
-      showDoctorFinder.value = true;
-      Get.toNamed('/doctor-finder', arguments: {
-        'specialist': currentAssessment.value?.recommendedSpecialist ?? 'General Physician',
+      // ══════════════════════════════════════════════════
+      // 🚀 GET AI RESPONSE (only one call now!)
+      // ══════════════════════════════════════════════════
+      final response = await _geminiService.sendMessage(trimmedText);
+
+      // Remove typing indicator
+      messages.removeWhere((m) => m.isTyping);
+      isTyping.value = false;
+
+      // If response is an error (like quota exceeded), show it
+      if (response.isError) {
+        final errorMsg = ChatMessage.ai(response.text);
+        messages.add(errorMsg);
+        return; // Stop here, don't save to Firebase
+      }
+
+      // ══════════════════════════════════════════════════
+      // Handle successful response
+      // ══════════════════════════════════════════════════
+
+      if (response.hasAssessment) {
+        // Add the summary text message
+        final summaryMsg = ChatMessage.ai(
+          response.text,
+          quickReplies: response.hasQuickReplies ? response.quickReplies : null,
+        );
+        messages.add(summaryMsg);
+        _saveMessageToFirebase(summaryMsg);
+
+        // Add assessment card
+        final assessmentMsg = ChatMessage.assessment(response.assessment!);
+        messages.add(assessmentMsg);
+        currentAssessment.value = response.assessment;
+
+        // Save assessment to Firebase
+        if (sessionId.value.isNotEmpty) {
+          await _historyService.saveAssessment(
+            userId: _authController.currentUserId,
+            sessionId: sessionId.value,
+            assessment: response.assessment!,
+          );
+        }
+
+        // Show doctor finder prompt after a short delay
+        await Future.delayed(const Duration(milliseconds: 800));
+        final doctorPromptMsg = ChatMessage.ai(
+          'Kya aap apne paas ke ${response.assessment!.recommendedSpecialist} ko dhundna chahenge? Main aapko best doctors Google Maps par dikha sakta hoon. 🗺️',
+          quickReplies: [
+            '📍 Haan, Doctor Dhundho',
+            '🏠 Ghar pe manage karoonga',
+            '❓ Aur questions hain'
+          ],
+        );
+        messages.add(doctorPromptMsg);
+        _saveMessageToFirebase(doctorPromptMsg);
+      } else {
+        // Regular message (no assessment)
+        final aiMsg = ChatMessage.ai(
+          response.text,
+          quickReplies: response.hasQuickReplies ? response.quickReplies : null,
+        );
+        messages.add(aiMsg);
+        _saveMessageToFirebase(aiMsg);
+      }
+
+      // Handle doctor finder trigger
+      if (trimmedText.toLowerCase().contains('doctor dhundho') ||
+          trimmedText.toLowerCase().contains('find doctor') ||
+          trimmedText == '📍 Haan, Doctor Dhundho') {
+        showDoctorFinder.value = true;
+        // Navigate to doctor finder screen if implemented
+        // Get.toNamed('/doctor-finder', arguments: {
+        //   'specialist': currentAssessment.value?.recommendedSpecialist ?? 'General Physician',
+        // });
+      }
+    } catch (e) {
+      // Handle any unexpected errors
+      messages.removeWhere((m) => m.isTyping);
+      isTyping.value = false;
+
+      final errorMsg = ChatMessage.ai(
+        'Maafi chahta hoon, kuch problem aa gayi. Please dobara try karein. 🙏\n\nError: ${e.toString()}',
+      );
+      messages.add(errorMsg);
+      print('❌ ChatController error: $e');
+    } finally {
+      // ══════════════════════════════════════════════════
+      // 🔓 UNLOCK - allow next send
+      // ══════════════════════════════════════════════════
+      _isSending = false;
+
+      // Clear last sent message after 2 seconds
+      // (allows user to send same message again after brief delay)
+      Future.delayed(const Duration(seconds: 2), () {
+        if (_lastSentMessage == trimmedText) {
+          _lastSentMessage = null;
+        }
       });
     }
   }
@@ -119,7 +198,7 @@ class ChatController extends GetxController {
       );
       sessionId.value = id;
     } catch (e) {
-      debugPrint('Error creating session: $e');
+      print('❌ Error creating Firebase session: $e');
     }
   }
 
@@ -128,11 +207,15 @@ class ChatController extends GetxController {
     if (message.isTyping) return;
     if (message.type == MessageType.assessment) return;
 
-    _historyService.saveMessage(
-      userId: _authController.currentUserId,
-      sessionId: sessionId.value,
-      message: message,
-    );
+    try {
+      _historyService.saveMessage(
+        userId: _authController.currentUserId,
+        sessionId: sessionId.value,
+        message: message,
+      );
+    } catch (e) {
+      print('❌ Error saving message to Firebase: $e');
+    }
   }
 
   void resetChat() {
@@ -141,17 +224,16 @@ class ChatController extends GetxController {
     isTyping.value = false;
     showDoctorFinder.value = false;
     currentAssessment.value = null;
+    _isSending = false;
+    _lastSentMessage = null;
     _geminiService.resetSession();
     _startSession();
   }
 
   @override
   void onClose() {
+    _isSending = false;
+    _lastSentMessage = null;
     super.onClose();
   }
-}
-
-void debugPrint(String message) {
-  // ignore: avoid_print
-  print(message);
 }
