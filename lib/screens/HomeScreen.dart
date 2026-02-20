@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/nav_controller.dart';
 import '../resources/AppTheme.dart';
+import 'AnonymousChat/community_screen.dart';
 import 'chat_screen.dart';
 import 'history_screen.dart';
 
@@ -22,7 +23,7 @@ class HomeScreen extends StatelessWidget {
     ];
 
     return Obx(
-      () => Scaffold(
+          () => Scaffold(
         backgroundColor: AppColors.background,
         body: IndexedStack(
           index: navController.currentIndex.value,
@@ -43,7 +44,7 @@ class _CenterFAB extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         Get.to(
-          () => const ChatScreen(),
+              () => const ChatScreen(),
           transition: Transition.downToUp,
           duration: const Duration(milliseconds: 350),
           binding: _ChatBinding(),
@@ -106,7 +107,7 @@ class _BottomNavBar extends StatelessWidget {
       child: SizedBox(
         height: 60,
         child: Obx(
-          () => Row(
+              () => Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               // Home
@@ -248,7 +249,7 @@ class _HomeTab extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Obx(
-                          () => Text(
+                              () => Text(
                             'Namaste, ${authController.userFirstName}! 🙏',
                             style: const TextStyle(
                               fontSize: 24,
@@ -271,20 +272,47 @@ class _HomeTab extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Container(
-                    width: 46,
-                    height: 46,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: const Icon(
-                      Icons.notifications_outlined,
-                      color: AppColors.textSecondary,
-                      size: 22,
+
+                  // ═══════════════════════════════════════════════
+                  // ✨ NEW: COMMUNITY BUTTON (REPLACED NOTIFICATIONS)
+                  // ═══════════════════════════════════════════════
+                  GestureDetector(
+                    onTap: () {
+                      Get.to(
+                            () => const CommunityScreen(),
+                        transition: Transition.rightToLeft,
+                        duration: const Duration(milliseconds: 300),
+                      );
+                    },
+                    child: Container(
+                      width: 46,
+                      height: 46,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF9B59B6),
+                            Color(0xFF8E44AD),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF9B59B6).withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.people_alt_rounded,
+                        color: Colors.white,
+                        size: 22,
+                      ),
                     ),
                   ),
+                  // ═══════════════════════════════════════════════
                 ],
               ),
 
@@ -294,7 +322,7 @@ class _HomeTab extends StatelessWidget {
               GestureDetector(
                 onTap: () {
                   Get.to(
-                    () => const ChatScreen(),
+                        () => const ChatScreen(),
                     transition: Transition.downToUp,
                     duration: const Duration(milliseconds: 350),
                   );
@@ -396,6 +424,97 @@ class _HomeTab extends StatelessWidget {
                   ),
                 ),
               ),
+
+              const SizedBox(height: 16),
+
+              // ═══════════════════════════════════════════════
+              // ✨ NEW: ANONYMOUS COMMUNITY CARD
+              // ═══════════════════════════════════════════════
+              GestureDetector(
+                onTap: () {
+                  Get.to(
+                        () => const CommunityScreen(),
+                    transition: Transition.rightToLeft,
+                    duration: const Duration(milliseconds: 300),
+                  );
+                },
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xFF9B59B6),
+                        Color(0xFF8E44AD),
+                        Color(0xFF6C3483),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF9B59B6).withOpacity(0.4),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 52,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: const Center(
+                          child: Text('🎭', style: TextStyle(fontSize: 28)),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Anonymous Community',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                                fontFamily: 'Lato',
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Share & learn from others anonymously',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.white70,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.arrow_forward_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // ═══════════════════════════════════════════════
 
               const SizedBox(height: 28),
 
@@ -532,7 +651,7 @@ class _SymptomCard extends StatelessWidget {
       onTap: () {
         // Navigate to chat with pre-filled symptom
         Get.to(
-          () => ChatScreen(initialSymptom: symptom),
+              () => ChatScreen(initialSymptom: symptom),
           transition: Transition.downToUp,
           duration: const Duration(milliseconds: 350),
         );
