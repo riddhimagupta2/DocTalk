@@ -33,13 +33,7 @@ class ChatController extends GetxController {
     // Add initial greeting message
     messages.add(ChatMessage.ai(
       'Namaste! 🙏 Main MediSaathi hoon — aapka AI health companion.\n\nAaj aap kaisa feel kar rahe hain? Please mujhe batayein ki aap kya symptoms feel kar rahe hain. Main aapki poori koshish se help karoonga.',
-      quickReplies: [
-        'Sar dard hai',
-        'Bukhar hai',
-        'Pet mein dard',
-        'Khasi / Nazla',
-        'Kuch aur'
-      ],
+      quickReplies: ['Sar dard hai', 'Bukhar hai', 'Pet mein dard', 'Khasi / Nazla', 'Kuch aur'],
     ));
     isSessionStarted.value = true;
   }
@@ -58,16 +52,43 @@ class ChatController extends GetxController {
 
     // ══════════════════════════════════════════════════
     // 🔒 PROTECTION 2: Block exact duplicate message
-    // (user clicked same button twice rapidly)
     // ══════════════════════════════════════════════════
     if (_lastSentMessage == trimmedText) {
       print('⚠️ ChatController: Blocked exact duplicate: "$trimmedText"');
-      // Wait 1 second before allowing same message again
       await Future.delayed(const Duration(seconds: 1));
     }
 
     // ══════════════════════════════════════════════════
-    // 🔐 LOCK SENDING
+    // 🚨 SPECIAL HANDLING: Doctor Finder Trigger
+    // Open map IMMEDIATELY without AI response
+    // ══════════════════════════════════════════════════
+    if (_isDoctorFinderTrigger(trimmedText)) {
+      print('✅ Doctor finder triggered! Opening map...');
+
+      // Add user message to chat
+      final userMessage = ChatMessage.user(trimmedText);
+      messages.add(userMessage);
+      _saveMessageToFirebase(userMessage);
+
+      // Add confirmation message (no AI needed)
+      final confirmMsg = ChatMessage.ai(
+        'Bilkul! Main aapko nearby doctors dikha raha hoon Google Maps par. Ek second... 🗺️',
+      );
+      messages.add(confirmMsg);
+
+      // Wait a tiny moment for smooth transition
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      // Navigate to doctor finder
+      Get.toNamed('/doctor-finder', arguments: {
+        'specialist': currentAssessment.value?.recommendedSpecialist ?? 'General Physician',
+      });
+
+      return; // Stop here - don't send to AI
+    }
+
+    // ══════════════════════════════════════════════════
+    // 🔐 LOCK SENDING (for regular messages)
     // ══════════════════════════════════════════════════
     _isSending = true;
     _lastSentMessage = trimmedText;
@@ -90,7 +111,7 @@ class ChatController extends GetxController {
       messages.add(ChatMessage.typing());
 
       // ══════════════════════════════════════════════════
-      // 🚀 GET AI RESPONSE (only one call now!)
+      // 🚀 GET AI RESPONSE
       // ══════════════════════════════════════════════════
       final response = await _geminiService.sendMessage(trimmedText);
 
@@ -102,7 +123,7 @@ class ChatController extends GetxController {
       if (response.isError) {
         final errorMsg = ChatMessage.ai(response.text);
         messages.add(errorMsg);
-        return; // Stop here, don't save to Firebase
+        return;
       }
 
       // ══════════════════════════════════════════════════
@@ -154,16 +175,6 @@ class ChatController extends GetxController {
         _saveMessageToFirebase(aiMsg);
       }
 
-      // Handle doctor finder trigger
-      if (trimmedText.toLowerCase().contains('doctor dhundho') ||
-          trimmedText.toLowerCase().contains('find doctor') ||
-          trimmedText == '📍 Haan, Doctor Dhundho') {
-        showDoctorFinder.value = true;
-        // Navigate to doctor finder screen if implemented
-        // Get.toNamed('/doctor-finder', arguments: {
-        //   'specialist': currentAssessment.value?.recommendedSpecialist ?? 'General Physician',
-        // });
-      }
     } catch (e) {
       // Handle any unexpected errors
       messages.removeWhere((m) => m.isTyping);
@@ -181,13 +192,34 @@ class ChatController extends GetxController {
       _isSending = false;
 
       // Clear last sent message after 2 seconds
-      // (allows user to send same message again after brief delay)
       Future.delayed(const Duration(seconds: 2), () {
         if (_lastSentMessage == trimmedText) {
           _lastSentMessage = null;
         }
       });
     }
+  }
+
+  // ══════════════════════════════════════════════════
+  // 🔍 Check if message should trigger doctor finder
+  // ══════════════════════════════════════════════════
+  bool _isDoctorFinderTrigger(String text) {
+    final lowerText = text.toLowerCase();
+
+    // Exact matches
+    if (text == '📍 Haan, Doctor Dhundho') return true;
+
+    // Contains keywords
+    if (lowerText.contains('doctor dhundho') ||
+        lowerText.contains('doctor dhoondho') ||
+        lowerText.contains('doctor dhundo') ||
+        lowerText.contains('find doctor') ||
+        lowerText.contains('doctor dikhao') ||
+        lowerText.contains('doctor batao')) {
+      return true;
+    }
+
+    return false;
   }
 
   Future<void> _createFirebaseSession(String firstMessage) async {

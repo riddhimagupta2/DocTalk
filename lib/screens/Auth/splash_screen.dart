@@ -61,7 +61,8 @@ class _SplashScreenState extends State<SplashScreen>
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2000),
-    )..repeat(reverse: true);
+    )
+      ..repeat(reverse: true);
     _pulseScale = Tween<double>(begin: 0.95, end: 1.05).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
@@ -191,7 +192,7 @@ class _SplashScreenState extends State<SplashScreen>
                 child: Column(
                   children: [
                     const Text(
-                      'MediSaathi',
+                      'DocTalk',
                       style: TextStyle(
                         fontSize: 38,
                         fontWeight: FontWeight.w800,
@@ -227,7 +228,7 @@ class _SplashScreenState extends State<SplashScreen>
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 48),
                       child: Text(
-                        '"Doctors give you a diagnosis.\nMediSaathi gives you a Saathi."',
+                        '"Doctors give you a diagnosis.\DocTalk gives you a Saathi."',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 14,

@@ -62,22 +62,22 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 14),
                   Obx(() => Text(
-                    authController.userName,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                      fontFamily: 'Lato',
-                    ),
-                  )),
+                        authController.userName,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          fontFamily: 'Lato',
+                        ),
+                      )),
                   const SizedBox(height: 4),
                   Obx(() => Text(
-                    authController.userEmail,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white.withOpacity(0.75),
-                    ),
-                  )),
+                        authController.userEmail,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white.withOpacity(0.75),
+                        ),
+                      )),
                 ],
               ),
             ),
@@ -114,7 +114,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             _ProfileMenuTile(
               icon: Icons.info_outline_rounded,
-              title: 'About MediSaathi',
+              title: 'About DocTalk',
               subtitle: 'Version 1.0.0',
               onTap: () {},
             ),
@@ -162,7 +162,7 @@ class ProfileScreen extends StatelessWidget {
                       title: const Text('Logout?',
                           style: TextStyle(fontWeight: FontWeight.w700)),
                       content: const Text(
-                        'Are you sure you want to logout from MediSaathi?',
+                        'Are you sure you want to logout from DocTalk ?',
                         style: TextStyle(fontSize: 14, height: 1.5),
                       ),
                       actions: [
@@ -256,8 +256,7 @@ class _ProfileMenuTile extends StatelessWidget {
         ),
         trailing: const Icon(Icons.chevron_right_rounded,
             color: AppColors.textHint, size: 20),
-        contentPadding:
-        const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
       ),
     );
   }
@@ -266,5 +265,6 @@ class _ProfileMenuTile extends StatelessWidget {
 // Need to import NavController
 class NavController extends GetxController {
   final RxInt currentIndex = 0.obs;
+
   void changePage(int index) => currentIndex.value = index;
 }

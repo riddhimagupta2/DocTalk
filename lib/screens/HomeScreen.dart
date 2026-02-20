@@ -151,7 +151,7 @@ class _BottomNavBar extends StatelessWidget {
                 currentIndex: navController.currentIndex.value,
                 onTap: () {
                   Get.snackbar(
-                    'MediSaathi v1.0',
+                    'DocTalk v1.0',
                     'Your AI Health Companion 🩺',
                     backgroundColor: AppColors.primary,
                     colorText: Colors.white,
@@ -348,7 +348,7 @@ class _HomeTab extends StatelessWidget {
                             ),
                             const SizedBox(height: 12),
                             const Text(
-                              'Not feeling well?\nTalk to MediSaathi',
+                              'Not feeling well?\nTalk to DocTalk',
                               style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w800,

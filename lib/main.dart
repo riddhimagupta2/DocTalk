@@ -9,7 +9,9 @@ import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
 import 'firebase_options.dart';
+
 import 'screens/chat_screen.dart';
+import 'screens/doctor_finder_screen.dart';
 import 'bindings/app_bindings.dart';
 
 void main() async {
@@ -30,7 +32,9 @@ void main() async {
   );
 
   // Initialize Firebase
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   runApp(const MediSaathiApp());
 }
@@ -75,6 +79,13 @@ class MediSaathiApp extends StatelessWidget {
           page: () => const ChatScreen(),
           transition: Transition.upToDown,
           transitionDuration: const Duration(milliseconds: 350),
+        ),
+        // ✅ NEW: Doctor Finder Route
+        GetPage(
+          name: '/doctor-finder',
+          page: () => const DoctorFinderScreen(),
+          transition: Transition.rightToLeft,
+          transitionDuration: const Duration(milliseconds: 300),
         ),
       ],
     );

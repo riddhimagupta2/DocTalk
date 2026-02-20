@@ -135,7 +135,7 @@ class _ChatScreenState extends State<ChatScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'MediSaathi AI',
+                'DocTalk AI',
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w800,

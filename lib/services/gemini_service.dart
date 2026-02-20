@@ -11,7 +11,7 @@ class GeminiService {
   static const String _apiKey = 'AIzaSyDRF11BozFl67i_2eRFrLTouL3ZBKgt9yA';
 
   static const String _systemPrompt = '''
-You are MediSaathi, a warm and empathetic AI health assistant built for Indian users.
+You are DocTalk, a warm and empathetic AI health assistant built for Indian users.
 Help users understand their symptoms through friendly conversational triage.
 
 YOUR PERSONALITY:
@@ -20,6 +20,10 @@ YOUR PERSONALITY:
 - No complex medical jargon, always simple words
 - Never definitively diagnose, say "it could be" or "most likely"
 - Keep each response to 2-4 lines maximum
+
+IMPORTANT: DocTalk HAS a built-in doctor finder feature that shows nearby doctors on Google Maps.
+When user asks to find doctors, ENCOURAGE them to use it. Say something like:
+"Bilkul! Main aapko nearby doctors Google Maps par dikha sakta hoon. Tap karein 'Doctor Dhundho' button."
 
 YOUR FLOW:
 Phase 1 - First message: Warm greeting, ask for symptoms
@@ -104,7 +108,7 @@ NEVER ask more than ONE question per message.
       );
       _startNewSession();
       _isInitialized = true;
-      print('✅ MediSaathi: Gemini 2.5 Flash ready!');
+      print('✅ DocTalk: Gemini 2.5 Flash ready!');
     } catch (e) {
       _initError = e.toString();
       print('❌ Gemini init error: $e');
@@ -142,7 +146,8 @@ NEVER ask more than ONE question per message.
     if (_lastRequestTime != null) {
       final timeSinceLastRequest = DateTime.now().difference(_lastRequestTime!);
       if (timeSinceLastRequest.inMilliseconds < 1000) {
-        print('⚠️ Blocked rapid-fire request (${timeSinceLastRequest.inMilliseconds}ms gap)');
+        print(
+            '⚠️ Blocked rapid-fire request (${timeSinceLastRequest.inMilliseconds}ms gap)');
         return GeminiResponse(
           text: '⏳ Ek second ruko, processing ho raha hai...',
           quickReplies: [],
@@ -161,7 +166,8 @@ NEVER ask more than ONE question per message.
       // API key missing check
       if (_initError == 'API_KEY_MISSING') {
         return GeminiResponse(
-          text: '🔑 Gemini API Key Missing!\n\nPlease:\n1. Go to aistudio.google.com/app/apikey\n2. Create a FREE API key\n3. Open lib/services/gemini_service.dart\n4. Replace YOUR_GEMINI_API_KEY_HERE with your key\n5. Save and hot reload (press r)',
+          text:
+              '🔑 Gemini API Key Missing!\n\nPlease:\n1. Go to aistudio.google.com/app/apikey\n2. Create a FREE API key\n3. Open lib/services/gemini_service.dart\n4. Replace YOUR_GEMINI_API_KEY_HERE with your key\n5. Save and hot reload (press r)',
           quickReplies: [],
           isError: true,
         );
@@ -169,7 +175,8 @@ NEVER ask more than ONE question per message.
 
       if (!_isInitialized || _chatSession == null) {
         return GeminiResponse(
-          text: 'AI service could not start. Check your API key in gemini_service.dart. Error: $_initError',
+          text:
+              'AI service could not start. Check your API key in gemini_service.dart. Error: $_initError',
           quickReplies: [],
           isError: true,
         );
@@ -179,7 +186,8 @@ NEVER ask more than ONE question per message.
       // 🚀 ACTUAL API CALL
       // ══════════════════════════════════════════════════
       print('📤 Sending to Gemini 2.5 Flash: "$userMessage"');
-      final response = await _chatSession!.sendMessage(Content.text(userMessage));
+      final response =
+          await _chatSession!.sendMessage(Content.text(userMessage));
 
       final rawText = response.text ?? '';
       print('📥 Gemini response received: ${rawText.length} chars');
@@ -192,7 +200,6 @@ NEVER ask more than ONE question per message.
       }
 
       return _parseResponse(rawText);
-
     } on GenerativeAIException catch (e) {
       print('❌ Gemini API error: ${e.message}');
 
@@ -200,7 +207,8 @@ NEVER ask more than ONE question per message.
       if (e.message.contains('API key not valid') ||
           e.message.contains('API_KEY_INVALID')) {
         return GeminiResponse(
-          text: '❌ Invalid API Key!\n\nYour key is wrong or expired.\n\n1. Go to aistudio.google.com/app/apikey\n2. Create a new key\n3. Update gemini_service.dart',
+          text:
+              '❌ Invalid API Key!\n\nYour key is wrong or expired.\n\n1. Go to aistudio.google.com/app/apikey\n2. Create a new key\n3. Update gemini_service.dart',
           quickReplies: [],
           isError: true,
         );
@@ -211,7 +219,8 @@ NEVER ask more than ONE question per message.
           e.message.toLowerCase().contains('resource_exhausted') ||
           e.message.toLowerCase().contains('rate limit')) {
         return GeminiResponse(
-          text: '⏰ Rate limit reached!\n\nGemini API free tier: 15 requests/minute.\n\nWait 60 seconds and try again, or use a different API key.',
+          text:
+              '⏰ Rate limit reached!\n\nGemini API free tier: 15 requests/minute.\n\nWait 60 seconds and try again, or use a different API key.',
           quickReplies: [],
           isError: true,
         );
@@ -233,27 +242,26 @@ NEVER ask more than ONE question per message.
         quickReplies: [],
         isError: true,
       );
-
     } on FormatException catch (e) {
       // ══════════════════════════════════════════════════
       // 🔧 FORMAT ERROR HANDLING (JSON parse issues)
       // ══════════════════════════════════════════════════
       print('❌ Format error while parsing response: $e');
       return GeminiResponse(
-        text: 'Gemini returned badly formatted data. Trying again...\n\nKya aap apna message dobara bhej sakte hain?',
+        text:
+            'Gemini returned badly formatted data. Trying again...\n\nKya aap apna message dobara bhej sakte hain?',
         quickReplies: [],
         isError: false, // Not a critical error, user can retry
       );
-
     } catch (e) {
       print('❌ Unexpected Gemini error: $e');
       print('❌ Error type: ${e.runtimeType}');
       return GeminiResponse(
-        text: 'Unexpected error: ${e.toString()}\n\nPlease try sending your message again.',
+        text:
+            'Unexpected error: ${e.toString()}\n\nPlease try sending your message again.',
         quickReplies: [],
         isError: true,
       );
-
     } finally {
       // ══════════════════════════════════════════════════
       // 🔓 UNLOCK - allow next request
@@ -269,7 +277,8 @@ NEVER ask more than ONE question per message.
 
     try {
       // Parse ASSESSMENT block
-      if (rawText.contains('<ASSESSMENT>') && rawText.contains('</ASSESSMENT>')) {
+      if (rawText.contains('<ASSESSMENT>') &&
+          rawText.contains('</ASSESSMENT>')) {
         final start = rawText.indexOf('<ASSESSMENT>') + '<ASSESSMENT>'.length;
         final end = rawText.indexOf('</ASSESSMENT>');
         if (end > start) {
@@ -289,7 +298,8 @@ NEVER ask more than ONE question per message.
         }
         // Remove ASSESSMENT block from visible text
         cleanText = cleanText
-            .replaceAll(RegExp(r'<ASSESSMENT>.*?</ASSESSMENT>', dotAll: true), '')
+            .replaceAll(
+                RegExp(r'<ASSESSMENT>.*?</ASSESSMENT>', dotAll: true), '')
             .trim();
       }
 
@@ -299,17 +309,17 @@ NEVER ask more than ONE question per message.
         final qrEnd = cleanText.indexOf(']', qrStart);
         if (qrEnd != -1) {
           final qrContent =
-          cleanText.substring(qrStart + '[QUICK_REPLIES:'.length, qrEnd);
+              cleanText.substring(qrStart + '[QUICK_REPLIES:'.length, qrEnd);
           quickReplies = qrContent
               .split('|')
               .map((s) => s.trim())
               .where((s) => s.isNotEmpty)
               .toList();
-          cleanText =
-              cleanText.replaceAll(RegExp(r'\[QUICK_REPLIES:[^\]]*\]'), '').trim();
+          cleanText = cleanText
+              .replaceAll(RegExp(r'\[QUICK_REPLIES:[^\]]*\]'), '')
+              .trim();
         }
       }
-
     } catch (e) {
       print('⚠️ Error in _parseResponse: $e');
       // If parsing fails completely, just return the raw text
@@ -317,7 +327,9 @@ NEVER ask more than ONE question per message.
     }
 
     return GeminiResponse(
-      text: cleanText.isNotEmpty ? cleanText : 'Kya aap aur details bata sakte hain?',
+      text: cleanText.isNotEmpty
+          ? cleanText
+          : 'Kya aap aur details bata sakte hain?',
       quickReplies: quickReplies,
       assessment: assessment,
     );
@@ -338,5 +350,6 @@ class GeminiResponse {
   });
 
   bool get hasAssessment => assessment != null;
+
   bool get hasQuickReplies => quickReplies.isNotEmpty;
 }
