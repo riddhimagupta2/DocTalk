@@ -5,7 +5,8 @@ import '../models/chat_message_model.dart';
 
 class GeminiService {
   // ⚠️ YOUR GEMINI API KEY
-  static const String _apiKey = 'AIzaSyAy_90pmMFMSct_k0XG3UnPTGrLFXwOdEA';
+  static const String _apiKey = String.fromEnvironment('GEMINI_API');
+
 
   static const String _systemPrompt = '''
 You are DocTalk, a warm and empathetic AI health assistant for Indian users.
