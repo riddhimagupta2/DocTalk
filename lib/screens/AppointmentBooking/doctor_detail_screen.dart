@@ -1,28 +1,73 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../models/doctor_model.dart';
+import '../../resources/AppRoutes.dart';
 import '../../resources/AppTheme.dart';
-
 
 class DoctorDetailsScreen extends StatelessWidget {
   const DoctorDetailsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final args = Get.arguments as Map<String, dynamic>;
-    final DoctorModel doctor = args['doctor'];
+    // ── Safe argument extraction ───────────────────────────────────────
+    final args = Get.arguments;
+    DoctorModel? doctor;
+
+    if (args is Map) {
+      doctor = args['doctor'] as DoctorModel?;
+    }
+
+    // Fallback — should never happen if navigation is correct
+    if (doctor == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Doctor Details'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Get.back(),
+          ),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 60, color: AppColors.error),
+              const SizedBox(height: 16),
+              const Text('Doctor information not found',
+                  style: TextStyle(color: AppColors.textSecondary)),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => Get.back(),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white),
+                child: const Text('Go Back'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
-          // Hero header
+          // ── Hero header ───────────────────────────────────────────
           SliverAppBar(
-            expandedHeight: 220,
+            expandedHeight: 240,
             pinned: true,
             backgroundColor: AppColors.primary,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: AppColors.white),
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.arrow_back_ios_new_rounded,
+                    color: Colors.white, size: 16),
+              ),
               onPressed: () => Get.back(),
             ),
             flexibleSpace: FlexibleSpaceBar(
@@ -34,35 +79,67 @@ class DoctorDetailsScreen extends StatelessWidget {
                     colors: [AppColors.primary, AppColors.primaryDark],
                   ),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 60),
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: AppColors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppColors.white.withOpacity(0.4), width: 2),
+                child: SafeArea(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 40),
+                      Container(
+                        width: 82,
+                        height: 82,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                              color: Colors.white.withOpacity(0.45), width: 2.5),
+                        ),
+                        child: const Icon(Icons.person_rounded,
+                            color: Colors.white, size: 44),
                       ),
-                      child: const Icon(Icons.person, color: AppColors.white, size: 44),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      doctor.name,
-                      style: const TextStyle(
-                        color: AppColors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
+                      const SizedBox(height: 12),
+                      Text(
+                        doctor.name,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          fontFamily: 'Lato',
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      doctor.specialization,
-                      style: TextStyle(color: AppColors.white.withOpacity(0.85), fontSize: 14),
-                    ),
-                  ],
+                      const SizedBox(height: 4),
+                      Text(
+                        doctor.specialization,
+                        style: TextStyle(
+                            color: Colors.white.withOpacity(0.85),
+                            fontSize: 14),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: doctor.isAvailableToday
+                              ? Colors.green.withOpacity(0.25)
+                              : Colors.red.withOpacity(0.25),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: doctor.isAvailableToday
+                                ? Colors.greenAccent.withOpacity(0.5)
+                                : Colors.redAccent.withOpacity(0.5),
+                          ),
+                        ),
+                        child: Text(
+                          doctor.isAvailableToday
+                              ? '✓  Available Today'
+                              : '✗  Not Available Today',
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -74,101 +151,60 @@ class DoctorDetailsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Stats row
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _StatItem(
-                          icon: Icons.star,
-                          value: doctor.rating.toString(),
-                          label: 'Rating',
-                          color: AppColors.gold,
-                        ),
-                        _divider(),
-                        _StatItem(
-                          icon: Icons.people,
-                          value: '${doctor.reviewCount}+',
-                          label: 'Reviews',
-                          color: AppColors.primary,
-                        ),
-                        _divider(),
-                        _StatItem(
-                          icon: Icons.work_history,
-                          value: doctor.experience,
-                          label: 'Experience',
-                          color: AppColors.coral,
-                        ),
-                      ],
-                    ),
-                  ),
+                  // ── Stats row ──────────────────────────────────────
+                  _StatsRow(doctor: doctor),
                   const SizedBox(height: 16),
 
-                  // Info card
-                  _InfoCard(
-                    children: [
-                      _InfoRow(icon: Icons.location_on, text: doctor.address),
-                      const Divider(height: 20),
-                      _InfoRow(icon: Icons.phone, text: doctor.phone.isEmpty ? 'Not available' : doctor.phone),
-                      const Divider(height: 20),
-                      _InfoRow(
+                  // ── Info card ──────────────────────────────────────
+                  _InfoCard(children: [
+                    _InfoRow(
+                        icon: Icons.location_on_outlined,
+                        text: doctor.address),
+                    const _Divider(),
+                    _InfoRow(
+                        icon: Icons.phone_outlined,
+                        text: doctor.phone.isEmpty
+                            ? 'Phone not available'
+                            : doctor.phone),
+                    const _Divider(),
+                    _InfoRow(
                         icon: Icons.currency_rupee,
-                        text: 'Consultation Fee: ₹${doctor.consultationFee.toInt()}',
-                      ),
-                      const Divider(height: 20),
-                      Row(
-                        children: [
-                          Icon(
-                            doctor.isAvailableToday ? Icons.check_circle : Icons.cancel,
-                            size: 18,
-                            color: doctor.isAvailableToday ? AppColors.success : AppColors.error,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            doctor.isAvailableToday ? 'Available today' : 'Not available today',
-                            style: TextStyle(
-                              color: doctor.isAvailableToday ? AppColors.success : AppColors.error,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                        text:
+                        'Consultation Fee: ₹${doctor.consultationFee.toInt()}'),
+                    const _Divider(),
+                    _InfoRow(
+                        icon: Icons.workspace_premium_outlined,
+                        text: 'Experience: ${doctor.experience}'),
+                  ]),
 
+                  // ── Available Slots ────────────────────────────────
                   if (doctor.availableSlots.isNotEmpty) ...[
                     const SizedBox(height: 20),
-                    const Text(
-                      'Available Slots Today',
-                      style: TextStyle(
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16,
-                      ),
+                    const _SectionTitle(
+                      icon: Icons.access_time_rounded,
+                      title: "Today's Available Slots",
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: doctor.availableSlots.map((slot) {
                         return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 9),
                           decoration: BoxDecoration(
                             color: AppColors.primaryLight,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                                color: AppColors.primary.withOpacity(0.3)),
                           ),
                           child: Text(
                             slot,
                             style: const TextStyle(
-                              color: AppColors.primary,
+                              color: AppColors.primaryDark,
                               fontWeight: FontWeight.w600,
                               fontSize: 13,
+                              fontFamily: 'Lato',
                             ),
                           ),
                         );
@@ -178,29 +214,32 @@ class DoctorDetailsScreen extends StatelessWidget {
 
                   const SizedBox(height: 32),
 
-                  // Book button
+                  // ── Book button ────────────────────────────────────
                   SizedBox(
                     width: double.infinity,
-                    height: 52,
+                    height: 54,
                     child: ElevatedButton(
                       onPressed: () {
-                        Get.toNamed('/booking', arguments: {'doctor': doctor});
+                        Get.toNamed(
+                          AppRoutes.booking,
+                          arguments: {'doctor': doctor},
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
-                        foregroundColor: AppColors.white,
+                        foregroundColor: Colors.white,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
+                            borderRadius: BorderRadius.circular(14)),
+                        textStyle: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                            fontFamily: 'Lato'),
                       ),
-                      child: const Text(
-                        'Book Appointment',
-                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
-                      ),
+                      child: const Text('Book Appointment'),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
@@ -209,8 +248,55 @@ class DoctorDetailsScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _divider() => Container(width: 1, height: 40, color: AppColors.border);
+// ── Sub-widgets ───────────────────────────────────────────────────────────────
+
+class _StatsRow extends StatelessWidget {
+  final DoctorModel doctor;
+  const _StatsRow({required this.doctor});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2)),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _StatItem(
+              icon: Icons.star_rounded,
+              value: '${doctor.rating}',
+              label: 'Rating',
+              color: AppColors.gold),
+          _vDivider(),
+          _StatItem(
+              icon: Icons.reviews_outlined,
+              value: '${doctor.reviewCount}',
+              label: 'Reviews',
+              color: AppColors.primary),
+          _vDivider(),
+          _StatItem(
+              icon: Icons.near_me_rounded,
+              value: '${doctor.distanceKm}km',
+              label: 'Away',
+              color: AppColors.coral),
+        ],
+      ),
+    );
+  }
+
+  Widget _vDivider() =>
+      Container(width: 1, height: 40, color: AppColors.border);
 }
 
 class _StatItem extends StatelessWidget {
@@ -218,19 +304,27 @@ class _StatItem extends StatelessWidget {
   final String value;
   final String label;
   final Color color;
-
-  const _StatItem({required this.icon, required this.value, required this.label, required this.color});
+  const _StatItem(
+      {required this.icon,
+        required this.value,
+        required this.label,
+        required this.color});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Icon(icon, color: color, size: 22),
-        const SizedBox(height: 4),
-        Text(value, style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 15)),
-        Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
-      ],
-    );
+    return Column(children: [
+      Icon(icon, color: color, size: 20),
+      const SizedBox(height: 4),
+      Text(value,
+          style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.w700,
+              fontSize: 15,
+              fontFamily: 'Lato')),
+      Text(label,
+          style: const TextStyle(
+              color: AppColors.textSecondary, fontSize: 11.5)),
+    ]);
   }
 }
 
@@ -245,11 +339,16 @@ class _InfoCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2)),
+        ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: children,
-      ),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: children),
     );
   }
 }
@@ -257,23 +356,50 @@ class _InfoCard extends StatelessWidget {
 class _InfoRow extends StatelessWidget {
   final IconData icon;
   final String text;
-
   const _InfoRow({required this.icon, required this.text});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 18, color: AppColors.primary),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            text,
-            style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
-          ),
-        ),
-      ],
-    );
+    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Icon(icon, size: 17, color: AppColors.primary),
+      const SizedBox(width: 10),
+      Expanded(
+          child: Text(text,
+              style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 13.5,
+                  height: 1.4,
+                  fontFamily: 'Lato'))),
+    ]);
+  }
+}
+
+class _Divider extends StatelessWidget {
+  const _Divider();
+  @override
+  Widget build(BuildContext context) =>
+      const Padding(
+        padding: EdgeInsets.symmetric(vertical: 10),
+        child: Divider(height: 1, color: AppColors.border),
+      );
+}
+
+class _SectionTitle extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  const _SectionTitle({required this.icon, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(children: [
+      Icon(icon, size: 16, color: AppColors.primary),
+      const SizedBox(width: 7),
+      Text(title,
+          style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w700,
+              fontSize: 14.5,
+              fontFamily: 'Lato')),
+    ]);
   }
 }

@@ -1,5 +1,7 @@
 import 'doctor_model.dart';
 
+enum AppointmentStatus { confirmed, pending, cancelled, completed }
+
 class AppointmentModel {
   final String id;
   final DoctorModel doctor;
@@ -27,6 +29,9 @@ class AppointmentModel {
     'id': id,
     'doctorName': doctor.name,
     'doctorSpecialization': doctor.specialization,
+    'doctorAddress': doctor.address,
+    'doctorPhone': doctor.phone,
+    'consultationFee': doctor.consultationFee,
     'date': date.toIso8601String(),
     'timeSlot': timeSlot,
     'patientName': patientName,
@@ -36,5 +41,3 @@ class AppointmentModel {
     'createdAt': createdAt.toIso8601String(),
   };
 }
-
-enum AppointmentStatus { confirmed, pending, cancelled, completed }

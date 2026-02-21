@@ -12,18 +12,19 @@ import 'firebase_options.dart';
 
 import 'screens/chat_screen.dart';
 import 'screens/doctor_finder_screen.dart';
+import 'screens/AppointmentBooking/doctor_detail_screen.dart';
+import 'screens/AppointmentBooking/booking_screen.dart';
+import 'screens/AppointmentBooking/booking_confirmation_screen.dart';
 import 'bindings/app_bindings.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Lock orientation to portrait
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  // Set status bar style
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -31,7 +32,6 @@ void main() async {
     ),
   );
 
-  // Initialize Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -51,6 +51,7 @@ class MediSaathiApp extends StatelessWidget {
       initialRoute: AppRoutes.splash,
       initialBinding: AppBindings(),
       getPages: [
+        // ── Auth ──────────────────────────────────────────────────
         GetPage(
           name: AppRoutes.splash,
           page: () => const SplashScreen(),
@@ -68,6 +69,8 @@ class MediSaathiApp extends StatelessWidget {
           transition: Transition.rightToLeft,
           transitionDuration: const Duration(milliseconds: 300),
         ),
+
+        // ── Core ──────────────────────────────────────────────────
         GetPage(
           name: AppRoutes.home,
           page: () => const HomeScreen(),
@@ -80,12 +83,31 @@ class MediSaathiApp extends StatelessWidget {
           transition: Transition.upToDown,
           transitionDuration: const Duration(milliseconds: 350),
         ),
-        // ✅ NEW: Doctor Finder Route
+
+        // ── Doctor Finder + Booking ───────────────────────────────
         GetPage(
-          name: '/doctor-finder',
+          name: AppRoutes.doctorFinder,
           page: () => const DoctorFinderScreen(),
           transition: Transition.rightToLeft,
           transitionDuration: const Duration(milliseconds: 300),
+        ),
+        GetPage(
+          name: AppRoutes.doctorDetails,
+          page: () => const DoctorDetailsScreen(),
+          transition: Transition.rightToLeft,
+          transitionDuration: const Duration(milliseconds: 280),
+        ),
+        GetPage(
+          name: AppRoutes.booking,
+          page: () => const BookingScreen(),
+          transition: Transition.rightToLeft,
+          transitionDuration: const Duration(milliseconds: 280),
+        ),
+        GetPage(
+          name: AppRoutes.bookingConfirmation,
+          page: () => const BookingConfirmationScreen(),
+          transition: Transition.fadeIn,
+          transitionDuration: const Duration(milliseconds: 350),
         ),
       ],
     );

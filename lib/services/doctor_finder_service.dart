@@ -28,10 +28,7 @@ class DoctorFinderService {
     required String specialist,
     int radius = 5000,
   }) async {
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 800));
-
-    // Return mock doctors (replace this with real API call if available)
+    await Future.delayed(const Duration(milliseconds: 900));
     return _generateMockDoctors(latitude, longitude, specialist);
   }
 
@@ -71,15 +68,10 @@ class DoctorFinderService {
 
     final fees = [500.0, 700.0, 600.0, 800.0, 550.0];
     final experiences = [
-      '8 years',
-      '12 years',
-      '6 years',
-      '15 years',
-      '10 years'
+      '8 years', '12 years', '6 years', '15 years', '10 years'
     ];
     final ratings = [4.8, 4.6, 4.9, 4.7, 4.5];
     final reviews = [120, 98, 210, 156, 87];
-
     final slots = [
       ['10:00 AM', '11:30 AM', '2:00 PM', '4:30 PM'],
       ['9:00 AM', '10:30 AM', '3:00 PM', '5:00 PM'],
@@ -91,7 +83,8 @@ class DoctorFinderService {
     return List.generate(5, (i) {
       final dLat = lat + offsets[i][0];
       final dLng = lng + offsets[i][1];
-      final dist = Geolocator.distanceBetween(lat, lng, dLat, dLng) / 1000;
+      final dist =
+          Geolocator.distanceBetween(lat, lng, dLat, dLng) / 1000;
 
       return DoctorModel(
         placeId: 'mock_doctor_$i',

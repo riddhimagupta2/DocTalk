@@ -9,7 +9,6 @@ class ChatController extends GetxController {
   final ChatHistoryService _historyService = ChatHistoryService();
   final AuthController _authController = Get.find<AuthController>();
 
-  // Observables
   final RxList<ChatMessage> messages = <ChatMessage>[].obs;
   final RxBool isTyping = false.obs;
   final RxBool isSessionStarted = false.obs;
@@ -17,9 +16,12 @@ class ChatController extends GetxController {
   final RxBool showDoctorFinder = false.obs;
   final Rx<AssessmentData?> currentAssessment = Rx<AssessmentData?>(null);
 
-  // Duplicate send protection
+  // ══════════════════════════════════════════════════
+  // 🚨 EMERGENCY DUPLICATE PROTECTION
+  // ══════════════════════════════════════════════════
   bool _isSending = false;
   String? _lastSentMessage;
+  DateTime? _lastSendTime;
 
   @override
   void onInit() {
@@ -28,16 +30,9 @@ class ChatController extends GetxController {
   }
 
   void _startSession() {
-    // Add initial greeting message
     messages.add(ChatMessage.ai(
-      'Namaste! 🙏 Main DocTalk hoon — aapka AI health companion.\n\nAaj aap kaisa feel kar rahe hain? Please mujhe batayein ki aap kya symptoms feel kar rahe hain. Main aapki poori koshish se help karoonga.',
-      quickReplies: [
-        'Sar dard hai',
-        'Bukhar hai',
-        'Pet mein dard',
-        'Khasi / Nazla',
-        'Kuch aur'
-      ],
+      'Namaste! 🙏 Main DocTalk hoon.\n\nAaj aap kaisa feel kar rahe hain? Symptoms batayein.',
+      quickReplies: ['Sar dard', 'Bukhar', 'Pet dard', 'Khasi', 'Kuch aur'],
     ));
     isSessionStarted.value = true;
   }
@@ -46,78 +41,108 @@ class ChatController extends GetxController {
     final trimmedText = text.trim();
     if (trimmedText.isEmpty) return;
 
+    print('');
+    print('═══════════════════════════════════════');
+    print('🎯 CONTROLLER: sendMessage called');
+    print('📝 Message: "$trimmedText"');
+    print('🔒 Is sending: $_isSending');
+    print('⏰ Last send: $_lastSendTime');
+    print('═══════════════════════════════════════');
+
     // ══════════════════════════════════════════════════
-    // 🔒 DUPLICATE SEND PROTECTION
+    // 🚨 TRIPLE LAYER PROTECTION
     // ══════════════════════════════════════════════════
+
+    // Layer 1: Already sending
     if (_isSending) {
-      print('⚠️ Blocked duplicate send');
+      print('⛔ LAYER 1 BLOCKED: Already sending');
+      Get.snackbar(
+        'Please Wait',
+        'Processing previous message...',
+        snackPosition: SnackPosition.TOP,
+        duration: const Duration(seconds: 1),
+      );
       return;
     }
 
+    // Layer 2: Exact duplicate
     if (_lastSentMessage == trimmedText) {
-      print('⚠️ Blocked exact duplicate');
-      await Future.delayed(const Duration(seconds: 1));
+      print('⛔ LAYER 2 BLOCKED: Duplicate message');
+      Get.snackbar(
+        'Duplicate',
+        'Already processing this message',
+        snackPosition: SnackPosition.TOP,
+        duration: const Duration(seconds: 1),
+      );
+      await Future.delayed(const Duration(seconds: 2));
+      return;
+    }
+
+    // Layer 3: Too fast
+    if (_lastSendTime != null) {
+      final gap = DateTime.now().difference(_lastSendTime!);
+      if (gap.inSeconds < 3) {
+        print('⛔ LAYER 3 BLOCKED: Too fast (${gap.inSeconds}s gap)');
+        Get.snackbar(
+          'Too Fast',
+          'Wait ${3 - gap.inSeconds} seconds',
+          snackPosition: SnackPosition.TOP,
+          duration: const Duration(seconds: 1),
+        );
+        return;
+      }
     }
 
     // ══════════════════════════════════════════════════
-    // 🚨 SPECIAL: Doctor Finder Trigger (BEFORE AI call)
+    // 🚨 SPECIAL: Doctor Finder (BEFORE AI)
     // ══════════════════════════════════════════════════
     if (_isDoctorFinderTrigger(trimmedText)) {
-      print('✅ Doctor finder triggered!');
+      print('✅ DOCTOR FINDER TRIGGERED');
 
       final userMessage = ChatMessage.user(trimmedText);
       messages.add(userMessage);
-      _saveMessageToFirebase(userMessage);
 
-      // Add confirmation message
-      final confirmMsg = ChatMessage.ai(
-        'Bilkul! Main aapko nearby doctors Google Maps par dikha raha hoon... 🗺️',
-      );
+      final confirmMsg = ChatMessage.ai('Finding nearby doctors... 🗺️');
       messages.add(confirmMsg);
 
       await Future.delayed(const Duration(milliseconds: 500));
 
-      // Navigate to doctor finder
       Get.toNamed('/doctor-finder', arguments: {
         'specialist': currentAssessment.value?.recommendedSpecialist ??
             'General Physician',
       });
 
-      return; // Stop here - don't send to AI
+      return;
     }
 
     // ══════════════════════════════════════════════════
-    // 🔐 LOCK SENDING
+    // 🔐 LOCK
     // ══════════════════════════════════════════════════
     _isSending = true;
     _lastSentMessage = trimmedText;
+    _lastSendTime = DateTime.now();
 
     try {
       final userMessage = ChatMessage.user(trimmedText);
       messages.add(userMessage);
 
-      // Create session in Firebase on first user message
       if (sessionId.value.isEmpty) {
         await _createFirebaseSession(trimmedText);
       }
 
-      // Save user message
       _saveMessageToFirebase(userMessage);
 
-      // Show typing indicator
       isTyping.value = true;
       messages.add(ChatMessage.typing());
 
       // ══════════════════════════════════════════════════
-      // 🚀 GET AI RESPONSE
+      // 🚀 SEND TO GEMINI
       // ══════════════════════════════════════════════════
       final response = await _geminiService.sendMessage(trimmedText);
 
-      // Remove typing indicator
       messages.removeWhere((m) => m.isTyping);
       isTyping.value = false;
 
-      // If error response
       if (response.isError) {
         final errorMsg = ChatMessage.ai(response.text);
         messages.add(errorMsg);
@@ -128,9 +153,8 @@ class ChatController extends GetxController {
       // HANDLE ASSESSMENT
       // ══════════════════════════════════════════════════
       if (response.hasAssessment) {
-        print('✅ Assessment received!');
+        print('✅ ASSESSMENT RECEIVED');
 
-        // Add the summary text message
         final summaryMsg = ChatMessage.ai(
           response.text,
           quickReplies: response.hasQuickReplies ? response.quickReplies : null,
@@ -138,12 +162,10 @@ class ChatController extends GetxController {
         messages.add(summaryMsg);
         _saveMessageToFirebase(summaryMsg);
 
-        // ✨ ADD ASSESSMENT CARD
         final assessmentMsg = ChatMessage.assessment(response.assessment!);
         messages.add(assessmentMsg);
         currentAssessment.value = response.assessment;
 
-        // Save assessment to Firebase
         if (sessionId.value.isNotEmpty) {
           await _historyService.saveAssessment(
             userId: _authController.currentUserId,
@@ -152,20 +174,19 @@ class ChatController extends GetxController {
           );
         }
 
-        // ✨ SHOW DOCTOR FINDER PROMPT with QUICK REPLY BUTTON
         await Future.delayed(const Duration(milliseconds: 800));
+
         final doctorPromptMsg = ChatMessage.ai(
-          'Kya aap apne paas ke ${response.assessment!.recommendedSpecialist} ko dhundna chahenge? Main aapko best doctors Google Maps par dikha sakta hoon. 🗺️',
+          'Kya aap nearby ${response.assessment!.recommendedSpecialist} dhundna chahenge? 🗺️',
           quickReplies: [
             '📍 Haan, Doctor Dhundho',
-            '🏠 Ghar pe manage karoonga',
-            '❓ Aur questions hain'
+            '🏠 Ghar pe manage',
+            '❓ Questions'
           ],
         );
         messages.add(doctorPromptMsg);
         _saveMessageToFirebase(doctorPromptMsg);
       } else {
-        // Regular message (no assessment)
         final aiMsg = ChatMessage.ai(
           response.text,
           quickReplies: response.hasQuickReplies ? response.quickReplies : null,
@@ -177,43 +198,25 @@ class ChatController extends GetxController {
       messages.removeWhere((m) => m.isTyping);
       isTyping.value = false;
 
-      final errorMsg = ChatMessage.ai(
-        'Maafi chahta hoon, kuch problem aa gayi. Please dobara try karein. 🙏\n\nError: ${e.toString()}',
-      );
+      final errorMsg = ChatMessage.ai('Error: ${e.toString()}');
       messages.add(errorMsg);
-      print('❌ ChatController error: $e');
+      print('❌ Error: $e');
     } finally {
+      // ══════════════════════════════════════════════════
+      // 🔓 UNLOCK AFTER 3 SECONDS (FORCED DELAY)
+      // ══════════════════════════════════════════════════
+      await Future.delayed(const Duration(seconds: 3));
       _isSending = false;
-
-      Future.delayed(const Duration(seconds: 2), () {
-        if (_lastSentMessage == trimmedText) {
-          _lastSentMessage = null;
-        }
-      });
+      print('🔓 CONTROLLER UNLOCKED');
     }
   }
 
-  // ══════════════════════════════════════════════════
-  // 🔍 Check if message should trigger doctor finder
-  // ══════════════════════════════════════════════════
   bool _isDoctorFinderTrigger(String text) {
-    final lowerText = text.toLowerCase();
-
-    // Exact button text match
-    if (text == '📍 Haan, Doctor Dhundho') return true;
-
-    // Contains keywords
-    if (lowerText.contains('doctor dhundho') ||
-        lowerText.contains('doctor dhoondho') ||
-        lowerText.contains('doctor dhundo') ||
-        lowerText.contains('find doctor') ||
-        lowerText.contains('doctor dikhao') ||
-        lowerText.contains('doctor batao') ||
-        lowerText.contains('doctor dikha')) {
-      return true;
-    }
-
-    return false;
+    final lower = text.toLowerCase();
+    return text == '📍 Haan, Doctor Dhundho' ||
+        lower.contains('doctor dhundho') ||
+        lower.contains('doctor dhundo') ||
+        lower.contains('find doctor');
   }
 
   Future<void> _createFirebaseSession(String firstMessage) async {
@@ -224,7 +227,7 @@ class ChatController extends GetxController {
       );
       sessionId.value = id;
     } catch (e) {
-      debugPrint('Error creating session: $e');
+      print('❌ Session error: $e');
     }
   }
 
@@ -240,7 +243,7 @@ class ChatController extends GetxController {
         message: message,
       );
     } catch (e) {
-      print('❌ Error saving message: $e');
+      print('❌ Save error: $e');
     }
   }
 
@@ -252,6 +255,7 @@ class ChatController extends GetxController {
     currentAssessment.value = null;
     _isSending = false;
     _lastSentMessage = null;
+    _lastSendTime = null;
     _geminiService.resetSession();
     _startSession();
   }
@@ -259,12 +263,6 @@ class ChatController extends GetxController {
   @override
   void onClose() {
     _isSending = false;
-    _lastSentMessage = null;
     super.onClose();
   }
-}
-
-void debugPrint(String message) {
-  // ignore: avoid_print
-  print(message);
 }

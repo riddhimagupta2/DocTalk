@@ -5,7 +5,7 @@ import '../models/chat_message_model.dart';
 
 class GeminiService {
   // ⚠️ YOUR GEMINI API KEY
-  static const String _apiKey = 'AIzaSyBlZmfx15zXkDNUCvK28SkWVy_f4x1A6RE';
+  static const String _apiKey = 'AIzaSyAy_90pmMFMSct_k0XG3UnPTGrLFXwOdEA';
 
   static const String _systemPrompt = '''
 You are DocTalk, a warm and empathetic AI health assistant for Indian users.
@@ -152,7 +152,7 @@ NEVER:
       if (_initError == 'API_KEY_MISSING') {
         return GeminiResponse(
           text:
-              '🔑 Gemini API Key Missing!\n\nSet your key in gemini_service.dart',
+          '🔑 Gemini API Key Missing!\n\nSet your key in gemini_service.dart',
           quickReplies: [],
           isError: true,
         );
@@ -175,12 +175,12 @@ NEVER:
       String promptMessage = userMessage;
       if (_messageCount >= 4) {
         promptMessage =
-            '$userMessage\n\n[SYSTEM: You now have enough information. Provide the assessment in <ASSESSMENT> JSON format.]';
+        '$userMessage\n\n[SYSTEM: You now have enough information. Provide the assessment in <ASSESSMENT> JSON format.]';
         print('🎯 Forcing assessment generation (message #$_messageCount)');
       }
 
       final response =
-          await _chatSession!.sendMessage(Content.text(promptMessage));
+      await _chatSession!.sendMessage(Content.text(promptMessage));
       final rawText = response.text ?? '';
 
       print('📥 Response received: ${rawText.length} chars');

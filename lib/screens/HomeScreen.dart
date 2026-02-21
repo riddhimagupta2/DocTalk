@@ -23,7 +23,7 @@ class HomeScreen extends StatelessWidget {
     ];
 
     return Obx(
-          () => Scaffold(
+      () => Scaffold(
         backgroundColor: AppColors.background,
         body: IndexedStack(
           index: navController.currentIndex.value,
@@ -44,7 +44,7 @@ class _CenterFAB extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         Get.to(
-              () => const ChatScreen(),
+          () => const ChatScreen(),
           transition: Transition.downToUp,
           duration: const Duration(milliseconds: 350),
           binding: _ChatBinding(),
@@ -107,7 +107,7 @@ class _BottomNavBar extends StatelessWidget {
       child: SizedBox(
         height: 60,
         child: Obx(
-              () => Row(
+          () => Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               // Home
@@ -249,7 +249,7 @@ class _HomeTab extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Obx(
-                              () => Text(
+                          () => Text(
                             'Namaste, ${authController.userFirstName}! 🙏',
                             style: const TextStyle(
                               fontSize: 24,
@@ -279,7 +279,7 @@ class _HomeTab extends StatelessWidget {
                   GestureDetector(
                     onTap: () {
                       Get.to(
-                            () => const CommunityScreen(),
+                        () => const CommunityScreen(),
                         transition: Transition.rightToLeft,
                         duration: const Duration(milliseconds: 300),
                       );
@@ -322,7 +322,7 @@ class _HomeTab extends StatelessWidget {
               GestureDetector(
                 onTap: () {
                   Get.to(
-                        () => const ChatScreen(),
+                    () => const ChatScreen(),
                     transition: Transition.downToUp,
                     duration: const Duration(milliseconds: 350),
                   );
@@ -433,7 +433,7 @@ class _HomeTab extends StatelessWidget {
               GestureDetector(
                 onTap: () {
                   Get.to(
-                        () => const CommunityScreen(),
+                    () => const CommunityScreen(),
                     transition: Transition.rightToLeft,
                     duration: const Duration(milliseconds: 300),
                   );
@@ -651,7 +651,7 @@ class _SymptomCard extends StatelessWidget {
       onTap: () {
         // Navigate to chat with pre-filled symptom
         Get.to(
-              () => ChatScreen(initialSymptom: symptom),
+          () => ChatScreen(initialSymptom: symptom),
           transition: Transition.downToUp,
           duration: const Duration(milliseconds: 350),
         );
