@@ -1,132 +1,114 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import '../models/doctor_model.dart';
 
 class DoctorFinderService {
-  // ⚠️ REPLACE WITH YOUR GOOGLE PLACES API KEY
-  // Get it from: console.cloud.google.com
-  // Enable: Places API + Maps SDK for Android
-  static const String _placesApiKey = 'AIzaSyDXAGOvtcPNQzHNxqui5uEBATFpApi0bsw';
-
-  /// Get user's current location
   Future<Position?> getCurrentLocation() async {
     try {
-      // Check if location services are enabled
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        print('❌ Location services are disabled');
-        return null;
-      }
+      if (!serviceEnabled) return null;
 
-      // Check permissions
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          print('❌ Location permissions denied');
-          return null;
-        }
+        if (permission == LocationPermission.denied) return null;
       }
+      if (permission == LocationPermission.deniedForever) return null;
 
-      if (permission == LocationPermission.deniedForever) {
-        print('❌ Location permissions permanently denied');
-        return null;
-      }
-
-      // Get current position
-      Position position = await Geolocator.getCurrentPosition(
+      return await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
-      print('✅ Location: ${position.latitude}, ${position.longitude}');
-      return position;
-    } catch (e) {
-      print('❌ Error getting location: $e');
+    } catch (_) {
       return null;
     }
   }
 
-  /// Find nearby doctors using Google Places API
   Future<List<DoctorModel>> findNearbyDoctors({
     required double latitude,
     required double longitude,
-    String specialist = 'doctor',
-    int radius = 5000, // 5km
+    required String specialist,
+    int radius = 5000,
   }) async {
-    if (_placesApiKey == 'YOUR_GOOGLE_PLACES_API_KEY') {
-      print('❌ Google Places API key not set!');
-      return [];
-    }
+    // Simulate network delay
+    await Future.delayed(const Duration(milliseconds: 800));
 
-    try {
-      // Build search query based on specialist type
-      String keyword = _buildSearchKeyword(specialist);
+    // Return mock doctors (replace this with real API call if available)
+    return _generateMockDoctors(latitude, longitude, specialist);
+  }
 
-      final url = Uri.parse(
-        'https://maps.googleapis.com/maps/api/place/nearbysearch/json'
-            '?location=$latitude,$longitude'
-            '&radius=$radius'
-            '&type=doctor'
-            '&keyword=$keyword'
-            '&key=$_placesApiKey',
+  List<DoctorModel> _generateMockDoctors(
+      double lat, double lng, String specialist) {
+    const offsets = [
+      [0.008, 0.005],
+      [-0.006, 0.010],
+      [0.012, -0.003],
+      [-0.009, -0.008],
+      [0.003, 0.015],
+    ];
+
+    final names = [
+      'Dr. Anika Sharma',
+      'Dr. Rajesh Patel',
+      'Dr. Priya Menon',
+      'Dr. Arjun Singh',
+      'Dr. Deepa Nair',
+    ];
+
+    final hospitals = [
+      'City Care Hospital, MG Road',
+      'Apollo Clinic, Sector 17',
+      'Max Healthcare, Ring Road',
+      'Fortis Medical Centre, Phase 2',
+      'Medanta Clinic, Civil Lines',
+    ];
+
+    final phones = [
+      '+91 98765 43210',
+      '+91 87654 32109',
+      '+91 76543 21098',
+      '+91 65432 10987',
+      '+91 54321 09876',
+    ];
+
+    final fees = [500.0, 700.0, 600.0, 800.0, 550.0];
+    final experiences = [
+      '8 years',
+      '12 years',
+      '6 years',
+      '15 years',
+      '10 years'
+    ];
+    final ratings = [4.8, 4.6, 4.9, 4.7, 4.5];
+    final reviews = [120, 98, 210, 156, 87];
+
+    final slots = [
+      ['10:00 AM', '11:30 AM', '2:00 PM', '4:30 PM'],
+      ['9:00 AM', '10:30 AM', '3:00 PM', '5:00 PM'],
+      ['11:00 AM', '1:00 PM', '3:30 PM', '6:00 PM'],
+      ['9:30 AM', '12:00 PM', '2:30 PM', '4:00 PM'],
+      ['10:00 AM', '12:30 PM', '3:00 PM', '5:30 PM'],
+    ];
+
+    return List.generate(5, (i) {
+      final dLat = lat + offsets[i][0];
+      final dLng = lng + offsets[i][1];
+      final dist = Geolocator.distanceBetween(lat, lng, dLat, dLng) / 1000;
+
+      return DoctorModel(
+        placeId: 'mock_doctor_$i',
+        name: names[i],
+        specialization: specialist,
+        address: hospitals[i],
+        latitude: dLat,
+        longitude: dLng,
+        rating: ratings[i],
+        reviewCount: reviews[i],
+        distanceKm: double.parse(dist.toStringAsFixed(1)),
+        isAvailableToday: i != 2,
+        availableSlots: slots[i],
+        phone: phones[i],
+        experience: experiences[i],
+        consultationFee: fees[i],
       );
-
-      print('📍 Searching for: $keyword near ($latitude, $longitude)');
-      final response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        if (data['status'] == 'OK') {
-          final List results = data['results'] ?? [];
-          print('✅ Found ${results.length} doctors');
-
-          return results
-              .take(10) // Top 10 results
-              .map((json) => DoctorModel.fromPlacesJson(json))
-              .toList();
-        } else {
-          print('⚠️ Places API returned status: ${data['status']}');
-          return [];
-        }
-      } else {
-        print('❌ Places API error: ${response.statusCode}');
-        return [];
-      }
-    } catch (e) {
-      print('❌ Error finding doctors: $e');
-      return [];
-    }
-  }
-
-  /// Build search keyword based on specialist type
-  String _buildSearchKeyword(String specialist) {
-    final Map<String, String> specialistKeywords = {
-      'General Physician': 'general physician clinic',
-      'ENT Specialist': 'ent specialist doctor',
-      'Cardiologist': 'cardiologist heart doctor',
-      'Neurologist': 'neurologist brain doctor',
-      'Dermatologist': 'dermatologist skin doctor',
-      'Gastroenterologist': 'gastroenterologist stomach doctor',
-      'Orthopedic': 'orthopedic bone doctor',
-      'Pulmonologist': 'pulmonologist lung doctor',
-      'Psychiatrist': 'psychiatrist mental health',
-      'Gynecologist': 'gynecologist women doctor',
-      'Urologist': 'urologist kidney doctor',
-      'Ophthalmologist': 'ophthalmologist eye doctor',
-      'Pediatrician': 'pediatrician child doctor',
-    };
-
-    return specialistKeywords[specialist] ?? 'doctor clinic';
-  }
-
-  /// Get distance between two points in km
-  double calculateDistance(
-      double lat1,
-      double lon1,
-      double lat2,
-      double lon2,
-      ) {
-    return Geolocator.distanceBetween(lat1, lon1, lat2, lon2) / 1000; // km
+    });
   }
 }

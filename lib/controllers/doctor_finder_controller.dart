@@ -17,6 +17,8 @@ class DoctorFinderController extends GetxController {
   final RxString errorMessage = ''.obs;
   final Rx<Position?> userLocation = Rx<Position?>(null);
   final RxSet<Marker> markers = <Marker>{}.obs;
+  final RxBool showMap = true.obs;
+  final Rx<DoctorModel?> selectedDoctor = Rx<DoctorModel?>(null);
 
   GoogleMapController? mapController;
 
@@ -37,12 +39,11 @@ class DoctorFinderController extends GetxController {
 
       if (position == null) {
         errorMessage.value =
-            'Could not get your location.\n\nPlease enable location services.';
+            'Could not get your location.\nPlease enable location services.';
         return;
       }
 
       userLocation.value = position;
-
       await _searchWithCoordinates(position.latitude, position.longitude);
     } catch (e) {
       errorMessage.value = 'Error finding doctors: $e';
@@ -52,6 +53,7 @@ class DoctorFinderController extends GetxController {
   }
 
   Future<void> searchDoctorsByLocation(String location) async {
+    if (location.trim().isEmpty) return;
     isLoading.value = true;
     errorMessage.value = '';
     doctors.clear();
@@ -61,12 +63,11 @@ class DoctorFinderController extends GetxController {
       final locations = await locationFromAddress(location);
 
       if (locations.isEmpty) {
-        errorMessage.value = 'Location not found.';
+        errorMessage.value = 'Location not found. Try a different area.';
         return;
       }
 
       final loc = locations.first;
-
       await _searchWithCoordinates(loc.latitude, loc.longitude);
     } catch (e) {
       errorMessage.value = 'Failed to search location: $e';
@@ -85,7 +86,7 @@ class DoctorFinderController extends GetxController {
 
     if (foundDoctors.isEmpty) {
       errorMessage.value =
-          'No doctors found here.\n\nTry searching another location.';
+          'No doctors found nearby.\nTry searching another location.';
     } else {
       doctors.value = foundDoctors;
       _createMarkers();
@@ -94,7 +95,6 @@ class DoctorFinderController extends GetxController {
 
   void _createMarkers() {
     final Set<Marker> newMarkers = {};
-
     for (final doctor in doctors) {
       newMarkers.add(
         Marker(
@@ -102,17 +102,22 @@ class DoctorFinderController extends GetxController {
           position: LatLng(doctor.latitude, doctor.longitude),
           infoWindow: InfoWindow(
             title: doctor.name,
-            snippet: doctor.address,
+            snippet: '${doctor.specialization} • ⭐ ${doctor.rating}',
           ),
-          icon: BitmapDescriptor.defaultMarkerWithHue(
-            BitmapDescriptor.hueRed,
-          ),
-          onTap: () => openInGoogleMaps(doctor),
+          icon:
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+          onTap: () {
+            selectedDoctor.value = doctor;
+          },
         ),
       );
     }
-
     markers.value = newMarkers;
+  }
+
+  void selectDoctor(DoctorModel doctor) {
+    selectedDoctor.value = doctor;
+    Get.toNamed('/doctor-details', arguments: {'doctor': doctor});
   }
 
   Future<void> openInGoogleMaps(DoctorModel doctor) async {
@@ -121,13 +126,14 @@ class DoctorFinderController extends GetxController {
       '&query=${doctor.latitude},${doctor.longitude}'
       '&query_place_id=${doctor.placeId}',
     );
-
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     } else {
       Get.snackbar('Error', 'Could not open Google Maps');
     }
   }
+
+  void toggleView() => showMap.value = !showMap.value;
 
   @override
   void onClose() {

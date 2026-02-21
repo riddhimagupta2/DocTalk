@@ -17,9 +17,7 @@ class ChatController extends GetxController {
   final RxBool showDoctorFinder = false.obs;
   final Rx<AssessmentData?> currentAssessment = Rx<AssessmentData?>(null);
 
-  // ══════════════════════════════════════════════════
-  // 🛡️ DUPLICATE SEND PROTECTION
-  // ══════════════════════════════════════════════════
+  // Duplicate send protection
   bool _isSending = false;
   String? _lastSentMessage;
 
@@ -32,8 +30,14 @@ class ChatController extends GetxController {
   void _startSession() {
     // Add initial greeting message
     messages.add(ChatMessage.ai(
-      'Namaste! 🙏 Main MediSaathi hoon — aapka AI health companion.\n\nAaj aap kaisa feel kar rahe hain? Please mujhe batayein ki aap kya symptoms feel kar rahe hain. Main aapki poori koshish se help karoonga.',
-      quickReplies: ['Sar dard hai', 'Bukhar hai', 'Pet mein dard', 'Khasi / Nazla', 'Kuch aur'],
+      'Namaste! 🙏 Main DocTalk hoon — aapka AI health companion.\n\nAaj aap kaisa feel kar rahe hain? Please mujhe batayein ki aap kya symptoms feel kar rahe hain. Main aapki poori koshish se help karoonga.',
+      quickReplies: [
+        'Sar dard hai',
+        'Bukhar hai',
+        'Pet mein dard',
+        'Khasi / Nazla',
+        'Kuch aur'
+      ],
     ));
     isSessionStarted.value = true;
   }
@@ -43,58 +47,52 @@ class ChatController extends GetxController {
     if (trimmedText.isEmpty) return;
 
     // ══════════════════════════════════════════════════
-    // 🔒 PROTECTION 1: Block if already sending
+    // 🔒 DUPLICATE SEND PROTECTION
     // ══════════════════════════════════════════════════
     if (_isSending) {
-      print('⚠️ ChatController: Blocked duplicate send - already processing');
+      print('⚠️ Blocked duplicate send');
       return;
     }
 
-    // ══════════════════════════════════════════════════
-    // 🔒 PROTECTION 2: Block exact duplicate message
-    // ══════════════════════════════════════════════════
     if (_lastSentMessage == trimmedText) {
-      print('⚠️ ChatController: Blocked exact duplicate: "$trimmedText"');
+      print('⚠️ Blocked exact duplicate');
       await Future.delayed(const Duration(seconds: 1));
     }
 
     // ══════════════════════════════════════════════════
-    // 🚨 SPECIAL HANDLING: Doctor Finder Trigger
-    // Open map IMMEDIATELY without AI response
+    // 🚨 SPECIAL: Doctor Finder Trigger (BEFORE AI call)
     // ══════════════════════════════════════════════════
     if (_isDoctorFinderTrigger(trimmedText)) {
-      print('✅ Doctor finder triggered! Opening map...');
+      print('✅ Doctor finder triggered!');
 
-      // Add user message to chat
       final userMessage = ChatMessage.user(trimmedText);
       messages.add(userMessage);
       _saveMessageToFirebase(userMessage);
 
-      // Add confirmation message (no AI needed)
+      // Add confirmation message
       final confirmMsg = ChatMessage.ai(
-        'Bilkul! Main aapko nearby doctors dikha raha hoon Google Maps par. Ek second... 🗺️',
+        'Bilkul! Main aapko nearby doctors Google Maps par dikha raha hoon... 🗺️',
       );
       messages.add(confirmMsg);
 
-      // Wait a tiny moment for smooth transition
-      await Future.delayed(const Duration(milliseconds: 300));
+      await Future.delayed(const Duration(milliseconds: 500));
 
       // Navigate to doctor finder
       Get.toNamed('/doctor-finder', arguments: {
-        'specialist': currentAssessment.value?.recommendedSpecialist ?? 'General Physician',
+        'specialist': currentAssessment.value?.recommendedSpecialist ??
+            'General Physician',
       });
 
       return; // Stop here - don't send to AI
     }
 
     // ══════════════════════════════════════════════════
-    // 🔐 LOCK SENDING (for regular messages)
+    // 🔐 LOCK SENDING
     // ══════════════════════════════════════════════════
     _isSending = true;
     _lastSentMessage = trimmedText;
 
     try {
-      // Add user message to chat
       final userMessage = ChatMessage.user(trimmedText);
       messages.add(userMessage);
 
@@ -103,7 +101,7 @@ class ChatController extends GetxController {
         await _createFirebaseSession(trimmedText);
       }
 
-      // Save user message to Firebase
+      // Save user message
       _saveMessageToFirebase(userMessage);
 
       // Show typing indicator
@@ -119,7 +117,7 @@ class ChatController extends GetxController {
       messages.removeWhere((m) => m.isTyping);
       isTyping.value = false;
 
-      // If response is an error (like quota exceeded), show it
+      // If error response
       if (response.isError) {
         final errorMsg = ChatMessage.ai(response.text);
         messages.add(errorMsg);
@@ -127,10 +125,11 @@ class ChatController extends GetxController {
       }
 
       // ══════════════════════════════════════════════════
-      // Handle successful response
+      // HANDLE ASSESSMENT
       // ══════════════════════════════════════════════════
-
       if (response.hasAssessment) {
+        print('✅ Assessment received!');
+
         // Add the summary text message
         final summaryMsg = ChatMessage.ai(
           response.text,
@@ -139,7 +138,7 @@ class ChatController extends GetxController {
         messages.add(summaryMsg);
         _saveMessageToFirebase(summaryMsg);
 
-        // Add assessment card
+        // ✨ ADD ASSESSMENT CARD
         final assessmentMsg = ChatMessage.assessment(response.assessment!);
         messages.add(assessmentMsg);
         currentAssessment.value = response.assessment;
@@ -153,7 +152,7 @@ class ChatController extends GetxController {
           );
         }
 
-        // Show doctor finder prompt after a short delay
+        // ✨ SHOW DOCTOR FINDER PROMPT with QUICK REPLY BUTTON
         await Future.delayed(const Duration(milliseconds: 800));
         final doctorPromptMsg = ChatMessage.ai(
           'Kya aap apne paas ke ${response.assessment!.recommendedSpecialist} ko dhundna chahenge? Main aapko best doctors Google Maps par dikha sakta hoon. 🗺️',
@@ -174,9 +173,7 @@ class ChatController extends GetxController {
         messages.add(aiMsg);
         _saveMessageToFirebase(aiMsg);
       }
-
     } catch (e) {
-      // Handle any unexpected errors
       messages.removeWhere((m) => m.isTyping);
       isTyping.value = false;
 
@@ -186,12 +183,8 @@ class ChatController extends GetxController {
       messages.add(errorMsg);
       print('❌ ChatController error: $e');
     } finally {
-      // ══════════════════════════════════════════════════
-      // 🔓 UNLOCK - allow next send
-      // ══════════════════════════════════════════════════
       _isSending = false;
 
-      // Clear last sent message after 2 seconds
       Future.delayed(const Duration(seconds: 2), () {
         if (_lastSentMessage == trimmedText) {
           _lastSentMessage = null;
@@ -206,7 +199,7 @@ class ChatController extends GetxController {
   bool _isDoctorFinderTrigger(String text) {
     final lowerText = text.toLowerCase();
 
-    // Exact matches
+    // Exact button text match
     if (text == '📍 Haan, Doctor Dhundho') return true;
 
     // Contains keywords
@@ -215,7 +208,8 @@ class ChatController extends GetxController {
         lowerText.contains('doctor dhundo') ||
         lowerText.contains('find doctor') ||
         lowerText.contains('doctor dikhao') ||
-        lowerText.contains('doctor batao')) {
+        lowerText.contains('doctor batao') ||
+        lowerText.contains('doctor dikha')) {
       return true;
     }
 
@@ -230,7 +224,7 @@ class ChatController extends GetxController {
       );
       sessionId.value = id;
     } catch (e) {
-      print('❌ Error creating Firebase session: $e');
+      debugPrint('Error creating session: $e');
     }
   }
 
@@ -246,7 +240,7 @@ class ChatController extends GetxController {
         message: message,
       );
     } catch (e) {
-      print('❌ Error saving message to Firebase: $e');
+      print('❌ Error saving message: $e');
     }
   }
 
@@ -268,4 +262,9 @@ class ChatController extends GetxController {
     _lastSentMessage = null;
     super.onClose();
   }
+}
+
+void debugPrint(String message) {
+  // ignore: avoid_print
+  print(message);
 }
