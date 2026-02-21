@@ -5,7 +5,7 @@ import '../models/chat_message_model.dart';
 
 class GeminiService {
   // ⚠️ YOUR GEMINI API KEY
-  static const String _apiKey = String.fromEnvironment('GEMINI_API');
+  static const String _apiKey = String.fromEnvironment('API_KEY');
 
 
   static const String _systemPrompt = '''
