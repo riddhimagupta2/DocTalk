@@ -10,7 +10,6 @@ class AuthController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Observables
   final Rx<User?> firebaseUser = Rx<User?>(null);
   final Rx<UserModel?> userModel = Rx<UserModel?>(null);
   final RxBool isLoading = false.obs;
@@ -18,18 +17,16 @@ class AuthController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Bind firebase user stream
+
     firebaseUser.bindStream(_auth.authStateChanges());
     ever(firebaseUser, _setInitialScreen);
   }
 
   void _setInitialScreen(User? user) async {
     if (user == null) {
-      // Not logged in
       await Future.delayed(const Duration(milliseconds: 500));
       Get.offAllNamed(AppRoutes.login);
     } else {
-      // Logged in - fetch user data
       await _fetchUserData(user.uid);
       await Future.delayed(const Duration(milliseconds: 500));
       Get.offAllNamed(AppRoutes.home);
@@ -47,7 +44,7 @@ class AuthController extends GetxController {
     }
   }
 
-  // ── SIGN UP ──
+  // SIGN UP
   Future<void> signUp({
     required String name,
     required String email,
@@ -56,17 +53,14 @@ class AuthController extends GetxController {
     try {
       isLoading.value = true;
 
-      // Create user with Firebase Auth
-      final UserCredential credential = await _auth
-          .createUserWithEmailAndPassword(
-            email: email.trim(),
-            password: password.trim(),
-          );
+      final UserCredential credential =
+          await _auth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password.trim(),
+      );
 
-      // Update display name
       await credential.user?.updateDisplayName(name.trim());
 
-      // Save user data to Firestore
       final newUser = UserModel(
         uid: credential.user!.uid,
         name: name.trim(),
@@ -82,7 +76,7 @@ class AuthController extends GetxController {
       userModel.value = newUser;
 
       Get.snackbar(
-        'Welcome to MediSaathi! 🎉',
+        'Welcome to DocTalk!',
         'Account created successfully, ${name.split(' ').first}!',
         backgroundColor: AppColors.primary,
         colorText: AppColors.white,
@@ -101,7 +95,7 @@ class AuthController extends GetxController {
     }
   }
 
-  // ── LOGIN ──
+  // LOGIN
   Future<void> login({required String email, required String password}) async {
     try {
       isLoading.value = true;
@@ -131,7 +125,7 @@ class AuthController extends GetxController {
     }
   }
 
-  // ── LOGOUT ──
+  // LOGOUT
   Future<void> logout() async {
     try {
       await _auth.signOut();
@@ -141,7 +135,7 @@ class AuthController extends GetxController {
     }
   }
 
-  // ── ERROR HANDLING ──
+  // ERROR HANDLING
   void _handleAuthError(FirebaseAuthException e) {
     String message;
     switch (e.code) {

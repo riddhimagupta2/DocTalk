@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/auth_controller.dart';
 import '../../resources/AppTheme.dart';
+import '../../resources/constants.dart';
 import '../../widgets/CustomWidgets/custom_button.dart';
 import '../../widgets/CustomWidgets/custom_textfields.dart';
 
@@ -105,7 +106,7 @@ class _SignupScreenState extends State<SignupScreen>
 
                   // Title
                   const Text(
-                    'Join\nMediSaathi 🌿',
+                    'Join\nDocTalk 🌿',
                     style: TextStyle(
                       fontSize: 36,
                       fontWeight: FontWeight.w800,
@@ -263,7 +264,7 @@ class _SignupScreenState extends State<SignupScreen>
 
                   const SizedBox(height: 20),
 
-                  // Login redirect
+                  // Login
                   Center(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,

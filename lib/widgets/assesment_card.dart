@@ -124,7 +124,7 @@ class AssessmentCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Likely Conditions
+
                 _SectionLabel(label: 'Possible Conditions'),
                 const SizedBox(height: 8),
                 Wrap(
@@ -146,7 +146,6 @@ class AssessmentCard extends StatelessWidget {
 
                 const SizedBox(height: 12),
 
-                // Recommended specialist
                 _InfoRow(
                   icon: '👨‍⚕️',
                   label: 'Consult',
@@ -162,9 +161,7 @@ class AssessmentCard extends StatelessWidget {
                   const SizedBox(height: 16),
                   _SectionLabel(label: 'Home Care Tips'),
                   const SizedBox(height: 8),
-                  ...assessment.homeCare
-                      .take(3)
-                      .map(
+                  ...assessment.homeCare.take(3).map(
                         (tip) => Padding(
                           padding: const EdgeInsets.only(bottom: 6),
                           child: Row(
@@ -218,9 +215,7 @@ class AssessmentCard extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 6),
-                        ...assessment.redFlags
-                            .take(2)
-                            .map(
+                        ...assessment.redFlags.take(2).map(
                               (flag) => Padding(
                                 padding: const EdgeInsets.only(top: 4),
                                 child: Text(
@@ -347,8 +342,7 @@ class _InfoRow extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 value,
-                style:
-                    valueStyle ??
+                style: valueStyle ??
                     const TextStyle(
                       fontSize: 13,
                       color: AppColors.textSecondary,

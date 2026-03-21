@@ -1,14 +1,14 @@
 class AppRoutes {
-  // ── Auth ────────────────────────────────────────────────
+  // Auth
   static const splash = '/splash';
   static const login = '/login';
   static const signup = '/signup';
 
-  // ── Core ────────────────────────────────────────────────
+  // Core
   static const home = '/home';
   static const chat = '/chat';
 
-  // ── Doctor Finder + Booking ──────────────────────────────
+  // Doctor Finder + Booking
   static const doctorFinder = '/doctor-finder';
   static const doctorDetails = '/doctor-details';
   static const booking = '/booking';

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../controllers/auth_controller.dart';
 import '../../resources/AppRoutes.dart';
 import '../../resources/AppTheme.dart';
+import '../../resources/constants.dart';
 import '../../widgets/CustomWidgets/custom_button.dart';
 import '../../widgets/CustomWidgets/custom_textfields.dart';
 
@@ -195,7 +196,7 @@ class _LoginScreenState extends State<LoginScreen>
 
                   const SizedBox(height: 24),
 
-                  // Sign Up redirect
+
                   Center(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,

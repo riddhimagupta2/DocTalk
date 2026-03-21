@@ -29,7 +29,7 @@ class _BookingScreenState extends State<BookingScreen> {
   @override
   void initState() {
     super.initState();
-    // ── Safe argument extraction ─────────────────────────
+
     final args = Get.arguments;
     if (args is Map) {
       _doctor = args['doctor'] as DoctorModel?;
@@ -51,8 +51,8 @@ class _BookingScreenState extends State<BookingScreen> {
 
   bool get _canBook =>
       _selectedDate != null &&
-          _selectedSlot.isNotEmpty &&
-          _nameCtrl.text.trim().isNotEmpty;
+      _selectedSlot.isNotEmpty &&
+      _nameCtrl.text.trim().isNotEmpty;
 
   Future<void> _confirmBooking() async {
     if (_doctor == null) {
@@ -92,7 +92,6 @@ class _BookingScreenState extends State<BookingScreen> {
       );
 
       await _appointmentService.saveAppointment(appointment);
-
 
       Get.toNamed(
         AppRoutes.bookingConfirmation,
@@ -139,8 +138,8 @@ class _BookingScreenState extends State<BookingScreen> {
                     fontWeight: FontWeight.w800,
                     fontFamily: 'Lato')),
             Text('Fill in the details below',
-                style: TextStyle(
-                    color: AppColors.textSecondary, fontSize: 11.5)),
+                style:
+                    TextStyle(color: AppColors.textSecondary, fontSize: 11.5)),
           ],
         ),
         bottom: PreferredSize(
@@ -153,7 +152,6 @@ class _BookingScreenState extends State<BookingScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Doctor mini card ──────────────────────────────────
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
@@ -162,8 +160,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   AppColors.primary.withOpacity(0.08)
                 ]),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                    color: AppColors.primary.withOpacity(0.2)),
+                border: Border.all(color: AppColors.primary.withOpacity(0.2)),
               ),
               child: Row(children: [
                 Container(
@@ -195,8 +192,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       if (fee > 0)
                         Text('₹$fee consultation fee',
                             style: const TextStyle(
-                                color: AppColors.textSecondary,
-                                fontSize: 12)),
+                                color: AppColors.textSecondary, fontSize: 12)),
                     ],
                   ),
                 ),
@@ -205,7 +201,6 @@ class _BookingScreenState extends State<BookingScreen> {
 
             const SizedBox(height: 24),
 
-            // ── Date selector ─────────────────────────────────────
             _sectionTitle(Icons.calendar_month_rounded, 'Select Date'),
             const SizedBox(height: 12),
             SizedBox(
@@ -217,8 +212,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   final date = _next7Days[i];
                   final isSel = _selectedDate != null &&
                       DateUtils.isSameDay(_selectedDate, date);
-                  final isToday =
-                  DateUtils.isSameDay(date, DateTime.now());
+                  final isToday = DateUtils.isSameDay(date, DateTime.now());
 
                   return GestureDetector(
                     onTap: () => setState(() {
@@ -230,23 +224,19 @@ class _BookingScreenState extends State<BookingScreen> {
                       margin: const EdgeInsets.only(right: 9),
                       width: 58,
                       decoration: BoxDecoration(
-                        color:
-                        isSel ? AppColors.primary : AppColors.white,
+                        color: isSel ? AppColors.primary : AppColors.white,
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                          color: isSel
-                              ? AppColors.primary
-                              : AppColors.border,
+                          color: isSel ? AppColors.primary : AppColors.border,
                           width: isSel ? 2 : 1,
                         ),
                         boxShadow: isSel
                             ? [
-                          BoxShadow(
-                              color: AppColors.primary
-                                  .withOpacity(0.25),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3))
-                        ]
+                                BoxShadow(
+                                    color: AppColors.primary.withOpacity(0.25),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 3))
+                              ]
                             : [],
                       ),
                       child: Column(
@@ -266,9 +256,8 @@ class _BookingScreenState extends State<BookingScreen> {
                           Text(
                             DateFormat('d').format(date),
                             style: TextStyle(
-                              color: isSel
-                                  ? Colors.white
-                                  : AppColors.textPrimary,
+                              color:
+                                  isSel ? Colors.white : AppColors.textPrimary,
                               fontSize: 20,
                               fontWeight: FontWeight.w800,
                               fontFamily: 'Lato',
@@ -280,9 +269,7 @@ class _BookingScreenState extends State<BookingScreen> {
                               height: 5,
                               margin: const EdgeInsets.only(top: 2),
                               decoration: BoxDecoration(
-                                color: isSel
-                                    ? Colors.white
-                                    : AppColors.primary,
+                                color: isSel ? Colors.white : AppColors.primary,
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -296,78 +283,70 @@ class _BookingScreenState extends State<BookingScreen> {
 
             const SizedBox(height: 24),
 
-            // ── Time slot selector ────────────────────────────────
             _sectionTitle(Icons.access_time_rounded, 'Select Time Slot'),
             const SizedBox(height: 12),
             slots.isEmpty
                 ? Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: AppColors.error.withOpacity(0.07),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Row(children: [
-                Icon(Icons.info_outline,
-                    color: AppColors.error, size: 16),
-                SizedBox(width: 8),
-                Text('No slots available for this doctor',
-                    style: TextStyle(color: AppColors.error)),
-              ]),
-            )
-                : Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: slots.map((slot) {
-                final isSel = _selectedSlot == slot;
-                return GestureDetector(
-                  onTap: () =>
-                      setState(() => _selectedSlot = slot),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 11),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: isSel
-                          ? AppColors.primary
-                          : AppColors.white,
+                      color: AppColors.error.withOpacity(0.07),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: isSel
-                            ? AppColors.primary
-                            : AppColors.border,
-                        width: isSel ? 2 : 1,
-                      ),
-                      boxShadow: isSel
-                          ? [
-                        BoxShadow(
-                            color: AppColors.primary
-                                .withOpacity(0.2),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2))
-                      ]
-                          : [],
                     ),
-                    child: Text(
-                      slot,
-                      style: TextStyle(
-                        color: isSel
-                            ? Colors.white
-                            : AppColors.textPrimary,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
-                        fontFamily: 'Lato',
-                      ),
-                    ),
+                    child: const Row(children: [
+                      Icon(Icons.info_outline,
+                          color: AppColors.error, size: 16),
+                      SizedBox(width: 8),
+                      Text('No slots available for this doctor',
+                          style: TextStyle(color: AppColors.error)),
+                    ]),
+                  )
+                : Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: slots.map((slot) {
+                      final isSel = _selectedSlot == slot;
+                      return GestureDetector(
+                        onTap: () => setState(() => _selectedSlot = slot),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 180),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 11),
+                          decoration: BoxDecoration(
+                            color: isSel ? AppColors.primary : AppColors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color:
+                                  isSel ? AppColors.primary : AppColors.border,
+                              width: isSel ? 2 : 1,
+                            ),
+                            boxShadow: isSel
+                                ? [
+                                    BoxShadow(
+                                        color:
+                                            AppColors.primary.withOpacity(0.2),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2))
+                                  ]
+                                : [],
+                          ),
+                          child: Text(
+                            slot,
+                            style: TextStyle(
+                              color:
+                                  isSel ? Colors.white : AppColors.textPrimary,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                              fontFamily: 'Lato',
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   ),
-                );
-              }).toList(),
-            ),
 
             const SizedBox(height: 24),
 
-            // ── Patient details ───────────────────────────────────
-            _sectionTitle(
-                Icons.person_outline_rounded, 'Your Details'),
+            _sectionTitle(Icons.person_outline_rounded, 'Your Details'),
             const SizedBox(height: 12),
             _AppField(
               controller: _nameCtrl,
@@ -395,7 +374,6 @@ class _BookingScreenState extends State<BookingScreen> {
 
             const SizedBox(height: 32),
 
-            // ── Confirm button ────────────────────────────────────
             SizedBox(
               width: double.infinity,
               height: 54,
@@ -403,7 +381,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 onPressed: _isBooking ? null : _confirmBooking,
                 style: ElevatedButton.styleFrom(
                   backgroundColor:
-                  _canBook ? AppColors.primary : AppColors.textHint,
+                      _canBook ? AppColors.primary : AppColors.textHint,
                   foregroundColor: Colors.white,
                   elevation: _canBook ? 2 : 0,
                   shape: RoundedRectangleBorder(
@@ -415,10 +393,10 @@ class _BookingScreenState extends State<BookingScreen> {
                 ),
                 child: _isBooking
                     ? const SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(
-                        color: Colors.white, strokeWidth: 2.5))
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                            color: Colors.white, strokeWidth: 2.5))
                     : const Text('Confirm Appointment'),
               ),
             ),
@@ -442,8 +420,6 @@ class _BookingScreenState extends State<BookingScreen> {
     ]);
   }
 }
-
-// ── Reusable text field ───────────────────────────────────────────────────────
 
 class _AppField extends StatelessWidget {
   final TextEditingController controller;
@@ -472,16 +448,13 @@ class _AppField extends StatelessWidget {
       keyboardType: keyboardType,
       onChanged: onChanged,
       style: const TextStyle(
-          color: AppColors.textPrimary,
-          fontSize: 14.5,
-          fontFamily: 'Lato'),
+          color: AppColors.textPrimary, fontSize: 14.5, fontFamily: 'Lato'),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        hintStyle:
-        const TextStyle(color: AppColors.textHint, fontSize: 13.5),
-        labelStyle: const TextStyle(
-            color: AppColors.textSecondary, fontSize: 13.5),
+        hintStyle: const TextStyle(color: AppColors.textHint, fontSize: 13.5),
+        labelStyle:
+            const TextStyle(color: AppColors.textSecondary, fontSize: 13.5),
         prefixIcon: Icon(icon, color: AppColors.primary, size: 19),
         filled: true,
         fillColor: AppColors.white,
@@ -495,8 +468,7 @@ class _AppField extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide:
-          const BorderSide(color: AppColors.primary, width: 2),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
         contentPadding: EdgeInsets.symmetric(
             horizontal: 16, vertical: maxLines > 1 ? 14 : 0),

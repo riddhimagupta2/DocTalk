@@ -16,29 +16,26 @@ class MessageBubble extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         mainAxisAlignment:
-        isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+            isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isUser) _buildAvatar(),
           if (!isUser) const SizedBox(width: 8),
           Flexible(
             child: Column(
-              crossAxisAlignment: isUser
-                  ? CrossAxisAlignment.end
-                  : CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     color: isUser ? AppColors.primary : AppColors.white,
                     borderRadius: BorderRadius.only(
                       topLeft: const Radius.circular(18),
                       topRight: const Radius.circular(18),
-                      bottomLeft:
-                      Radius.circular(isUser ? 18 : 4),
-                      bottomRight:
-                      Radius.circular(isUser ? 4 : 18),
+                      bottomLeft: Radius.circular(isUser ? 18 : 4),
+                      bottomRight: Radius.circular(isUser ? 4 : 18),
                     ),
                     boxShadow: [
                       BoxShadow(
@@ -48,9 +45,7 @@ class MessageBubble extends StatelessWidget {
                         offset: const Offset(0, 2),
                       ),
                     ],
-                    border: isUser
-                        ? null
-                        : Border.all(color: AppColors.border),
+                    border: isUser ? null : Border.all(color: AppColors.border),
                   ),
                   constraints: BoxConstraints(
                     maxWidth: MediaQuery.of(context).size.width * 0.72,
@@ -58,9 +53,7 @@ class MessageBubble extends StatelessWidget {
                   child: Text(
                     message.content,
                     style: TextStyle(
-                      color: isUser
-                          ? Colors.white
-                          : AppColors.textPrimary,
+                      color: isUser ? Colors.white : AppColors.textPrimary,
                       fontSize: 15,
                       height: 1.5,
                       fontFamily: 'Lato',

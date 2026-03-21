@@ -136,7 +136,7 @@ class ProfileScreen extends StatelessWidget {
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'MediSaathi provides preliminary health information only. Always consult a qualified medical professional for diagnosis and treatment.',
+                      'DocTalk provides preliminary health information only. Always consult a qualified medical professional for diagnosis and treatment.',
                       style: TextStyle(
                         fontSize: 12,
                         color: AppColors.textSecondary,
@@ -262,7 +262,7 @@ class _ProfileMenuTile extends StatelessWidget {
   }
 }
 
-// Need to import NavController
+
 class NavController extends GetxController {
   final RxInt currentIndex = 0.obs;
 

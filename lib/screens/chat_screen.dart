@@ -26,13 +26,12 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize chat controller fresh for each session
+
     if (Get.isRegistered<ChatController>()) {
       Get.delete<ChatController>();
     }
     _chatController = Get.put(ChatController());
 
-    // If opened with initial symptom (from quick start cards)
     if (widget.initialSymptom != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await Future.delayed(const Duration(milliseconds: 600));
@@ -40,7 +39,6 @@ class _ChatScreenState extends State<ChatScreen> {
       });
     }
 
-    // Auto-scroll on new messages
     _chatController.messages.listen((_) {
       _scrollToBottom();
     });
@@ -80,14 +78,13 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: _buildAppBar(),
       body: Column(
         children: [
-          // Messages list
           Expanded(
             child: Obx(() {
               final messages = _chatController.messages;
               return ListView.builder(
                 controller: _scrollController,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 itemCount: messages.length,
                 itemBuilder: (context, index) {
                   final message = messages[index];
@@ -300,8 +297,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             border: InputBorder.none,
                             enabledBorder: InputBorder.none,
                             focusedBorder: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 12),
+                            contentPadding: EdgeInsets.symmetric(vertical: 12),
                           ),
                           onSubmitted: (_) => _sendMessage(),
                         ),
@@ -316,52 +312,52 @@ class _ChatScreenState extends State<ChatScreen> {
 
               // Send button
               Obx(() => GestureDetector(
-                onTap: _chatController.isTyping.value ? null : _sendMessage,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    gradient: _chatController.isTyping.value
-                        ? null
-                        : const LinearGradient(
-                      colors: [AppColors.primary, Color(0xFF089A97)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    color: _chatController.isTyping.value
-                        ? AppColors.border
-                        : null,
-                    shape: BoxShape.circle,
-                    boxShadow: _chatController.isTyping.value
-                        ? []
-                        : [
-                      BoxShadow(
-                        color: AppColors.primary.withOpacity(0.35),
-                        blurRadius: 10,
-                        offset: const Offset(0, 3),
+                    onTap: _chatController.isTyping.value ? null : _sendMessage,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        gradient: _chatController.isTyping.value
+                            ? null
+                            : const LinearGradient(
+                                colors: [AppColors.primary, Color(0xFF089A97)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                        color: _chatController.isTyping.value
+                            ? AppColors.border
+                            : null,
+                        shape: BoxShape.circle,
+                        boxShadow: _chatController.isTyping.value
+                            ? []
+                            : [
+                                BoxShadow(
+                                  color: AppColors.primary.withOpacity(0.35),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
                       ),
-                    ],
-                  ),
-                  child: _chatController.isTyping.value
-                      ? const Center(
-                    child: SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                            AppColors.textHint),
-                      ),
+                      child: _chatController.isTyping.value
+                          ? const Center(
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      AppColors.textHint),
+                                ),
+                              ),
+                            )
+                          : const Icon(
+                              Icons.send_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                     ),
-                  )
-                      : const Icon(
-                    Icons.send_rounded,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              )),
+                  )),
             ],
           ),
         ),

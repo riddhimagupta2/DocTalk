@@ -13,8 +13,7 @@ class BookingConfirmationScreen extends StatefulWidget {
       _BookingConfirmationScreenState();
 }
 
-class _BookingConfirmationScreenState
-    extends State<BookingConfirmationScreen>
+class _BookingConfirmationScreenState extends State<BookingConfirmationScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animCtrl;
   late Animation<double> _scaleAnim;
@@ -29,10 +28,8 @@ class _BookingConfirmationScreenState
       duration: const Duration(milliseconds: 650),
     );
 
-    _scaleAnim =
-        CurvedAnimation(parent: _animCtrl, curve: Curves.elasticOut);
-    _fadeAnim =
-        CurvedAnimation(parent: _animCtrl, curve: Curves.easeIn);
+    _scaleAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.elasticOut);
+    _fadeAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeIn);
 
     _animCtrl.forward();
   }
@@ -60,14 +57,12 @@ class _BookingConfirmationScreenState
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
-        child: appointment == null
-            ? _buildFallback()
-            : _buildSuccess(appointment),
+        child:
+            appointment == null ? _buildFallback() : _buildSuccess(appointment),
       ),
     );
   }
 
-  /// ---------------- FALLBACK UI ----------------
   Widget _buildFallback() {
     return Center(
       child: Column(
@@ -98,13 +93,11 @@ class _BookingConfirmationScreenState
     );
   }
 
-  /// ---------------- SUCCESS UI ----------------
   Widget _buildSuccess(AppointmentModel appt) {
     final doctor = appt.doctor;
 
-    final bookingId = appt.id.length > 8
-        ? appt.id.substring(appt.id.length - 8)
-        : appt.id;
+    final bookingId =
+        appt.id.length > 8 ? appt.id.substring(appt.id.length - 8) : appt.id;
 
     return FadeTransition(
       opacity: _fadeAnim,
@@ -114,7 +107,7 @@ class _BookingConfirmationScreenState
           children: [
             const SizedBox(height: 40),
 
-            /// Animated Icon
+
             ScaleTransition(
               scale: _scaleAnim,
               child: Container(
@@ -157,7 +150,6 @@ class _BookingConfirmationScreenState
 
             const SizedBox(height: 30),
 
-            /// Booking Details Card
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -176,8 +168,8 @@ class _BookingConfirmationScreenState
               child: Column(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                     decoration: BoxDecoration(
                       color: AppColors.primaryLight,
                       borderRadius: BorderRadius.circular(20),
@@ -191,10 +183,8 @@ class _BookingConfirmationScreenState
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 16),
                   const Divider(color: AppColors.border),
-
                   _DetailRow(
                     icon: Icons.person,
                     label: 'Doctor',
@@ -208,8 +198,7 @@ class _BookingConfirmationScreenState
                   _DetailRow(
                     icon: Icons.calendar_today,
                     label: 'Date',
-                    value: DateFormat('EEEE, d MMM yyyy')
-                        .format(appt.date),
+                    value: DateFormat('EEEE, d MMM yyyy').format(appt.date),
                   ),
                   _DetailRow(
                     icon: Icons.access_time,
@@ -229,8 +218,7 @@ class _BookingConfirmationScreenState
                   _DetailRow(
                     icon: Icons.currency_rupee,
                     label: 'Fee',
-                    value:
-                    '₹${doctor?.consultationFee?.toInt() ?? 0}',
+                    value: '₹${doctor?.consultationFee?.toInt() ?? 0}',
                     isLast: true,
                   ),
                 ],
@@ -239,10 +227,8 @@ class _BookingConfirmationScreenState
 
             const SizedBox(height: 30),
 
-            /// Status
             Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 18, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
               decoration: BoxDecoration(
                 color: AppColors.success.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20),
@@ -250,14 +236,12 @@ class _BookingConfirmationScreenState
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.check_circle,
-                      color: AppColors.success, size: 15),
+                  Icon(Icons.check_circle, color: AppColors.success, size: 15),
                   SizedBox(width: 6),
                   Text(
                     'Confirmed',
                     style: TextStyle(
-                        color: AppColors.success,
-                        fontWeight: FontWeight.w700),
+                        color: AppColors.success, fontWeight: FontWeight.w700),
                   ),
                 ],
               ),
@@ -265,7 +249,6 @@ class _BookingConfirmationScreenState
 
             const SizedBox(height: 25),
 
-            /// Back Button
             SizedBox(
               width: double.infinity,
               height: 52,
@@ -287,15 +270,13 @@ class _BookingConfirmationScreenState
               onPressed: () => Get.toNamed(
                 AppRoutes.doctorFinder,
                 arguments: {
-                  'specialist':
-                  doctor?.specialization ?? '',
+                  'specialist': doctor?.specialization ?? '',
                 },
               ),
               child: const Text(
                 'Book Another Appointment',
                 style: TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600),
+                    color: AppColors.primary, fontWeight: FontWeight.w600),
               ),
             ),
 
@@ -307,7 +288,6 @@ class _BookingConfirmationScreenState
   }
 }
 
-/// ---------------- DETAIL ROW ----------------
 class _DetailRow extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -333,13 +313,11 @@ class _DetailRow extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(label,
                       style: const TextStyle(
-                          color: AppColors.textHint,
-                          fontSize: 11)),
+                          color: AppColors.textHint, fontSize: 11)),
                   const SizedBox(height: 2),
                   Text(value,
                       style: const TextStyle(

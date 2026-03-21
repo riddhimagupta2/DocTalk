@@ -6,7 +6,6 @@ import '../../controllers/community_controller.dart';
 import '../../models/anonymous_chat_model.dart';
 import 'create_post_screen.dart';
 
-
 class CommunityScreen extends StatelessWidget {
   const CommunityScreen({super.key});
 
@@ -73,32 +72,34 @@ class CommunityScreen extends StatelessWidget {
             height: 60,
             color: const Color(0xFF0F0F1E),
             child: Obx(() => ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              children: [
-                _CategoryChip(
-                  label: 'All',
-                  isSelected: controller.selectedCategory.value == null,
-                  onTap: () => controller.clearFilter(),
-                ),
-                ...PostCategory.values.map(
+                  scrollDirection: Axis.horizontal,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  children: [
+                    _CategoryChip(
+                      label: 'All',
+                      isSelected: controller.selectedCategory.value == null,
+                      onTap: () => controller.clearFilter(),
+                    ),
+                    ...PostCategory.values.map(
                       (cat) => _CategoryChip(
-                    label: '${cat.emoji} ${cat.label}',
-                    isSelected: controller.selectedCategory.value == cat,
-                    onTap: () => controller.filterByCategory(cat),
-                  ),
-                ),
-              ],
-            )),
+                        label: '${cat.emoji} ${cat.label}',
+                        isSelected: controller.selectedCategory.value == cat,
+                        onTap: () => controller.filterByCategory(cat),
+                      ),
+                    ),
+                  ],
+                )),
           ),
 
-          // Posts List
+          // Posts
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value && controller.posts.isEmpty) {
                 return const Center(
                   child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF9B59B6)),
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(Color(0xFF9B59B6)),
                   ),
                 );
               }
@@ -114,10 +115,11 @@ class CommunityScreen extends StatelessWidget {
                   return _PostCard(
                     post: controller.posts[index],
                     onTap: () => Get.to(
-                          () => PostDetailScreen(post: controller.posts[index]),
+                      () => PostDetailScreen(post: controller.posts[index]),
                       transition: Transition.rightToLeft,
                     ),
-                    onUpvote: () => controller.upvotePost(controller.posts[index]),
+                    onUpvote: () =>
+                        controller.upvotePost(controller.posts[index]),
                   );
                 },
               );
@@ -127,7 +129,7 @@ class CommunityScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Get.to(
-              () => const CreatePostScreen(),
+          () => const CreatePostScreen(),
           transition: Transition.downToUp,
         ),
         backgroundColor: const Color(0xFF9B59B6),
@@ -276,7 +278,8 @@ class _PostCard extends StatelessWidget {
             // Author info
             Row(
               children: [
-                Text(post.anonymousAvatar, style: const TextStyle(fontSize: 24)),
+                Text(post.anonymousAvatar,
+                    style: const TextStyle(fontSize: 24)),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Column(
@@ -334,7 +337,8 @@ class _PostCard extends StatelessWidget {
                 GestureDetector(
                   onTap: onUpvote,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: const Color(0xFF3A3A4E),
                       borderRadius: BorderRadius.circular(20),
@@ -358,7 +362,8 @@ class _PostCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: const Color(0xFF3A3A4E),
                     borderRadius: BorderRadius.circular(20),

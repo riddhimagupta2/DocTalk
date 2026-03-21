@@ -10,19 +10,16 @@ class DoctorFinderScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Safe args parsing
     Map<String, dynamic>? args;
     try {
       args = Get.arguments as Map<String, dynamic>?;
     } catch (_) {}
     final specialist = args?['specialist'] ?? 'General Physician';
 
-    // Always create fresh controller
     if (Get.isRegistered<DoctorFinderController>()) {
       Get.delete<DoctorFinderController>();
     }
-    final controller =
-    Get.put(DoctorFinderController(specialist: specialist));
+    final controller = Get.put(DoctorFinderController(specialist: specialist));
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -61,12 +58,12 @@ class DoctorFinderScreen extends StatelessWidget {
             ),
           ),
           Obx(() => Text(
-            controller.isLoading.value
-                ? 'Searching...'
-                : '${controller.doctors.length} doctors found',
-            style: const TextStyle(
-                color: AppColors.textSecondary, fontSize: 11.5),
-          )),
+                controller.isLoading.value
+                    ? 'Searching...'
+                    : '${controller.doctors.length} doctors found',
+                style: const TextStyle(
+                    color: AppColors.textSecondary, fontSize: 11.5),
+              )),
         ],
       ),
       actions: [
@@ -89,21 +86,19 @@ class DoctorFinderScreen extends StatelessWidget {
     );
   }
 
-  // ── Main body ─────────────────────────────────────────────────────────
   Widget _mainBody(DoctorFinderController controller) {
     return Column(
       children: [
-        // Custom map — pure Flutter, zero crash
         Obx(() => DoctorMapView(
-          doctors: controller.doctors,
-          userLat: controller.userLat.value,
-          userLng: controller.userLng.value,
-          selectedIndex: controller.selectedIndex.value,
-          onDoctorTap: (i) {
-            if (i >= 0) controller.selectedIndex.value = i;
-          },
-          onOpenMaps: controller.openAllInGoogleMaps,
-        )),
+              doctors: controller.doctors,
+              userLat: controller.userLat.value,
+              userLng: controller.userLng.value,
+              selectedIndex: controller.selectedIndex.value,
+              onDoctorTap: (i) {
+                if (i >= 0) controller.selectedIndex.value = i;
+              },
+              onOpenMaps: controller.openAllInGoogleMaps,
+            )),
 
         // List header
         Container(
@@ -112,14 +107,14 @@ class DoctorFinderScreen extends StatelessWidget {
           child: Row(
             children: [
               Obx(() => Text(
-                '${controller.doctors.length} Nearby ${controller.specialist}s',
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 13.5,
-                  fontFamily: 'Lato',
-                ),
-              )),
+                    '${controller.doctors.length} Nearby ${controller.specialist}s',
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13.5,
+                      fontFamily: 'Lato',
+                    ),
+                  )),
               const Spacer(),
               GestureDetector(
                 onTap: controller.openAllInGoogleMaps,
@@ -144,33 +139,30 @@ class DoctorFinderScreen extends StatelessWidget {
         ),
         Container(height: 1, color: AppColors.border),
 
-        // Doctor cards
         Expanded(
           child: Obx(() => ListView.builder(
-            padding: const EdgeInsets.fromLTRB(14, 10, 14, 24),
-            itemCount: controller.doctors.length,
-            itemBuilder: (_, i) => _DoctorCard(
-              doctor: controller.doctors[i],
-              index: i,
-              isSelected: controller.selectedIndex.value == i,
-              onTap: () => controller.selectDoctor(i),
-              onMaps: () =>
-                  controller.openInGoogleMaps(controller.doctors[i]),
-            ),
-          )),
+                padding: const EdgeInsets.fromLTRB(14, 10, 14, 24),
+                itemCount: controller.doctors.length,
+                itemBuilder: (_, i) => _DoctorCard(
+                  doctor: controller.doctors[i],
+                  index: i,
+                  isSelected: controller.selectedIndex.value == i,
+                  onTap: () => controller.selectDoctor(i),
+                  onMaps: () =>
+                      controller.openInGoogleMaps(controller.doctors[i]),
+                ),
+              )),
         ),
       ],
     );
   }
 
-  // ── Loading ───────────────────────────────────────────────────────────
   Widget _loadingView() {
     return const Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(
-              color: AppColors.primary, strokeWidth: 3),
+          CircularProgressIndicator(color: AppColors.primary, strokeWidth: 3),
           SizedBox(height: 18),
           Text(
             'Aapke paas doctors dhundh rahe hain...',
@@ -184,7 +176,6 @@ class DoctorFinderScreen extends StatelessWidget {
     );
   }
 
-  // ── Error ─────────────────────────────────────────────────────────────
   Widget _errorView(DoctorFinderController controller) {
     return Center(
       child: Padding(
@@ -253,7 +244,6 @@ class DoctorFinderScreen extends StatelessWidget {
     );
   }
 
-  // ── Empty ─────────────────────────────────────────────────────────────
   Widget _emptyView(DoctorFinderController controller) {
     return Center(
       child: Column(
@@ -286,7 +276,6 @@ class DoctorFinderScreen extends StatelessWidget {
     );
   }
 
-  // ── Location dialog ───────────────────────────────────────────────────
   void _locationDialog(DoctorFinderController controller) {
     final tc = TextEditingController();
     Get.defaultDialog(
@@ -308,7 +297,7 @@ class DoctorFinderScreen extends StatelessWidget {
               hintText: 'City ya area likhein',
               hintStyle: const TextStyle(color: AppColors.textHint),
               prefixIcon:
-              const Icon(Icons.location_on, color: AppColors.primary),
+                  const Icon(Icons.location_on, color: AppColors.primary),
               filled: true,
               fillColor: AppColors.background,
               border: OutlineInputBorder(
@@ -347,10 +336,6 @@ class DoctorFinderScreen extends StatelessWidget {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// Doctor Card Widget
-// ══════════════════════════════════════════════════════════════════════════════
-
 class _DoctorCard extends StatelessWidget {
   final DoctorModel doctor;
   final int index;
@@ -375,8 +360,7 @@ class _DoctorCard extends StatelessWidget {
         color: AppColors.white,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color:
-          isSelected ? AppColors.primary : Colors.transparent,
+          color: isSelected ? AppColors.primary : Colors.transparent,
           width: 2,
         ),
         boxShadow: [
@@ -400,7 +384,6 @@ class _DoctorCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Top row ────────────────────────────────────
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -473,9 +456,7 @@ class _DoctorCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            doctor.isAvailableToday
-                                ? 'Available'
-                                : 'Busy',
+                            doctor.isAvailableToday ? 'Available' : 'Busy',
                             style: TextStyle(
                               color: doctor.isAvailableToday
                                   ? AppColors.success
@@ -489,10 +470,7 @@ class _DoctorCard extends StatelessWidget {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 9),
-
-                // ── Address ───────────────────────────────────
                 Row(
                   children: [
                     const Icon(Icons.location_on_outlined,
@@ -508,12 +486,9 @@ class _DoctorCard extends StatelessWidget {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 10),
                 Container(height: 1, color: AppColors.border),
                 const SizedBox(height: 10),
-
-                // ── Stats row ─────────────────────────────────
                 Row(
                   children: [
                     _Chip(
@@ -546,10 +521,7 @@ class _DoctorCard extends StatelessWidget {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 12),
-
-                // ── Book button ───────────────────────────────
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -558,9 +530,8 @@ class _DoctorCard extends StatelessWidget {
                       backgroundColor: isSelected
                           ? AppColors.primary
                           : AppColors.primaryLight,
-                      foregroundColor: isSelected
-                          ? Colors.white
-                          : AppColors.primaryDark,
+                      foregroundColor:
+                          isSelected ? Colors.white : AppColors.primaryDark,
                       elevation: 0,
                       padding: const EdgeInsets.symmetric(vertical: 11),
                       shape: RoundedRectangleBorder(
@@ -586,8 +557,7 @@ class _Chip extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
-  const _Chip(
-      {required this.icon, required this.label, required this.color});
+  const _Chip({required this.icon, required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {

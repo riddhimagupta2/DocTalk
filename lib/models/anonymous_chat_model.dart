@@ -50,16 +50,16 @@ enum PostCategory {
 
 class AnonymousPost {
   final String id;
-  final String authorId; // Firebase UID (hidden from display)
-  final String anonymousName; // Random name like "Brave Butterfly"
-  final String anonymousAvatar; // Random emoji
+  final String authorId;
+  final String anonymousName;
+  final String anonymousAvatar;
   final String title;
   final String content;
   final PostCategory category;
   final DateTime createdAt;
   final int replyCount;
   final int upvoteCount;
-  final List<String> upvoters; // List of user IDs who upvoted
+  final List<String> upvoters;
 
   AnonymousPost({
     required this.id,
@@ -85,7 +85,7 @@ class AnonymousPost {
       title: data['title'] ?? '',
       content: data['content'] ?? '',
       category: PostCategory.values.firstWhere(
-            (c) => c.name == data['category'],
+        (c) => c.name == data['category'],
         orElse: () => PostCategory.other,
       ),
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),

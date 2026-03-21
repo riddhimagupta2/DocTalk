@@ -1,5 +1,6 @@
 import 'package:doctalk/resources/AppRoutes.dart';
 import 'package:doctalk/resources/AppTheme.dart';
+import 'package:doctalk/resources/constants.dart';
 import 'package:doctalk/screens/Auth/login_screen.dart';
 import 'package:doctalk/screens/Auth/signUp_screen.dart';
 import 'package:doctalk/screens/Auth/splash_screen.dart';
@@ -36,11 +37,11 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(const MediSaathiApp());
+  runApp(const DocTalkApp());
 }
 
-class MediSaathiApp extends StatelessWidget {
-  const MediSaathiApp({super.key});
+class DocTalkApp extends StatelessWidget {
+  const DocTalkApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -51,8 +52,7 @@ class MediSaathiApp extends StatelessWidget {
       initialRoute: AppRoutes.splash,
       initialBinding: AppBindings(),
       getPages: [
-        // ── Auth ──────────────────────────────────────────────────
-        GetPage(
+          GetPage(
           name: AppRoutes.splash,
           page: () => const SplashScreen(),
           transition: Transition.fadeIn,
@@ -70,7 +70,6 @@ class MediSaathiApp extends StatelessWidget {
           transitionDuration: const Duration(milliseconds: 300),
         ),
 
-        // ── Core ──────────────────────────────────────────────────
         GetPage(
           name: AppRoutes.home,
           page: () => const HomeScreen(),
@@ -84,8 +83,7 @@ class MediSaathiApp extends StatelessWidget {
           transitionDuration: const Duration(milliseconds: 350),
         ),
 
-        // ── Doctor Finder + Booking ───────────────────────────────
-        GetPage(
+          GetPage(
           name: AppRoutes.doctorFinder,
           page: () => const DoctorFinderScreen(),
           transition: Transition.rightToLeft,

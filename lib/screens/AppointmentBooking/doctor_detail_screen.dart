@@ -9,7 +9,6 @@ class DoctorDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ── Safe argument extraction ───────────────────────────────────────
     final args = Get.arguments;
     DoctorModel? doctor;
 
@@ -17,7 +16,6 @@ class DoctorDetailsScreen extends StatelessWidget {
       doctor = args['doctor'] as DoctorModel?;
     }
 
-    // Fallback — should never happen if navigation is correct
     if (doctor == null) {
       return Scaffold(
         appBar: AppBar(
@@ -53,7 +51,6 @@ class DoctorDetailsScreen extends StatelessWidget {
       backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
-          // ── Hero header ───────────────────────────────────────────
           SliverAppBar(
             expandedHeight: 240,
             pinned: true,
@@ -91,7 +88,8 @@ class DoctorDetailsScreen extends StatelessWidget {
                           color: Colors.white.withOpacity(0.2),
                           shape: BoxShape.circle,
                           border: Border.all(
-                              color: Colors.white.withOpacity(0.45), width: 2.5),
+                              color: Colors.white.withOpacity(0.45),
+                              width: 2.5),
                         ),
                         child: const Icon(Icons.person_rounded,
                             color: Colors.white, size: 44),
@@ -144,22 +142,18 @@ class DoctorDetailsScreen extends StatelessWidget {
               ),
             ),
           ),
-
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── Stats row ──────────────────────────────────────
-                  _StatsRow(doctor: doctor),
+                     _StatsRow(doctor: doctor),
                   const SizedBox(height: 16),
 
-                  // ── Info card ──────────────────────────────────────
-                  _InfoCard(children: [
+                    _InfoCard(children: [
                     _InfoRow(
-                        icon: Icons.location_on_outlined,
-                        text: doctor.address),
+                        icon: Icons.location_on_outlined, text: doctor.address),
                     const _Divider(),
                     _InfoRow(
                         icon: Icons.phone_outlined,
@@ -170,7 +164,7 @@ class DoctorDetailsScreen extends StatelessWidget {
                     _InfoRow(
                         icon: Icons.currency_rupee,
                         text:
-                        'Consultation Fee: ₹${doctor.consultationFee.toInt()}'),
+                            'Consultation Fee: ₹${doctor.consultationFee.toInt()}'),
                     const _Divider(),
                     _InfoRow(
                         icon: Icons.workspace_premium_outlined,
@@ -214,8 +208,7 @@ class DoctorDetailsScreen extends StatelessWidget {
 
                   const SizedBox(height: 32),
 
-                  // ── Book button ────────────────────────────────────
-                  SizedBox(
+                    SizedBox(
                     width: double.infinity,
                     height: 54,
                     child: ElevatedButton(
@@ -250,7 +243,6 @@ class DoctorDetailsScreen extends StatelessWidget {
   }
 }
 
-// ── Sub-widgets ───────────────────────────────────────────────────────────────
 
 class _StatsRow extends StatelessWidget {
   final DoctorModel doctor;
@@ -306,9 +298,9 @@ class _StatItem extends StatelessWidget {
   final Color color;
   const _StatItem(
       {required this.icon,
-        required this.value,
-        required this.label,
-        required this.color});
+      required this.value,
+      required this.label,
+      required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -322,8 +314,8 @@ class _StatItem extends StatelessWidget {
               fontSize: 15,
               fontFamily: 'Lato')),
       Text(label,
-          style: const TextStyle(
-              color: AppColors.textSecondary, fontSize: 11.5)),
+          style:
+              const TextStyle(color: AppColors.textSecondary, fontSize: 11.5)),
     ]);
   }
 }
@@ -347,8 +339,7 @@ class _InfoCard extends StatelessWidget {
         ],
       ),
       child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: children),
+          crossAxisAlignment: CrossAxisAlignment.start, children: children),
     );
   }
 }
@@ -377,8 +368,7 @@ class _InfoRow extends StatelessWidget {
 class _Divider extends StatelessWidget {
   const _Divider();
   @override
-  Widget build(BuildContext context) =>
-      const Padding(
+  Widget build(BuildContext context) => const Padding(
         padding: EdgeInsets.symmetric(vertical: 10),
         child: Divider(height: 1, color: AppColors.border),
       );

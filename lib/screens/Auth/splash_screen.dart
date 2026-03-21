@@ -57,12 +57,11 @@ class _SplashScreenState extends State<SplashScreen>
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeOut));
 
-    // Pulse animation for the background circle
+
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2000),
-    )
-      ..repeat(reverse: true);
+    )..repeat(reverse: true);
     _pulseScale = Tween<double>(begin: 0.95, end: 1.05).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
@@ -74,12 +73,8 @@ class _SplashScreenState extends State<SplashScreen>
     await Future.delayed(const Duration(milliseconds: 500));
     _textController.forward();
 
-    // The AuthController will handle navigation automatically
-    // via the firebaseUser stream listener
-    // But we add a safety fallback
     await Future.delayed(const Duration(milliseconds: 2500));
 
-    // Check if navigation already happened via auth stream
     if (Get.currentRoute == AppRoutes.splash) {
       final authController = Get.find<AuthController>();
       if (authController.isLoggedIn) {
@@ -140,7 +135,6 @@ class _SplashScreenState extends State<SplashScreen>
             ),
           ),
 
-          // Top decoration dots
           Positioned(
             top: 80,
             right: 40,
@@ -245,7 +239,6 @@ class _SplashScreenState extends State<SplashScreen>
             ],
           ),
 
-          // Loading indicator at bottom
           Positioned(
             bottom: 60,
             left: 0,
