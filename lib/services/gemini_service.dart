@@ -1,11 +1,10 @@
 import 'dart:convert';
 import 'package:google_generative_ai/google_generative_ai.dart';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/chat_message_model.dart';
 
 class GeminiService {
-  // ⚠️ YOUR GEMINI API KEY
-  static const String _apiKey = String.fromEnvironment('API_KEY');
+  static String get _apiKey => dotenv.env['GEMINI_API_KEY'] ?? '';
 
   static const String _systemPrompt = '''
 You are DocTalk, a warm and empathetic AI health assistant for Indian users.
@@ -71,9 +70,8 @@ NEVER:
   ChatSession? _chatSession;
   bool _isInitialized = false;
   String? _initError;
-  int _messageCount = 0; // Track conversation length
+  int _messageCount = 0;
 
-  // Anti-duplicate protection
   bool _isProcessing = false;
   DateTime? _lastRequestTime;
 
@@ -84,18 +82,18 @@ NEVER:
   void _initialize() {
     if (_apiKey == 'YOUR_GEMINI_API_KEY_HERE' || _apiKey.trim().isEmpty) {
       _initError = 'API_KEY_MISSING';
-      print('❌ GEMINI API KEY NOT SET!');
+      print('GEMINI API KEY NOT SET!');
       return;
     }
 
     try {
       _model = GenerativeModel(
-        model: 'gemini-2.5-flash', // Or gemini-1.5-flash if 2.0 doesn't work
+        model: 'gemini-2.5-flash',
         apiKey: _apiKey,
         systemInstruction: Content.system(_systemPrompt),
         generationConfig: GenerationConfig(
           temperature: 0.7,
-          maxOutputTokens: 2048, // Increased for longer responses
+          maxOutputTokens: 2048,
           topP: 0.95,
           topK: 40,
         ),
@@ -105,7 +103,7 @@ NEVER:
       print('✅ DocTalk: Gemini AI ready!');
     } catch (e) {
       _initError = e.toString();
-      print('❌ Gemini init error: $e');
+      print('Gemini init error: $e');
     }
   }
 
@@ -123,7 +121,6 @@ NEVER:
   }
 
   Future<GeminiResponse> sendMessage(String userMessage) async {
-    // Anti-spam protection
     if (_isProcessing) {
       print('⚠️ Blocked duplicate request');
       return GeminiResponse(
@@ -169,9 +166,6 @@ NEVER:
       _messageCount++;
       print('📤 Message #$_messageCount: "$userMessage"');
 
-      // ══════════════════════════════════════════════════
-      // 🎯 FORCE ASSESSMENT AFTER 4 MESSAGES
-      // ══════════════════════════════════════════════════
       String promptMessage = userMessage;
       if (_messageCount >= 4) {
         promptMessage =
@@ -194,12 +188,12 @@ NEVER:
 
       return _parseResponse(rawText);
     } on GenerativeAIException catch (e) {
-      print('❌ Gemini API error: ${e.message}');
+      print('Gemini API error: ${e.message}');
 
       if (e.message.contains('API key not valid') ||
           e.message.contains('API_KEY_INVALID')) {
         return GeminiResponse(
-          text: '❌ Invalid API Key!\n\nYour key is wrong or expired.',
+          text: 'Invalid API Key!\n\nYour key is wrong or expired.',
           quickReplies: [],
           isError: true,
         );
@@ -216,7 +210,7 @@ NEVER:
 
       if (e.message.toLowerCase().contains('not found')) {
         return GeminiResponse(
-          text: '❌ Model not found. Try gemini-1.5-flash instead.',
+          text: 'Model not found. Try gemini-1.5-flash instead.',
           quickReplies: [],
           isError: true,
         );
@@ -228,14 +222,14 @@ NEVER:
         isError: true,
       );
     } on FormatException catch (e) {
-      print('❌ Format error: $e');
+      print('Format error: $e');
       return GeminiResponse(
         text: 'Response format error. Please try again.',
         quickReplies: [],
         isError: false,
       );
     } catch (e) {
-      print('❌ Unexpected error: $e');
+      print('Unexpected error: $e');
       return GeminiResponse(
         text: 'Unexpected error: $e',
         quickReplies: [],
@@ -251,9 +245,6 @@ NEVER:
     List<String> quickReplies = [];
     String cleanText = rawText;
 
-    // ══════════════════════════════════════════════════
-    // PARSE ASSESSMENT JSON
-    // ══════════════════════════════════════════════════
     if (rawText.contains('<ASSESSMENT>') && rawText.contains('</ASSESSMENT>')) {
       final start = rawText.indexOf('<ASSESSMENT>') + '<ASSESSMENT>'.length;
       final end = rawText.indexOf('</ASSESSMENT>');
@@ -272,20 +263,16 @@ NEVER:
             print('✅ Assessment parsed successfully!');
           }
         } catch (e) {
-          print('❌ Assessment parse error: $e');
-          print('❌ JSON was: $jsonStr');
+          print('Assessment parse error: $e');
+          print('JSON was: $jsonStr');
         }
       }
 
-      // Remove ASSESSMENT block from visible text
       cleanText = cleanText
           .replaceAll(RegExp(r'<ASSESSMENT>.*?</ASSESSMENT>', dotAll: true), '')
           .trim();
     }
 
-    // ══════════════════════════════════════════════════
-    // PARSE QUICK REPLIES
-    // ══════════════════════════════════════════════════
     if (cleanText.contains('[QUICK_REPLIES:')) {
       final qrStart = cleanText.indexOf('[QUICK_REPLIES:');
       final qrEnd = cleanText.indexOf(']', qrStart);
@@ -316,7 +303,6 @@ NEVER:
     );
   }
 
-  // For anonymous chat (optional)
   Future<GeminiResponse> sendAnonymousMessage(String userMessage) async {
     return sendMessage('[ANONYMOUS MODE] $userMessage');
   }

@@ -263,7 +263,7 @@ class _LoginScreenState extends State<LoginScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'MediSaathi',
+              'DocTalk',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
