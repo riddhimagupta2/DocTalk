@@ -10,26 +10,39 @@ class AuthController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  // Observables
   final Rx<User?> firebaseUser = Rx<User?>(null);
   final Rx<UserModel?> userModel = Rx<UserModel?>(null);
   final RxBool isLoading = false.obs;
 
+   bool _skipNextAuthRoute = false;
+
   @override
   void onInit() {
     super.onInit();
-
     firebaseUser.bindStream(_auth.authStateChanges());
     ever(firebaseUser, _setInitialScreen);
   }
 
   void _setInitialScreen(User? user) async {
+    // If a signup method will handle navigation itself, skip
+    if (_skipNextAuthRoute) {
+      _skipNextAuthRoute = false;
+      return;
+    }
+
     if (user == null) {
       await Future.delayed(const Duration(milliseconds: 500));
-      Get.offAllNamed(AppRoutes.login);
+      Get.offAllNamed(AppRoutes.roleSelection);
     } else {
+      // Returning user — fetch role and route
       await _fetchUserData(user.uid);
       await Future.delayed(const Duration(milliseconds: 500));
-      Get.offAllNamed(AppRoutes.home);
+      if (userModel.value?.role == UserRole.helper) {
+        Get.offAllNamed(AppRoutes.helperDashboard);
+      } else {
+        Get.offAllNamed(AppRoutes.home);
+      }
     }
   }
 
@@ -44,7 +57,6 @@ class AuthController extends GetxController {
     }
   }
 
-  // SIGN UP
   Future<void> signUp({
     required String name,
     required String email,
@@ -52,9 +64,9 @@ class AuthController extends GetxController {
   }) async {
     try {
       isLoading.value = true;
-
-      final UserCredential credential =
-          await _auth.createUserWithEmailAndPassword(
+      _skipNextAuthRoute = true;
+      final UserCredential credential = await _auth
+          .createUserWithEmailAndPassword(
         email: email.trim(),
         password: password.trim(),
       );
@@ -65,6 +77,7 @@ class AuthController extends GetxController {
         uid: credential.user!.uid,
         name: name.trim(),
         email: email.trim(),
+        role: UserRole.patient,
         createdAt: DateTime.now(),
       );
 
@@ -76,7 +89,7 @@ class AuthController extends GetxController {
       userModel.value = newUser;
 
       Get.snackbar(
-        'Welcome to DocTalk!',
+        'Welcome to MediSaathi! 🎉',
         'Account created successfully, ${name.split(' ').first}!',
         backgroundColor: AppColors.primary,
         colorText: AppColors.white,
@@ -84,18 +97,99 @@ class AuthController extends GetxController {
         borderRadius: 12,
         margin: const EdgeInsets.all(16),
       );
+
+      Get.offAllNamed(AppRoutes.home);
     } on FirebaseAuthException catch (e) {
       isLoading.value = false;
+      _skipNextAuthRoute = false;
       _handleAuthError(e);
     } catch (e) {
       isLoading.value = false;
+      _skipNextAuthRoute = false;
       _showError('Something went wrong. Please try again.');
     } finally {
       isLoading.value = false;
     }
   }
 
-  // LOGIN
+  Future<void> signUpHelper({
+    required String name,
+    required String email,
+    required String password,
+    required String phone,
+    required HelperType helperType,
+    required double latitude,
+    required double longitude,
+    required String address,
+    required String description,
+  }) async {
+    try {
+      isLoading.value = true;
+      _skipNextAuthRoute = true;
+
+      final UserCredential credential = await _auth
+          .createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password.trim(),
+      );
+
+      await credential.user?.updateDisplayName(name.trim());
+
+      final newUser = UserModel(
+        uid: credential.user!.uid,
+        name: name.trim(),
+        email: email.trim(),
+        phoneNumber: phone.trim(),
+        role: UserRole.helper,
+        createdAt: DateTime.now(),
+        helperType: helperType,
+        latitude: latitude,
+        longitude: longitude,
+        address: address,
+        description: description,
+        isAvailable: true,
+      );
+
+
+      await _firestore
+          .collection('users')
+          .doc(credential.user!.uid)
+          .set(newUser.toFirestore());
+
+      // Write to helpers collection for fast querying
+      await _firestore
+          .collection('helpers')
+          .doc(credential.user!.uid)
+          .set(newUser.toFirestore());
+
+      userModel.value = newUser;
+
+      Get.snackbar(
+        'Welcome Helper! 🤝',
+        'Account created successfully!',
+        backgroundColor: AppColors.primary,
+        colorText: AppColors.white,
+        snackPosition: SnackPosition.TOP,
+        borderRadius: 12,
+        margin: const EdgeInsets.all(16),
+      );
+
+      Get.offAllNamed(AppRoutes.helperDashboard);
+    } on FirebaseAuthException catch (e) {
+      isLoading.value = false;
+      _skipNextAuthRoute = false;
+      debugPrint('FirebaseAuthException in signUpHelper: ${e.code} - ${e.message}');
+      _handleAuthError(e);
+    } catch (e) {
+      isLoading.value = false;
+      _skipNextAuthRoute = false;
+      debugPrint('ERROR in signUpHelper: $e');
+      _showError('Error: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   Future<void> login({required String email, required String password}) async {
     try {
       isLoading.value = true;
@@ -105,7 +199,7 @@ class AuthController extends GetxController {
         password: password.trim(),
       );
 
-      Get.snackbar(
+           Get.snackbar(
         'Welcome back! 👋',
         'Great to see you again!',
         backgroundColor: AppColors.primary,
@@ -125,7 +219,7 @@ class AuthController extends GetxController {
     }
   }
 
-  // LOGOUT
+
   Future<void> logout() async {
     try {
       await _auth.signOut();
@@ -135,7 +229,6 @@ class AuthController extends GetxController {
     }
   }
 
-  // ERROR HANDLING
   void _handleAuthError(FirebaseAuthException e) {
     String message;
     switch (e.code) {
@@ -180,13 +273,9 @@ class AuthController extends GetxController {
   }
 
   bool get isLoggedIn => firebaseUser.value != null;
-
   String get currentUserId => firebaseUser.value?.uid ?? '';
-
   String get userName =>
       userModel.value?.name ?? firebaseUser.value?.displayName ?? 'User';
-
   String get userEmail => firebaseUser.value?.email ?? '';
-
   String get userFirstName => userName.split(' ').first;
 }

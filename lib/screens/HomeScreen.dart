@@ -5,6 +5,7 @@ import '../controllers/auth_controller.dart';
 import '../controllers/nav_controller.dart';
 import '../resources/AppTheme.dart';
 import 'AnonymousChat/community_screen.dart';
+import 'Patient/sos_screen.dart';
 import 'chat_screen.dart';
 import 'history_screen.dart';
 
@@ -19,11 +20,12 @@ class HomeScreen extends StatelessWidget {
     final screens = [
       const _HomeTab(),
       const HistoryScreen(),
+      const SOSScreen(),
       const ProfileScreen(),
     ];
 
     return Obx(
-      () => Scaffold(
+          () => Scaffold(
         backgroundColor: AppColors.background,
         body: IndexedStack(
           index: navController.currentIndex.value,
@@ -37,14 +39,13 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ── CENTER FAB ──
 class _CenterFAB extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         Get.to(
-          () => const ChatScreen(),
+              () => const ChatScreen(),
           transition: Transition.downToUp,
           duration: const Duration(milliseconds: 350),
           binding: _ChatBinding(),
@@ -77,7 +78,6 @@ class _CenterFAB extends StatelessWidget {
   }
 }
 
-// Lazy binding for chat
 class _ChatBinding extends Bindings {
   @override
   void dependencies() {
@@ -85,12 +85,12 @@ class _ChatBinding extends Bindings {
   }
 }
 
-// Just to trigger ChatController init
+
 class _ChatControllerLazy {
   _ChatControllerLazy();
 }
 
-// ── BOTTOM NAV BAR ──
+
 class _BottomNavBar extends StatelessWidget {
   final NavController navController;
 
@@ -107,7 +107,7 @@ class _BottomNavBar extends StatelessWidget {
       child: SizedBox(
         height: 60,
         child: Obx(
-          () => Row(
+              () => Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               // Home
@@ -133,35 +133,46 @@ class _BottomNavBar extends StatelessWidget {
               // Spacer for FAB
               const SizedBox(width: 60),
 
+              // SOS
+              _NavItem(
+                icon: Icons.sos_outlined,
+                activeIcon: Icons.sos,
+                label: 'SOS',
+                index: 2,
+                currentIndex: navController.currentIndex.value,
+                onTap: () => navController.changePage(2),
+                isUrgent: true,
+              ),
+
               // Profile
               _NavItem(
                 icon: Icons.person_outline_rounded,
                 activeIcon: Icons.person_rounded,
                 label: 'Profile',
-                index: 2,
+                index: 3,
                 currentIndex: navController.currentIndex.value,
-                onTap: () => navController.changePage(2),
+                onTap: () => navController.changePage(3),
               ),
 
               // Settings placeholder (can be expanded later)
-              _NavItem(
-                icon: Icons.info_outline_rounded,
-                activeIcon: Icons.info_rounded,
-                label: 'About',
-                index: 3,
-                currentIndex: navController.currentIndex.value,
-                onTap: () {
-                  Get.snackbar(
-                    'DocTalk v1.0',
-                    'Your AI Health Companion 🩺',
-                    backgroundColor: AppColors.primary,
-                    colorText: Colors.white,
-                    snackPosition: SnackPosition.TOP,
-                    borderRadius: 12,
-                    margin: const EdgeInsets.all(16),
-                  );
-                },
-              ),
+              // _NavItem(
+              //   icon: Icons.info_outline_rounded,
+              //   activeIcon: Icons.info_rounded,
+              //   label: 'About',
+              //   index: 3,
+              //   currentIndex: navController.currentIndex.value,
+              //   onTap: () {
+              //     Get.snackbar(
+              //       'DocTalk v1.0',
+              //       'Your AI Health Companion 🩺',
+              //       backgroundColor: AppColors.primary,
+              //       colorText: Colors.white,
+              //       snackPosition: SnackPosition.TOP,
+              //       borderRadius: 12,
+              //       margin: const EdgeInsets.all(16),
+              //     );
+              //   },
+              // ),
             ],
           ),
         ),
@@ -177,6 +188,7 @@ class _NavItem extends StatelessWidget {
   final int index;
   final int currentIndex;
   final VoidCallback onTap;
+  final bool isUrgent;
 
   const _NavItem({
     required this.icon,
@@ -185,11 +197,13 @@ class _NavItem extends StatelessWidget {
     required this.index,
     required this.currentIndex,
     required this.onTap,
+    this.isUrgent = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final isActive = currentIndex == index;
+    final activeColor = isUrgent ? AppColors.urgent : AppColors.primary;
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
@@ -203,7 +217,7 @@ class _NavItem extends StatelessWidget {
               child: Icon(
                 isActive ? activeIcon : icon,
                 key: ValueKey(isActive),
-                color: isActive ? AppColors.primary : AppColors.textHint,
+                color: isActive ? activeColor : AppColors.textHint,
                 size: 24,
               ),
             ),
@@ -212,7 +226,7 @@ class _NavItem extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 10,
-                color: isActive ? AppColors.primary : AppColors.textHint,
+                color: isActive ? activeColor : AppColors.textHint,
                 fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
               ),
             ),
@@ -223,7 +237,7 @@ class _NavItem extends StatelessWidget {
   }
 }
 
-// ── HOME TAB CONTENT ──
+
 class _HomeTab extends StatelessWidget {
   const _HomeTab();
 
@@ -249,7 +263,7 @@ class _HomeTab extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Obx(
-                          () => Text(
+                              () => Text(
                             'Namaste, ${authController.userFirstName}! 🙏',
                             style: const TextStyle(
                               fontSize: 24,
@@ -273,13 +287,10 @@ class _HomeTab extends StatelessWidget {
                     ),
                   ),
 
-                  // ═══════════════════════════════════════════════
-                  // ✨ NEW: COMMUNITY BUTTON (REPLACED NOTIFICATIONS)
-                  // ═══════════════════════════════════════════════
-                  GestureDetector(
+                                   GestureDetector(
                     onTap: () {
                       Get.to(
-                        () => const CommunityScreen(),
+                            () => const CommunityScreen(),
                         transition: Transition.rightToLeft,
                         duration: const Duration(milliseconds: 300),
                       );
@@ -312,8 +323,7 @@ class _HomeTab extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // ═══════════════════════════════════════════════
-                ],
+                                  ],
               ),
 
               const SizedBox(height: 24),
@@ -322,7 +332,7 @@ class _HomeTab extends StatelessWidget {
               GestureDetector(
                 onTap: () {
                   Get.to(
-                    () => const ChatScreen(),
+                        () => const ChatScreen(),
                     transition: Transition.downToUp,
                     duration: const Duration(milliseconds: 350),
                   );
@@ -427,13 +437,10 @@ class _HomeTab extends StatelessWidget {
 
               const SizedBox(height: 16),
 
-              // ═══════════════════════════════════════════════
-              // ✨ NEW: ANONYMOUS COMMUNITY CARD
-              // ═══════════════════════════════════════════════
-              GestureDetector(
+                 GestureDetector(
                 onTap: () {
                   Get.to(
-                    () => const CommunityScreen(),
+                        () => const CommunityScreen(),
                     transition: Transition.rightToLeft,
                     duration: const Duration(milliseconds: 300),
                   );
@@ -514,11 +521,9 @@ class _HomeTab extends StatelessWidget {
                   ),
                 ),
               ),
-              // ═══════════════════════════════════════════════
 
               const SizedBox(height: 28),
 
-              // Section: Quick Symptom Shortcuts
               const Text(
                 'Quick Start',
                 style: TextStyle(
@@ -651,7 +656,7 @@ class _SymptomCard extends StatelessWidget {
       onTap: () {
         // Navigate to chat with pre-filled symptom
         Get.to(
-          () => ChatScreen(initialSymptom: symptom),
+              () => ChatScreen(initialSymptom: symptom),
           transition: Transition.downToUp,
           duration: const Duration(milliseconds: 350),
         );

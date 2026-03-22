@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/auth_controller.dart';
+import '../../models/user_model.dart';
 import '../../resources/AppRoutes.dart';
 import '../../resources/AppTheme.dart';
 
@@ -57,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen>
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeOut));
 
-
+    // Pulse animation for the background circle
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2000),
@@ -78,9 +79,13 @@ class _SplashScreenState extends State<SplashScreen>
     if (Get.currentRoute == AppRoutes.splash) {
       final authController = Get.find<AuthController>();
       if (authController.isLoggedIn) {
-        Get.offAllNamed(AppRoutes.home);
+        if (authController.userModel.value?.role == UserRole.helper) {
+          Get.offAllNamed(AppRoutes.helperDashboard);
+        } else {
+          Get.offAllNamed(AppRoutes.home);
+        }
       } else {
-        Get.offAllNamed(AppRoutes.login);
+        Get.offAllNamed(AppRoutes.roleSelection);
       }
     }
   }
@@ -135,6 +140,7 @@ class _SplashScreenState extends State<SplashScreen>
             ),
           ),
 
+          // Top decoration dots
           Positioned(
             top: 80,
             right: 40,
@@ -239,6 +245,7 @@ class _SplashScreenState extends State<SplashScreen>
             ],
           ),
 
+          // Loading indicator at bottom
           Positioned(
             bottom: 60,
             left: 0,

@@ -1,9 +1,11 @@
 import 'dart:convert';
-import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
+
 import '../models/chat_message_model.dart';
 
 class GeminiService {
+
   static String get _apiKey => dotenv.env['GEMINI_API_KEY'] ?? '';
 
   static const String _systemPrompt = '''
@@ -70,8 +72,9 @@ NEVER:
   ChatSession? _chatSession;
   bool _isInitialized = false;
   String? _initError;
-  int _messageCount = 0;
+  int _messageCount = 0; // Track conversation length
 
+  // Anti-duplicate protection
   bool _isProcessing = false;
   DateTime? _lastRequestTime;
 
@@ -93,7 +96,7 @@ NEVER:
         systemInstruction: Content.system(_systemPrompt),
         generationConfig: GenerationConfig(
           temperature: 0.7,
-          maxOutputTokens: 2048,
+          maxOutputTokens: 2048, // Increased for longer responses
           topP: 0.95,
           topK: 40,
         ),
@@ -121,6 +124,7 @@ NEVER:
   }
 
   Future<GeminiResponse> sendMessage(String userMessage) async {
+    // Anti-spam protection
     if (_isProcessing) {
       print('⚠️ Blocked duplicate request');
       return GeminiResponse(
@@ -149,7 +153,7 @@ NEVER:
       if (_initError == 'API_KEY_MISSING') {
         return GeminiResponse(
           text:
-              '🔑 Gemini API Key Missing!\n\nSet your key in gemini_service.dart',
+          '🔑 Gemini API Key Missing!\n\nSet your key in gemini_service.dart',
           quickReplies: [],
           isError: true,
         );
@@ -166,15 +170,16 @@ NEVER:
       _messageCount++;
       print('📤 Message #$_messageCount: "$userMessage"');
 
+
       String promptMessage = userMessage;
       if (_messageCount >= 4) {
         promptMessage =
-            '$userMessage\n\n[SYSTEM: You now have enough information. Provide the assessment in <ASSESSMENT> JSON format.]';
+        '$userMessage\n\n[SYSTEM: You now have enough information. Provide the assessment in <ASSESSMENT> JSON format.]';
         print('🎯 Forcing assessment generation (message #$_messageCount)');
       }
 
       final response =
-          await _chatSession!.sendMessage(Content.text(promptMessage));
+      await _chatSession!.sendMessage(Content.text(promptMessage));
       final rawText = response.text ?? '';
 
       print('📥 Response received: ${rawText.length} chars');
@@ -245,7 +250,7 @@ NEVER:
     List<String> quickReplies = [];
     String cleanText = rawText;
 
-    if (rawText.contains('<ASSESSMENT>') && rawText.contains('</ASSESSMENT>')) {
+      if (rawText.contains('<ASSESSMENT>') && rawText.contains('</ASSESSMENT>')) {
       final start = rawText.indexOf('<ASSESSMENT>') + '<ASSESSMENT>'.length;
       final end = rawText.indexOf('</ASSESSMENT>');
 
@@ -268,12 +273,13 @@ NEVER:
         }
       }
 
+      // Remove ASSESSMENT block from visible text
       cleanText = cleanText
           .replaceAll(RegExp(r'<ASSESSMENT>.*?</ASSESSMENT>', dotAll: true), '')
           .trim();
     }
 
-    if (cleanText.contains('[QUICK_REPLIES:')) {
+     if (cleanText.contains('[QUICK_REPLIES:')) {
       final qrStart = cleanText.indexOf('[QUICK_REPLIES:');
       final qrEnd = cleanText.indexOf(']', qrStart);
 
@@ -303,6 +309,7 @@ NEVER:
     );
   }
 
+  // For anonymous chat (optional)
   Future<GeminiResponse> sendAnonymousMessage(String userMessage) async {
     return sendMessage('[ANONYMOUS MODE] $userMessage');
   }

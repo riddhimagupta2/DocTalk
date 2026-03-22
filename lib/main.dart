@@ -1,14 +1,19 @@
 import 'package:doctalk/resources/AppRoutes.dart';
 import 'package:doctalk/resources/AppTheme.dart';
 import 'package:doctalk/resources/constants.dart';
+import 'package:doctalk/screens/Auth/helper_signup.dart';
 import 'package:doctalk/screens/Auth/login_screen.dart';
+import 'package:doctalk/screens/Auth/role_selection.dart';
 import 'package:doctalk/screens/Auth/signUp_screen.dart';
 import 'package:doctalk/screens/Auth/splash_screen.dart';
+import 'package:doctalk/screens/Helper/helper_db.dart';
 import 'package:doctalk/screens/HomeScreen.dart';
+import 'package:doctalk/screens/Patient/sos_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'firebase_options.dart';
 
 import 'screens/chat_screen.dart';
@@ -20,6 +25,7 @@ import 'bindings/app_bindings.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -52,10 +58,16 @@ class DocTalkApp extends StatelessWidget {
       initialRoute: AppRoutes.splash,
       initialBinding: AppBindings(),
       getPages: [
-          GetPage(
+         GetPage(
           name: AppRoutes.splash,
           page: () => const SplashScreen(),
           transition: Transition.fadeIn,
+        ),
+        GetPage(
+          name: AppRoutes.roleSelection,
+          page: () => const RoleSelectionScreen(),
+          transition: Transition.fadeIn,
+          transitionDuration: const Duration(milliseconds: 300),
         ),
         GetPage(
           name: AppRoutes.login,
@@ -66,6 +78,12 @@ class DocTalkApp extends StatelessWidget {
         GetPage(
           name: AppRoutes.signup,
           page: () => const SignupScreen(),
+          transition: Transition.rightToLeft,
+          transitionDuration: const Duration(milliseconds: 300),
+        ),
+        GetPage(
+          name: AppRoutes.helperSignup,
+          page: () => const HelperSignupScreen(),
           transition: Transition.rightToLeft,
           transitionDuration: const Duration(milliseconds: 300),
         ),
@@ -81,6 +99,19 @@ class DocTalkApp extends StatelessWidget {
           page: () => const ChatScreen(),
           transition: Transition.upToDown,
           transitionDuration: const Duration(milliseconds: 350),
+        ),
+        GetPage(
+          name: AppRoutes.sos,
+          page: () => const SOSScreen(),
+          transition: Transition.downToUp,
+          transitionDuration: const Duration(milliseconds: 400),
+        ),
+
+          GetPage(
+          name: AppRoutes.helperDashboard,
+          page: () => const HelperDashboard(),
+          transition: Transition.fadeIn,
+          transitionDuration: const Duration(milliseconds: 300),
         ),
 
           GetPage(
