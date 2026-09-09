@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/chat_message_model.dart';
 import '../resources/AppTheme.dart';
+import '../resources/responsive.dart';
 
 class MessageBubble extends StatelessWidget {
   final ChatMessage message;
@@ -12,30 +13,37 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final maxBubbleWidth = (context.wp(78)).clamp(220.0, 520.0);
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: EdgeInsets.only(bottom: context.hp(0.5)),
       child: Row(
         mainAxisAlignment:
-            isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+        isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (!isUser) _buildAvatar(),
-          if (!isUser) const SizedBox(width: 8),
+          if (!isUser) _buildAvatar(context),
+          if (!isUser) SizedBox(width: context.wp(2).clamp(6.0, 10.0)),
           Flexible(
             child: Column(
-              crossAxisAlignment:
-                  isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              crossAxisAlignment: isUser
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: context.r(16),
+                    vertical: context.hp(1.4).clamp(10.0, 16.0),
+                  ),
                   decoration: BoxDecoration(
                     color: isUser ? AppColors.primary : AppColors.white,
                     borderRadius: BorderRadius.only(
-                      topLeft: const Radius.circular(18),
-                      topRight: const Radius.circular(18),
-                      bottomLeft: Radius.circular(isUser ? 18 : 4),
-                      bottomRight: Radius.circular(isUser ? 4 : 18),
+                      topLeft: Radius.circular(context.r(18)),
+                      topRight: Radius.circular(context.r(18)),
+                      bottomLeft:
+                      Radius.circular(isUser ? context.r(18) : 4),
+                      bottomRight:
+                      Radius.circular(isUser ? 4 : context.r(18)),
                     ),
                     boxShadow: [
                       BoxShadow(
@@ -45,67 +53,71 @@ class MessageBubble extends StatelessWidget {
                         offset: const Offset(0, 2),
                       ),
                     ],
-                    border: isUser ? null : Border.all(color: AppColors.border),
+                    border: isUser
+                        ? null
+                        : Border.all(color: AppColors.border),
                   ),
                   constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width * 0.72,
+                    maxWidth: maxBubbleWidth,
                   ),
                   child: Text(
                     message.content,
                     style: TextStyle(
-                      color: isUser ? Colors.white : AppColors.textPrimary,
-                      fontSize: 15,
+                      color: isUser
+                          ? Colors.white
+                          : AppColors.textPrimary,
+                      fontSize: context.sp(15),
                       height: 1.5,
                       fontFamily: 'Lato',
                     ),
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: context.hp(0.5)),
                 Text(
                   DateFormat('hh:mm a').format(message.timestamp),
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: context.sp(10),
                     color: AppColors.textHint.withOpacity(0.7),
                   ),
                 ),
               ],
             ),
           ),
-          if (isUser) const SizedBox(width: 8),
-          if (isUser) _buildUserAvatar(),
+          if (isUser) SizedBox(width: context.wp(2).clamp(6.0, 10.0)),
+          if (isUser) _buildUserAvatar(context),
         ],
       ),
     );
   }
 
-  Widget _buildAvatar() {
+  Widget _buildAvatar(BuildContext context) {
     return Container(
-      width: 32,
-      height: 32,
+      width: context.r(32),
+      height: context.r(32),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [AppColors.primary, Color(0xFF089A97)],
         ),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(context.r(8)),
       ),
-      child: const Center(
-        child: Text('🩺', style: TextStyle(fontSize: 16)),
+      child: Center(
+        child: Text('🩺', style: TextStyle(fontSize: context.sp(16))),
       ),
     );
   }
 
-  Widget _buildUserAvatar() {
+  Widget _buildUserAvatar(BuildContext context) {
     return Container(
-      width: 32,
-      height: 32,
+      width: context.r(32),
+      height: context.r(32),
       decoration: BoxDecoration(
         color: AppColors.coral.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(context.r(8)),
       ),
-      child: const Center(
+      child: Center(
         child: Icon(
           Icons.person_rounded,
-          size: 18,
+          size: context.r(18),
           color: AppColors.coral,
         ),
       ),

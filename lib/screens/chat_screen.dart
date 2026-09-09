@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/chat_controller.dart';
 import '../models/chat_message_model.dart';
 import '../resources/AppTheme.dart';
+import '../resources/responsive.dart';
 import '../widgets/assesment_card.dart';
 import '../widgets/message_bubble.dart';
 import '../widgets/typing_indicator.dart';
@@ -26,7 +27,6 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-
     if (Get.isRegistered<ChatController>()) {
       Get.delete<ChatController>();
     }
@@ -75,7 +75,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF0F4F8),
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(context),
       body: Column(
         children: [
           Expanded(
@@ -83,8 +83,10 @@ class _ChatScreenState extends State<ChatScreen> {
               final messages = _chatController.messages;
               return ListView.builder(
                 controller: _scrollController,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.wp(4).clamp(12.0, 24.0),
+                  vertical: context.hp(1.5).clamp(8.0, 16.0),
+                ),
                 itemCount: messages.length,
                 itemBuilder: (context, index) {
                   final message = messages[index];
@@ -93,48 +95,44 @@ class _ChatScreenState extends State<ChatScreen> {
               );
             }),
           ),
-
-          // Input area
-          _buildInputArea(),
+          _buildInputArea(context),
         ],
       ),
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
       backgroundColor: AppColors.white,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new_rounded,
-            color: AppColors.textPrimary, size: 20),
-        onPressed: () {
-          Get.back();
-        },
+        icon: Icon(Icons.arrow_back_ios_new_rounded,
+            color: AppColors.textPrimary, size: context.r(20)),
+        onPressed: () => Get.back(),
       ),
       title: Row(
         children: [
           Container(
-            width: 38,
-            height: 38,
+            width: context.r(38),
+            height: context.r(38),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [AppColors.primary, Color(0xFF089A97)],
               ),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(context.r(10)),
             ),
-            child: const Center(
-              child: Text('🩺', style: TextStyle(fontSize: 18)),
+            child: Center(
+              child: Text('🩺', style: TextStyle(fontSize: context.sp(18))),
             ),
           ),
-          const SizedBox(width: 10),
-          const Column(
+          SizedBox(width: context.wp(2.5).clamp(8.0, 14.0)),
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'DocTalk AI',
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: context.sp(15),
                   fontWeight: FontWeight.w800,
                   color: AppColors.textPrimary,
                   fontFamily: 'Lato',
@@ -142,15 +140,15 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               Row(
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 4,
                     backgroundColor: AppColors.success,
                   ),
-                  SizedBox(width: 4),
+                  const SizedBox(width: 4),
                   Text(
                     'Online',
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: context.sp(11),
                       color: AppColors.textSecondary,
                       fontWeight: FontWeight.w400,
                     ),
@@ -163,28 +161,28 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.refresh_rounded,
-              color: AppColors.textSecondary, size: 22),
+          icon: Icon(Icons.refresh_rounded,
+              color: AppColors.textSecondary, size: context.r(22)),
           onPressed: () {
             Get.dialog(
               AlertDialog(
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16)),
-                title: const Text(
+                    borderRadius: BorderRadius.circular(context.r(16))),
+                title: Text(
                   'New Consultation?',
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
-                    fontSize: 17,
+                    fontSize: context.sp(17),
                   ),
                 ),
-                content: const Text(
+                content: Text(
                   'This will start a fresh health check. Your previous chat will be saved in History.',
-                  style: TextStyle(fontSize: 14, height: 1.5),
+                  style: TextStyle(fontSize: context.sp(14), height: 1.5),
                 ),
                 actions: [
                   TextButton(
                     onPressed: () => Get.back(),
-                    child: const Text('Cancel'),
+                    child: Text('Cancel', style: TextStyle(fontSize: context.sp(14))),
                   ),
                   ElevatedButton(
                     onPressed: () {
@@ -194,10 +192,10 @@ class _ChatScreenState extends State<ChatScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       minimumSize: const Size(0, 0),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: context.r(16), vertical: context.hp(1)),
                     ),
-                    child: const Text('Start Fresh'),
+                    child: Text('Start Fresh', style: TextStyle(fontSize: context.sp(14))),
                   ),
                 ],
               ),
@@ -215,15 +213,15 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildMessageItem(ChatMessage message, int index) {
     if (message.isTyping) {
-      return const Padding(
-        padding: EdgeInsets.only(bottom: 8),
-        child: TypingIndicator(),
+      return Padding(
+        padding: EdgeInsets.only(bottom: context.hp(1)),
+        child: const TypingIndicator(),
       );
     }
 
     if (message.type == MessageType.assessment && message.assessment != null) {
       return Padding(
-        padding: const EdgeInsets.only(bottom: 12),
+        padding: EdgeInsets.only(bottom: context.hp(1.5)),
         child: AssessmentCard(assessment: message.assessment!),
       );
     }
@@ -236,18 +234,22 @@ class _ChatScreenState extends State<ChatScreen> {
         MessageBubble(message: message),
         if (message.quickReplies != null && message.quickReplies!.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.only(top: 8, bottom: 4, left: 48),
+            padding: EdgeInsets.only(
+              top: context.hp(1),
+              bottom: context.hp(0.5),
+              left: context.wp(10).clamp(36.0, 52.0),
+            ),
             child: QuickReplyChips(
               options: message.quickReplies!,
               onSelected: (option) => _sendMessage(option),
             ),
           ),
-        const SizedBox(height: 8),
+        SizedBox(height: context.hp(1)),
       ],
     );
   }
 
-  Widget _buildInputArea() {
+  Widget _buildInputArea(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.white,
@@ -262,20 +264,22 @@ class _ChatScreenState extends State<ChatScreen> {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: EdgeInsets.symmetric(
+            horizontal: context.wp(4).clamp(12.0, 20.0),
+            vertical: context.hp(1.2).clamp(8.0, 16.0),
+          ),
           child: Row(
             children: [
-              // Text input
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
                     color: const Color(0xFFF5F5F5),
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(context.r(24)),
                     border: Border.all(color: AppColors.border),
                   ),
                   child: Row(
                     children: [
-                      const SizedBox(width: 16),
+                      SizedBox(width: context.r(16)),
                       Expanded(
                         child: TextField(
                           controller: _inputController,
@@ -283,21 +287,23 @@ class _ChatScreenState extends State<ChatScreen> {
                           maxLines: 4,
                           minLines: 1,
                           textCapitalization: TextCapitalization.sentences,
-                          style: const TextStyle(
-                            fontSize: 15,
+                          style: TextStyle(
+                            fontSize: context.sp(15),
                             color: AppColors.textPrimary,
                             fontFamily: 'Lato',
                           ),
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             hintText: 'Apne symptoms batayein...',
                             hintStyle: TextStyle(
                               color: AppColors.textHint,
-                              fontSize: 15,
+                              fontSize: context.sp(15),
                             ),
                             border: InputBorder.none,
                             enabledBorder: InputBorder.none,
                             focusedBorder: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(vertical: 12),
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: context.hp(1.2).clamp(8.0, 14.0),
+                            ),
                           ),
                           onSubmitted: (_) => _sendMessage(),
                         ),
@@ -307,57 +313,54 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
               ),
-
-              const SizedBox(width: 10),
-
-              // Send button
+              SizedBox(width: context.wp(2.5).clamp(8.0, 14.0)),
               Obx(() => GestureDetector(
-                    onTap: _chatController.isTyping.value ? null : _sendMessage,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        gradient: _chatController.isTyping.value
-                            ? null
-                            : const LinearGradient(
-                                colors: [AppColors.primary, Color(0xFF089A97)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                        color: _chatController.isTyping.value
-                            ? AppColors.border
-                            : null,
-                        shape: BoxShape.circle,
-                        boxShadow: _chatController.isTyping.value
-                            ? []
-                            : [
-                                BoxShadow(
-                                  color: AppColors.primary.withOpacity(0.35),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ],
-                      ),
-                      child: _chatController.isTyping.value
-                          ? const Center(
-                              child: SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                      AppColors.textHint),
-                                ),
-                              ),
-                            )
-                          : const Icon(
-                              Icons.send_rounded,
-                              color: Colors.white,
-                              size: 20,
-                            ),
+                onTap: _chatController.isTyping.value ? null : _sendMessage,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: context.r(48),
+                  height: context.r(48),
+                  decoration: BoxDecoration(
+                    gradient: _chatController.isTyping.value
+                        ? null
+                        : const LinearGradient(
+                      colors: [AppColors.primary, Color(0xFF089A97)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                  )),
+                    color: _chatController.isTyping.value
+                        ? AppColors.border
+                        : null,
+                    shape: BoxShape.circle,
+                    boxShadow: _chatController.isTyping.value
+                        ? []
+                        : [
+                      BoxShadow(
+                        color: AppColors.primary.withOpacity(0.35),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: _chatController.isTyping.value
+                      ? Center(
+                    child: SizedBox(
+                      width: context.r(20),
+                      height: context.r(20),
+                      child: const CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            AppColors.textHint),
+                      ),
+                    ),
+                  )
+                      : Icon(
+                    Icons.send_rounded,
+                    color: Colors.white,
+                    size: context.r(20),
+                  ),
+                ),
+              )),
             ],
           ),
         ),

@@ -50,8 +50,7 @@ class FindDoctorButton extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.local_hospital,
-                  color: AppColors.white, size: 22),
+              const Icon(Icons.local_hospital, color: AppColors.white, size: 22),
               const SizedBox(width: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,8 +73,7 @@ class FindDoctorButton extends StatelessWidget {
                 ],
               ),
               const Spacer(),
-              const Icon(Icons.arrow_forward_ios,
-                  color: AppColors.white, size: 14),
+              const Icon(Icons.arrow_forward_ios, color: AppColors.white, size: 14),
             ],
           ),
         ),

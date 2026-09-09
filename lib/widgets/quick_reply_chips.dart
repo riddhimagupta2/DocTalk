@@ -57,7 +57,8 @@ class _QuickReplyChipsState extends State<QuickReplyChips>
             },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 150),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              padding:
+              const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
                 color: AppColors.white,
                 border: Border.all(

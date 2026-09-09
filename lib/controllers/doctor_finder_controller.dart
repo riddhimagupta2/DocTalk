@@ -14,7 +14,7 @@ class DoctorFinderController extends GetxController {
   final RxList<DoctorModel> doctors = <DoctorModel>[].obs;
   final RxBool isLoading = true.obs;
   final RxString errorMessage = ''.obs;
-  final RxDouble userLat = 26.8467.obs;
+  final RxDouble userLat = 26.8467.obs; // Default: Lucknow
   final RxDouble userLng = 80.9462.obs;
   final RxInt selectedIndex = (-1).obs;
 
@@ -76,12 +76,13 @@ class DoctorFinderController extends GetxController {
     );
     if (found.isEmpty) {
       errorMessage.value =
-          'Koi doctor nahi mila.\nDusri location search karein.';
+      'Koi doctor nahi mila.\nDusri location search karein.';
     } else {
       doctors.value = found;
     }
   }
 
+  /// Navigate to doctor details — passes DoctorModel safely
   void selectDoctor(int index) {
     if (index < 0 || index >= doctors.length) return;
     selectedIndex.value = index;
@@ -94,7 +95,7 @@ class DoctorFinderController extends GetxController {
   Future<void> openInGoogleMaps(DoctorModel doctor) async {
     final url = Uri.parse(
       'https://www.google.com/maps/search/?api=1'
-      '&query=${doctor.latitude},${doctor.longitude}',
+          '&query=${doctor.latitude},${doctor.longitude}',
     );
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
@@ -108,7 +109,7 @@ class DoctorFinderController extends GetxController {
     final query = Uri.encodeComponent('$specialist near me');
     final url = Uri.parse(
       'https://www.google.com/maps/search/$query/'
-      '@${userLat.value},${userLng.value},15z',
+          '@${userLat.value},${userLng.value},15z',
     );
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);

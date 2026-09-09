@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../controllers/doctor_finder_controller.dart';
 import '../models/doctor_model.dart';
 import '../resources/AppTheme.dart';
+import '../resources/responsive.dart';
 import 'AppointmentBooking/doctor_map_view.dart';
 
 class DoctorFinderScreen extends StatelessWidget {
@@ -19,62 +20,65 @@ class DoctorFinderScreen extends StatelessWidget {
     if (Get.isRegistered<DoctorFinderController>()) {
       Get.delete<DoctorFinderController>();
     }
-    final controller = Get.put(DoctorFinderController(specialist: specialist));
+    final controller =
+    Get.put(DoctorFinderController(specialist: specialist));
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: _buildAppBar(specialist, controller),
+      appBar: _buildAppBar(context, specialist, controller),
       body: Obx(() {
-        if (controller.isLoading.value) return _loadingView();
+        if (controller.isLoading.value) return _loadingView(context);
         if (controller.errorMessage.value.isNotEmpty) {
-          return _errorView(controller);
+          return _errorView(context, controller);
         }
-        if (controller.doctors.isEmpty) return _emptyView(controller);
-        return _mainBody(controller);
+        if (controller.doctors.isEmpty) return _emptyView(context, controller);
+        return _mainBody(context, controller);
       }),
     );
   }
 
   PreferredSizeWidget _buildAppBar(
-      String specialist, DoctorFinderController controller) {
+      BuildContext context, String specialist, DoctorFinderController controller) {
     return AppBar(
       backgroundColor: AppColors.white,
       elevation: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new_rounded,
-            color: AppColors.textPrimary, size: 20),
-        onPressed: () => Get.back(),
-      ),
+      leading: Navigator.canPop(context)
+          ? IconButton(
+              icon: Icon(Icons.arrow_back_ios_new_rounded,
+                  color: AppColors.textPrimary, size: context.r(20)),
+              onPressed: () => Get.back(),
+            )
+          : null,
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Find $specialist',
-            style: const TextStyle(
+            'Find ',
+            style: TextStyle(
               color: AppColors.textPrimary,
-              fontSize: 16,
+              fontSize: context.sp(16),
               fontWeight: FontWeight.w800,
               fontFamily: 'Lato',
             ),
           ),
           Obx(() => Text(
-                controller.isLoading.value
-                    ? 'Searching...'
-                    : '${controller.doctors.length} doctors found',
-                style: const TextStyle(
-                    color: AppColors.textSecondary, fontSize: 11.5),
-              )),
+            controller.isLoading.value
+                ? 'Searching...'
+                : '${controller.doctors.length} doctors found',
+            style: TextStyle(
+                color: AppColors.textSecondary, fontSize: context.sp(11.5)),
+          )),
         ],
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.search_rounded,
-              color: AppColors.primary, size: 22),
-          onPressed: () => _locationDialog(controller),
+          icon: Icon(Icons.search_rounded,
+              color: AppColors.primary, size: context.r(22)),
+          onPressed: () => _locationDialog(context, controller),
         ),
         IconButton(
-          icon: const Icon(Icons.refresh_rounded,
-              color: AppColors.textSecondary, size: 22),
+          icon: Icon(Icons.refresh_rounded,
+              color: AppColors.textSecondary, size: context.r(22)),
           onPressed: controller.searchDoctors,
         ),
         const SizedBox(width: 4),
@@ -86,48 +90,55 @@ class DoctorFinderScreen extends StatelessWidget {
     );
   }
 
-  Widget _mainBody(DoctorFinderController controller) {
+  // ── Main body ─────────────────────────────────────────────────────────
+  Widget _mainBody(BuildContext context, DoctorFinderController controller) {
     return Column(
       children: [
+        // Custom map
         Obx(() => DoctorMapView(
-              doctors: controller.doctors,
-              userLat: controller.userLat.value,
-              userLng: controller.userLng.value,
-              selectedIndex: controller.selectedIndex.value,
-              onDoctorTap: (i) {
-                if (i >= 0) controller.selectedIndex.value = i;
-              },
-              onOpenMaps: controller.openAllInGoogleMaps,
-            )),
+          doctors: controller.doctors,
+          userLat: controller.userLat.value,
+          userLng: controller.userLng.value,
+          selectedIndex: controller.selectedIndex.value,
+          onDoctorTap: (i) {
+            if (i >= 0) controller.selectedIndex.value = i;
+          },
+          onOpenMaps: controller.openAllInGoogleMaps,
+        )),
 
         // List header
         Container(
           color: AppColors.white,
-          padding: const EdgeInsets.fromLTRB(16, 11, 16, 10),
+          padding: EdgeInsets.symmetric(
+            horizontal: context.wp(4).clamp(12.0, 20.0),
+            vertical: context.hp(1.2).clamp(8.0, 14.0),
+          ),
           child: Row(
             children: [
-              Obx(() => Text(
-                    '${controller.doctors.length} Nearby ${controller.specialist}s',
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13.5,
-                      fontFamily: 'Lato',
-                    ),
-                  )),
-              const Spacer(),
+              Expanded(
+                child: Obx(() => Text(
+                  '${controller.doctors.length} Nearby ${controller.specialist}s',
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                    fontSize: context.sp(13.5),
+                    fontFamily: 'Lato',
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                )),
+              ),
               GestureDetector(
                 onTap: controller.openAllInGoogleMaps,
-                child: const Row(
+                child: Row(
                   children: [
                     Icon(Icons.map_outlined,
-                        color: AppColors.primary, size: 14),
-                    SizedBox(width: 4),
+                        color: AppColors.primary, size: context.r(14)),
+                    const SizedBox(width: 4),
                     Text(
                       'View on Maps',
                       style: TextStyle(
                         color: AppColors.primary,
-                        fontSize: 12,
+                        fontSize: context.sp(12),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -139,36 +150,44 @@ class DoctorFinderScreen extends StatelessWidget {
         ),
         Container(height: 1, color: AppColors.border),
 
+        // Doctor cards
         Expanded(
           child: Obx(() => ListView.builder(
-                padding: const EdgeInsets.fromLTRB(14, 10, 14, 24),
-                itemCount: controller.doctors.length,
-                itemBuilder: (_, i) => _DoctorCard(
-                  doctor: controller.doctors[i],
-                  index: i,
-                  isSelected: controller.selectedIndex.value == i,
-                  onTap: () => controller.selectDoctor(i),
-                  onMaps: () =>
-                      controller.openInGoogleMaps(controller.doctors[i]),
-                ),
-              )),
+            padding: EdgeInsets.fromLTRB(
+              context.wp(3.5).clamp(10.0, 18.0),
+              context.hp(1.2).clamp(8.0, 14.0),
+              context.wp(3.5).clamp(10.0, 18.0),
+              context.hp(3).clamp(18.0, 30.0),
+            ),
+            itemCount: controller.doctors.length,
+            itemBuilder: (_, i) => _DoctorCard(
+              doctor: controller.doctors[i],
+              index: i,
+              isSelected: controller.selectedIndex.value == i,
+              onTap: () => controller.selectDoctor(i),
+              onMaps: () =>
+                  controller.openInGoogleMaps(controller.doctors[i]),
+            ),
+          )),
         ),
       ],
     );
   }
 
-  Widget _loadingView() {
-    return const Center(
+  // ── Loading ───────────────────────────────────────────────────────────
+  Widget _loadingView(BuildContext context) {
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(color: AppColors.primary, strokeWidth: 3),
-          SizedBox(height: 18),
+          const CircularProgressIndicator(
+              color: AppColors.primary, strokeWidth: 3),
+          SizedBox(height: context.hp(2)),
           Text(
             'Aapke paas doctors dhundh rahe hain...',
             style: TextStyle(
                 color: AppColors.textSecondary,
-                fontSize: 14,
+                fontSize: context.sp(14),
                 fontFamily: 'Lato'),
           ),
         ],
@@ -176,65 +195,62 @@ class DoctorFinderScreen extends StatelessWidget {
     );
   }
 
-  Widget _errorView(DoctorFinderController controller) {
+  // ── Error ─────────────────────────────────────────────────────────────
+  Widget _errorView(BuildContext context, DoctorFinderController controller) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(context.r(32)),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(22),
+              padding: EdgeInsets.all(context.r(22)),
               decoration: BoxDecoration(
                 color: AppColors.error.withOpacity(0.07),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.wifi_off_rounded,
-                  size: 46, color: AppColors.error),
+              child: Icon(Icons.wifi_off_rounded,
+                  size: context.r(46), color: AppColors.error),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: context.hp(2.5)),
             Text(
               controller.errorMessage.value,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                   color: AppColors.textSecondary,
-                  fontSize: 14,
+                  fontSize: context.sp(14),
                   height: 1.6,
                   fontFamily: 'Lato'),
             ),
-            const SizedBox(height: 28),
+            SizedBox(height: context.hp(3)),
             SizedBox(
               width: double.infinity,
+              height: context.hp(6).clamp(46.0, 54.0),
               child: ElevatedButton.icon(
                 onPressed: controller.searchDoctors,
-                icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Retry'),
+                icon: Icon(Icons.refresh_rounded, size: context.r(18)),
+                label: Text('Retry', style: TextStyle(fontSize: context.sp(14), fontWeight: FontWeight.w700)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: AppColors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14)),
-                  textStyle: const TextStyle(
-                      fontWeight: FontWeight.w700, fontFamily: 'Lato'),
+                      borderRadius: BorderRadius.circular(context.r(14))),
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: context.hp(1.5)),
             SizedBox(
               width: double.infinity,
+              height: context.hp(6).clamp(46.0, 54.0),
               child: OutlinedButton.icon(
-                onPressed: () => _locationDialog(controller),
-                icon: const Icon(Icons.search_rounded),
-                label: const Text('Location Manually Enter Karein'),
+                onPressed: () => _locationDialog(context, controller),
+                icon: Icon(Icons.search_rounded, size: context.r(18)),
+                label: Text('Location Manually Enter Karein', style: TextStyle(fontSize: context.sp(14), fontWeight: FontWeight.w600)),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primary,
                   side: const BorderSide(color: AppColors.primary),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14)),
-                  textStyle: const TextStyle(
-                      fontWeight: FontWeight.w600, fontFamily: 'Lato'),
+                      borderRadius: BorderRadius.circular(context.r(14))),
                 ),
               ),
             ),
@@ -244,31 +260,32 @@ class DoctorFinderScreen extends StatelessWidget {
     );
   }
 
-  Widget _emptyView(DoctorFinderController controller) {
+  // ── Empty ─────────────────────────────────────────────────────────────
+  Widget _emptyView(BuildContext context, DoctorFinderController controller) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.medical_services_outlined,
-              size: 60, color: AppColors.textHint),
-          const SizedBox(height: 16),
-          const Text(
+          Icon(Icons.medical_services_outlined,
+              size: context.r(60), color: AppColors.textHint),
+          SizedBox(height: context.hp(2)),
+          Text(
             'Koi doctor nahi mila nearby',
             style: TextStyle(
                 color: AppColors.textSecondary,
-                fontSize: 15,
+                fontSize: context.sp(15),
                 fontWeight: FontWeight.w500),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: context.hp(3)),
           ElevatedButton.icon(
-            onPressed: () => _locationDialog(controller),
-            icon: const Icon(Icons.search_rounded),
-            label: const Text('Dusri Location Try Karein'),
+            onPressed: () => _locationDialog(context, controller),
+            icon: Icon(Icons.search_rounded, size: context.r(18)),
+            label: Text('Dusri Location Try Karein', style: TextStyle(fontSize: context.sp(14))),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: AppColors.white,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14)),
+                  borderRadius: BorderRadius.circular(context.r(14))),
             ),
           ),
         ],
@@ -276,16 +293,17 @@ class DoctorFinderScreen extends StatelessWidget {
     );
   }
 
-  void _locationDialog(DoctorFinderController controller) {
+  // ── Location dialog ───────────────────────────────────────────────────
+  void _locationDialog(BuildContext context, DoctorFinderController controller) {
     final tc = TextEditingController();
     Get.defaultDialog(
       title: 'Location Search Karein',
-      titleStyle: const TextStyle(
+      titleStyle: TextStyle(
           color: AppColors.textPrimary,
           fontWeight: FontWeight.w700,
-          fontSize: 16,
+          fontSize: context.sp(16),
           fontFamily: 'Lato'),
-      radius: 18,
+      radius: context.r(18),
       content: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4),
         child: Column(children: [
@@ -297,7 +315,7 @@ class DoctorFinderScreen extends StatelessWidget {
               hintText: 'City ya area likhein',
               hintStyle: const TextStyle(color: AppColors.textHint),
               prefixIcon:
-                  const Icon(Icons.location_on, color: AppColors.primary),
+              const Icon(Icons.location_on, color: AppColors.primary),
               filled: true,
               fillColor: AppColors.background,
               border: OutlineInputBorder(
@@ -355,12 +373,13 @@ class _DoctorCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 220),
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: context.hp(1.5).clamp(8.0, 14.0)),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(context.r(18)),
         border: Border.all(
-          color: isSelected ? AppColors.primary : Colors.transparent,
+          color:
+          isSelected ? AppColors.primary : Colors.transparent,
           width: 2,
         ),
         boxShadow: [
@@ -375,33 +394,34 @@ class _DoctorCard extends StatelessWidget {
       ),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(context.r(18)),
         child: InkWell(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(context.r(18)),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(14),
+            padding: EdgeInsets.all(context.r(14)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // ── Top row ────────────────────────────────────
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Avatar
                     Container(
-                      width: 52,
-                      height: 52,
+                      width: context.r(52),
+                      height: context.r(52),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(colors: [
                           AppColors.primaryLight,
                           AppColors.primary.withOpacity(0.12),
                         ]),
-                        borderRadius: BorderRadius.circular(13),
+                        borderRadius: BorderRadius.circular(context.r(13)),
                       ),
-                      child: const Icon(Icons.person_rounded,
-                          color: AppColors.primary, size: 26),
+                      child: Icon(Icons.person_rounded,
+                          color: AppColors.primary, size: context.r(26)),
                     ),
-                    const SizedBox(width: 11),
+                    SizedBox(width: context.wp(2.5).clamp(8.0, 14.0)),
 
                     // Name / spec / exp
                     Expanded(
@@ -410,26 +430,26 @@ class _DoctorCard extends StatelessWidget {
                         children: [
                           Text(
                             doctor.name,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.textPrimary,
                               fontWeight: FontWeight.w700,
-                              fontSize: 14.5,
+                              fontSize: context.sp(14.5),
                               fontFamily: 'Lato',
                             ),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             doctor.specialization,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.primary,
-                              fontSize: 12.5,
+                              fontSize: context.sp(12.5),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                           Text(
                             doctor.experience,
-                            style: const TextStyle(
-                                color: AppColors.textHint, fontSize: 11.5),
+                            style: TextStyle(
+                                color: AppColors.textHint, fontSize: context.sp(11.5)),
                           ),
                         ],
                       ),
@@ -437,8 +457,8 @@ class _DoctorCard extends StatelessWidget {
 
                     // Availability badge
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: context.r(8), vertical: context.hp(0.5)),
                       decoration: BoxDecoration(
                         color: doctor.isAvailableToday
                             ? AppColors.success.withOpacity(0.1)
@@ -456,12 +476,14 @@ class _DoctorCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            doctor.isAvailableToday ? 'Available' : 'Busy',
+                            doctor.isAvailableToday
+                                ? 'Available'
+                                : 'Busy',
                             style: TextStyle(
                               color: doctor.isAvailableToday
                                   ? AppColors.success
                                   : AppColors.error,
-                              fontSize: 10.5,
+                              fontSize: context.sp(10.5),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -470,78 +492,90 @@ class _DoctorCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 9),
+
+                SizedBox(height: context.hp(1)),
+
+                // ── Address ───────────────────────────────────
                 Row(
                   children: [
-                    const Icon(Icons.location_on_outlined,
-                        size: 12, color: AppColors.textHint),
+                    Icon(Icons.location_on_outlined,
+                        size: context.r(12), color: AppColors.textHint),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         doctor.address,
-                        style: const TextStyle(
-                            color: AppColors.textSecondary, fontSize: 12),
+                        style: TextStyle(
+                            color: AppColors.textSecondary, fontSize: context.sp(12)),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
+
+                SizedBox(height: context.hp(1)),
                 Container(height: 1, color: AppColors.border),
-                const SizedBox(height: 10),
+                SizedBox(height: context.hp(1)),
+
+                // ── Stats row ─────────────────────────────────
                 Row(
                   children: [
                     _Chip(
                         icon: Icons.star_rounded,
                         label: '${doctor.rating}',
                         color: AppColors.gold),
-                    const SizedBox(width: 12),
+                    SizedBox(width: context.wp(3).clamp(8.0, 14.0)),
                     _Chip(
                         icon: Icons.near_me_rounded,
                         label: '${doctor.distanceKm} km',
                         color: AppColors.primary),
-                    const SizedBox(width: 12),
+                    SizedBox(width: context.wp(3).clamp(8.0, 14.0)),
                     _Chip(
                         icon: Icons.currency_rupee,
                         label: '${doctor.consultationFee.toInt()}',
                         color: AppColors.coral),
                     const Spacer(),
-                    // Open in Maps icon
                     GestureDetector(
                       onTap: onMaps,
                       child: Container(
-                        padding: const EdgeInsets.all(7),
+                        padding: EdgeInsets.all(context.r(7)),
                         decoration: BoxDecoration(
                           color: AppColors.primaryLight,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(context.r(8)),
                         ),
-                        child: const Icon(Icons.map_outlined,
-                            color: AppColors.primary, size: 15),
+                        child: Icon(Icons.map_outlined,
+                            color: AppColors.primary, size: context.r(15)),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+
+                SizedBox(height: context.hp(1.5)),
+
+                // ── Book button ───────────────────────────────
                 SizedBox(
                   width: double.infinity,
+                  height: context.hp(5.5).clamp(42.0, 50.0),
                   child: ElevatedButton(
                     onPressed: onTap,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: isSelected
                           ? AppColors.primary
                           : AppColors.primaryLight,
-                      foregroundColor:
-                          isSelected ? Colors.white : AppColors.primaryDark,
+                      foregroundColor: isSelected
+                          ? Colors.white
+                          : AppColors.primaryDark,
                       elevation: 0,
-                      padding: const EdgeInsets.symmetric(vertical: 11),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                      textStyle: const TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13.5,
-                          fontFamily: 'Lato'),
+                          borderRadius: BorderRadius.circular(context.r(12))),
                     ),
-                    child: const Text('Book Appointment'),
+                    child: Text(
+                      'Book Appointment',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: context.sp(13.5),
+                        fontFamily: 'Lato',
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -557,18 +591,19 @@ class _Chip extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
-  const _Chip({required this.icon, required this.label, required this.color});
+  const _Chip(
+      {required this.icon, required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 13, color: color),
+        Icon(icon, size: context.r(13), color: color),
         const SizedBox(width: 3),
         Text(label,
             style: TextStyle(
-                color: color, fontSize: 12, fontWeight: FontWeight.w600)),
+                color: color, fontSize: context.sp(12), fontWeight: FontWeight.w600)),
       ],
     );
   }

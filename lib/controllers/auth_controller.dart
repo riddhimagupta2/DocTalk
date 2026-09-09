@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/user_model.dart';
 import '../resources/AppRoutes.dart';
@@ -15,7 +15,8 @@ class AuthController extends GetxController {
   final Rx<UserModel?> userModel = Rx<UserModel?>(null);
   final RxBool isLoading = false.obs;
 
-   bool _skipNextAuthRoute = false;
+  // Flag to skip auto-navigation during signup (prevents race condition)
+  bool _skipNextAuthRoute = false;
 
   @override
   void onInit() {
@@ -33,16 +34,11 @@ class AuthController extends GetxController {
 
     if (user == null) {
       await Future.delayed(const Duration(milliseconds: 500));
-      Get.offAllNamed(AppRoutes.roleSelection);
+      Get.offAllNamed(AppRoutes.login);
     } else {
-      // Returning user — fetch role and route
       await _fetchUserData(user.uid);
       await Future.delayed(const Duration(milliseconds: 500));
-      if (userModel.value?.role == UserRole.helper) {
-        Get.offAllNamed(AppRoutes.helperDashboard);
-      } else {
-        Get.offAllNamed(AppRoutes.home);
-      }
+      Get.offAllNamed(AppRoutes.home);
     }
   }
 
@@ -57,6 +53,7 @@ class AuthController extends GetxController {
     }
   }
 
+  // ── SIGN UP ──
   Future<void> signUp({
     required String name,
     required String email,
@@ -64,12 +61,13 @@ class AuthController extends GetxController {
   }) async {
     try {
       isLoading.value = true;
-      _skipNextAuthRoute = true;
+      _skipNextAuthRoute = true; // We'll navigate manually
+
       final UserCredential credential = await _auth
           .createUserWithEmailAndPassword(
-        email: email.trim(),
-        password: password.trim(),
-      );
+            email: email.trim(),
+            password: password.trim(),
+          );
 
       await credential.user?.updateDisplayName(name.trim());
 
@@ -77,7 +75,6 @@ class AuthController extends GetxController {
         uid: credential.user!.uid,
         name: name.trim(),
         email: email.trim(),
-        role: UserRole.patient,
         createdAt: DateTime.now(),
       );
 
@@ -89,7 +86,7 @@ class AuthController extends GetxController {
       userModel.value = newUser;
 
       Get.snackbar(
-        'Welcome to MediSaathi! 🎉',
+        'Welcome to DocTalk! 🎉',
         'Account created successfully, ${name.split(' ').first}!',
         backgroundColor: AppColors.primary,
         colorText: AppColors.white,
@@ -112,84 +109,7 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> signUpHelper({
-    required String name,
-    required String email,
-    required String password,
-    required String phone,
-    required HelperType helperType,
-    required double latitude,
-    required double longitude,
-    required String address,
-    required String description,
-  }) async {
-    try {
-      isLoading.value = true;
-      _skipNextAuthRoute = true;
-
-      final UserCredential credential = await _auth
-          .createUserWithEmailAndPassword(
-        email: email.trim(),
-        password: password.trim(),
-      );
-
-      await credential.user?.updateDisplayName(name.trim());
-
-      final newUser = UserModel(
-        uid: credential.user!.uid,
-        name: name.trim(),
-        email: email.trim(),
-        phoneNumber: phone.trim(),
-        role: UserRole.helper,
-        createdAt: DateTime.now(),
-        helperType: helperType,
-        latitude: latitude,
-        longitude: longitude,
-        address: address,
-        description: description,
-        isAvailable: true,
-      );
-
-
-      await _firestore
-          .collection('users')
-          .doc(credential.user!.uid)
-          .set(newUser.toFirestore());
-
-      // Write to helpers collection for fast querying
-      await _firestore
-          .collection('helpers')
-          .doc(credential.user!.uid)
-          .set(newUser.toFirestore());
-
-      userModel.value = newUser;
-
-      Get.snackbar(
-        'Welcome Helper! 🤝',
-        'Account created successfully!',
-        backgroundColor: AppColors.primary,
-        colorText: AppColors.white,
-        snackPosition: SnackPosition.TOP,
-        borderRadius: 12,
-        margin: const EdgeInsets.all(16),
-      );
-
-      Get.offAllNamed(AppRoutes.helperDashboard);
-    } on FirebaseAuthException catch (e) {
-      isLoading.value = false;
-      _skipNextAuthRoute = false;
-      debugPrint('FirebaseAuthException in signUpHelper: ${e.code} - ${e.message}');
-      _handleAuthError(e);
-    } catch (e) {
-      isLoading.value = false;
-      _skipNextAuthRoute = false;
-      debugPrint('ERROR in signUpHelper: $e');
-      _showError('Error: $e');
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
+  // ── LOGIN ──
   Future<void> login({required String email, required String password}) async {
     try {
       isLoading.value = true;
@@ -199,7 +119,7 @@ class AuthController extends GetxController {
         password: password.trim(),
       );
 
-           Get.snackbar(
+      Get.snackbar(
         'Welcome back! 👋',
         'Great to see you again!',
         backgroundColor: AppColors.primary,
@@ -219,7 +139,7 @@ class AuthController extends GetxController {
     }
   }
 
-
+  // ── LOGOUT ──
   Future<void> logout() async {
     try {
       await _auth.signOut();
@@ -229,6 +149,7 @@ class AuthController extends GetxController {
     }
   }
 
+  // ── ERROR HANDLING ──
   void _handleAuthError(FirebaseAuthException e) {
     String message;
     switch (e.code) {

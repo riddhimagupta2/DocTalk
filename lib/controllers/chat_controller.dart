@@ -1,11 +1,11 @@
 import 'package:get/get.dart';
 import '../models/chat_message_model.dart';
-import '../services/gemini_service.dart';
+import '../services/openai_service.dart';
 import '../services/chat_history_service.dart';
 import '../controllers/auth_controller.dart';
 
 class ChatController extends GetxController {
-  final GeminiService _geminiService = GeminiService();
+  final OpenAIService _aiService = OpenAIService();
   final ChatHistoryService _historyService = ChatHistoryService();
   final AuthController _authController = Get.find<AuthController>();
 
@@ -16,7 +16,9 @@ class ChatController extends GetxController {
   final RxBool showDoctorFinder = false.obs;
   final Rx<AssessmentData?> currentAssessment = Rx<AssessmentData?>(null);
 
-
+  // ══════════════════════════════════════════════════
+  // 🚨 EMERGENCY DUPLICATE PROTECTION
+  // ══════════════════════════════════════════════════
   bool _isSending = false;
   String? _lastSentMessage;
   DateTime? _lastSendTime;
@@ -39,14 +41,21 @@ class ChatController extends GetxController {
     final trimmedText = text.trim();
     if (trimmedText.isEmpty) return;
 
-    print('CONTROLLER: sendMessage called');
-    print('Message: "$trimmedText"');
-    print('Is sending: $_isSending');
-    print('Last send: $_lastSendTime');
+    print('');
+    print('═══════════════════════════════════════');
+    print('🎯 CONTROLLER: sendMessage called');
+    print('📝 Message: "$trimmedText"');
+    print('🔒 Is sending: $_isSending');
+    print('⏰ Last send: $_lastSendTime');
+    print('═══════════════════════════════════════');
 
+    // ══════════════════════════════════════════════════
+    // 🚨 TRIPLE LAYER PROTECTION
+    // ══════════════════════════════════════════════════
 
+    // Layer 1: Already sending
     if (_isSending) {
-      print('LAYER 1 BLOCKED: Already sending');
+      print('⛔ LAYER 1 BLOCKED: Already sending');
       Get.snackbar(
         'Please Wait',
         'Processing previous message...',
@@ -56,9 +65,9 @@ class ChatController extends GetxController {
       return;
     }
 
-
+    // Layer 2: Exact duplicate
     if (_lastSentMessage == trimmedText) {
-      print('LAYER 2 BLOCKED: Duplicate message');
+      print('⛔ LAYER 2 BLOCKED: Duplicate message');
       Get.snackbar(
         'Duplicate',
         'Already processing this message',
@@ -69,11 +78,11 @@ class ChatController extends GetxController {
       return;
     }
 
-
+    // Layer 3: Too fast
     if (_lastSendTime != null) {
       final gap = DateTime.now().difference(_lastSendTime!);
       if (gap.inSeconds < 3) {
-        print(' LAYER 3 BLOCKED: Too fast (${gap.inSeconds}s gap)');
+        print('⛔ LAYER 3 BLOCKED: Too fast (${gap.inSeconds}s gap)');
         Get.snackbar(
           'Too Fast',
           'Wait ${3 - gap.inSeconds} seconds',
@@ -84,8 +93,11 @@ class ChatController extends GetxController {
       }
     }
 
+    // ══════════════════════════════════════════════════
+    // 🚨 SPECIAL: Doctor Finder (BEFORE AI)
+    // ══════════════════════════════════════════════════
     if (_isDoctorFinderTrigger(trimmedText)) {
-      print('DOCTOR FINDER TRIGGERED');
+      print('✅ DOCTOR FINDER TRIGGERED');
 
       final userMessage = ChatMessage.user(trimmedText);
       messages.add(userMessage);
@@ -103,6 +115,9 @@ class ChatController extends GetxController {
       return;
     }
 
+    // ══════════════════════════════════════════════════
+    // 🔐 LOCK
+    // ══════════════════════════════════════════════════
     _isSending = true;
     _lastSentMessage = trimmedText;
     _lastSendTime = DateTime.now();
@@ -120,8 +135,10 @@ class ChatController extends GetxController {
       isTyping.value = true;
       messages.add(ChatMessage.typing());
 
-
-      final response = await _geminiService.sendMessage(trimmedText);
+      // ══════════════════════════════════════════════════
+      // 🚀 SEND TO OPENAI
+      // ══════════════════════════════════════════════════
+      final response = await _aiService.sendMessage(trimmedText);
 
       messages.removeWhere((m) => m.isTyping);
       isTyping.value = false;
@@ -132,8 +149,11 @@ class ChatController extends GetxController {
         return;
       }
 
+      // ══════════════════════════════════════════════════
+      // HANDLE ASSESSMENT
+      // ══════════════════════════════════════════════════
       if (response.hasAssessment) {
-        print('ASSESSMENT RECEIVED');
+        print('✅ ASSESSMENT RECEIVED');
 
         final summaryMsg = ChatMessage.ai(
           response.text,
@@ -180,9 +200,11 @@ class ChatController extends GetxController {
 
       final errorMsg = ChatMessage.ai('Error: ${e.toString()}');
       messages.add(errorMsg);
-      print('Error: $e');
+      print('❌ Error: $e');
     } finally {
-
+      // ══════════════════════════════════════════════════
+      // 🔓 UNLOCK AFTER 3 SECONDS (FORCED DELAY)
+      // ══════════════════════════════════════════════════
       await Future.delayed(const Duration(seconds: 3));
       _isSending = false;
       print('🔓 CONTROLLER UNLOCKED');
@@ -205,7 +227,7 @@ class ChatController extends GetxController {
       );
       sessionId.value = id;
     } catch (e) {
-      print('Session error: $e');
+      print('❌ Session error: $e');
     }
   }
 
@@ -221,7 +243,7 @@ class ChatController extends GetxController {
         message: message,
       );
     } catch (e) {
-      print('Save error: $e');
+      print('❌ Save error: $e');
     }
   }
 
@@ -234,7 +256,7 @@ class ChatController extends GetxController {
     _isSending = false;
     _lastSentMessage = null;
     _lastSendTime = null;
-    _geminiService.resetSession();
+    _aiService.resetSession();
     _startSession();
   }
 

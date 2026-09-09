@@ -1,9 +1,10 @@
-import 'package:doctalk/screens/AnonymousChat/post_detail_scrren.dart';
+﻿import 'package:doctalk/screens/AnonymousChat/post_detail_scrren.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../controllers/community_controller.dart';
 import '../../models/anonymous_chat_model.dart';
+import '../../resources/responsive.dart';
 import 'create_post_screen.dart';
 
 class CommunityScreen extends StatelessWidget {
@@ -18,22 +19,24 @@ class CommunityScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFF0F0F1E),
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Anonymous Community',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: context.sp(18),
             fontWeight: FontWeight.w800,
             color: Colors.white,
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: Colors.white, size: 20),
-          onPressed: () => Get.back(),
-        ),
+        leading: Navigator.canPop(context)
+            ? IconButton(
+                icon: Icon(Icons.arrow_back_ios_new_rounded,
+                    color: Colors.white, size: context.r(20)),
+                onPressed: () => Get.back(),
+              )
+            : null,
         actions: [
           IconButton(
-            icon: const Icon(Icons.search_rounded, color: Colors.white),
+            icon: Icon(Icons.search_rounded, color: Colors.white, size: context.r(22)),
             onPressed: () => _showSearchDialog(context, controller),
           ),
         ],
@@ -43,22 +46,25 @@ class CommunityScreen extends StatelessWidget {
           // Privacy Banner
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.symmetric(
+              horizontal: context.wp(4).clamp(12.0, 20.0),
+              vertical: context.hp(1.2).clamp(8.0, 14.0),
+            ),
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [Color(0xFF9B59B6), Color(0xFF8E44AD)],
               ),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.shield_outlined, color: Colors.white, size: 16),
-                SizedBox(width: 8),
+                Icon(Icons.shield_outlined, color: Colors.white, size: context.r(16)),
+                SizedBox(width: context.wp(2).clamp(6.0, 10.0)),
                 Expanded(
                   child: Text(
                     'Share experiences anonymously. Your identity is protected.',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 12,
+                      fontSize: context.sp(12),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -69,57 +75,60 @@ class CommunityScreen extends StatelessWidget {
 
           // Category Filter
           Container(
-            height: 60,
+            height: context.hp(7.5).clamp(52.0, 68.0),
             color: const Color(0xFF0F0F1E),
             child: Obx(() => ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  children: [
-                    _CategoryChip(
-                      label: 'All',
-                      isSelected: controller.selectedCategory.value == null,
-                      onTap: () => controller.clearFilter(),
-                    ),
-                    ...PostCategory.values.map(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.symmetric(
+                horizontal: context.wp(4).clamp(12.0, 20.0),
+                vertical: context.hp(1.0).clamp(6.0, 10.0),
+              ),
+              children: [
+                _CategoryChip(
+                  label: 'All',
+                  isSelected: controller.selectedCategory.value == null,
+                  onTap: () => controller.clearFilter(),
+                ),
+                ...PostCategory.values.map(
                       (cat) => _CategoryChip(
-                        label: '${cat.emoji} ${cat.label}',
-                        isSelected: controller.selectedCategory.value == cat,
-                        onTap: () => controller.filterByCategory(cat),
-                      ),
-                    ),
-                  ],
-                )),
+                    label: ' ',
+                    isSelected: controller.selectedCategory.value == cat,
+                    onTap: () => controller.filterByCategory(cat),
+                  ),
+                ),
+              ],
+            )),
           ),
 
-          // Posts
+          // Posts List
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value && controller.posts.isEmpty) {
                 return const Center(
                   child: CircularProgressIndicator(
-                    valueColor:
-                        AlwaysStoppedAnimation<Color>(Color(0xFF9B59B6)),
+                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF9B59B6)),
                   ),
                 );
               }
 
               if (controller.posts.isEmpty) {
-                return _buildEmptyState();
+                return _buildEmptyState(context);
               }
 
               return ListView.builder(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.wp(4).clamp(12.0, 20.0),
+                  vertical: context.hp(1.5).clamp(10.0, 18.0),
+                ),
                 itemCount: controller.posts.length,
                 itemBuilder: (context, index) {
                   return _PostCard(
                     post: controller.posts[index],
                     onTap: () => Get.to(
-                      () => PostDetailScreen(post: controller.posts[index]),
+                          () => PostDetailScreen(post: controller.posts[index]),
                       transition: Transition.rightToLeft,
                     ),
-                    onUpvote: () =>
-                        controller.upvotePost(controller.posts[index]),
+                    onUpvote: () => controller.upvotePost(controller.posts[index]),
                   );
                 },
               );
@@ -129,38 +138,26 @@ class CommunityScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Get.to(
-          () => const CreatePostScreen(),
+              () => const CreatePostScreen(),
           transition: Transition.downToUp,
         ),
         backgroundColor: const Color(0xFF9B59B6),
-        label: const Text('Share Your Story'),
-        icon: const Icon(Icons.add_rounded),
+        label: Text('Share Your Story', style: TextStyle(fontSize: context.sp(14))),
+        icon: Icon(Icons.add_rounded, size: context.r(22)),
       ),
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('💬', style: TextStyle(fontSize: 64)),
-          const SizedBox(height: 16),
-          const Text(
-            'No posts yet',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 8),
+          Icon(Icons.forum_outlined, size: context.r(60), color: Colors.white24),
+          SizedBox(height: context.hp(2)),
           Text(
-            'Be the first to share your story',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.white.withOpacity(0.6),
-            ),
+            'No discussions found',
+            style: TextStyle(fontSize: context.sp(16), color: Colors.white70, fontWeight: FontWeight.bold),
           ),
         ],
       ),
@@ -168,45 +165,35 @@ class CommunityScreen extends StatelessWidget {
   }
 
   void _showSearchDialog(BuildContext context, CommunityController controller) {
-    final searchController = TextEditingController();
-    Get.dialog(
-      AlertDialog(
-        backgroundColor: const Color(0xFF2A2A3E),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Search Posts',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
-        ),
-        content: TextField(
-          controller: searchController,
-          style: const TextStyle(color: Colors.white),
-          decoration: const InputDecoration(
-            hintText: 'Enter keywords...',
-            hintStyle: TextStyle(color: Colors.white38),
-            border: OutlineInputBorder(),
+    final searchCtrl = TextEditingController();
+    Get.defaultDialog(
+      title: 'Search Discussions',
+      titleStyle: TextStyle(color: Colors.black, fontSize: context.sp(16), fontWeight: FontWeight.bold),
+      content: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: TextField(
+          controller: searchCtrl,
+          decoration: InputDecoration(
+            hintText: 'Type to search...',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
-          onSubmitted: (query) {
+          onSubmitted: (val) {
+            controller.searchQuery.value = val;
             Get.back();
-            controller.searchPosts(query);
           },
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Get.back();
-              controller.searchPosts(searchController.text);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF9B59B6),
-            ),
-            child: const Text('Search'),
-          ),
-        ],
       ),
+      actions: [
+        TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+        ElevatedButton(
+          onPressed: () {
+            controller.searchQuery.value = searchCtrl.text;
+            Get.back();
+          },
+          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF9B59B6)),
+          child: const Text('Search', style: TextStyle(color: Colors.white)),
+        ),
+      ],
     );
   }
 }
@@ -228,20 +215,22 @@ class _CategoryChip extends StatelessWidget {
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: context.r(14), vertical: context.hp(0.8)),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF9B59B6) : const Color(0xFF2A2A3E),
+          color: isSelected ? const Color(0xFF9B59B6) : const Color(0xFF1E1E38),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? const Color(0xFF9B59B6) : Colors.transparent,
+            color: isSelected ? const Color(0xFF9B59B6) : Colors.white12,
           ),
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 13,
-            color: isSelected ? Colors.white : Colors.white70,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+        child: Center(
+          child: Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? Colors.white : Colors.white70,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              fontSize: context.sp(13),
+            ),
           ),
         ),
       ),
@@ -262,130 +251,100 @@ class _PostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xFF2A2A3E),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFF3A3A4E)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Author info
-            Row(
+    return Container(
+      margin: EdgeInsets.only(bottom: context.hp(1.5).clamp(8.0, 14.0)),
+      decoration: BoxDecoration(
+        color: const Color(0xFF22223B),
+        borderRadius: BorderRadius.circular(context.r(16)),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(context.r(16)),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(context.r(16)),
+          child: Padding(
+            padding: EdgeInsets.all(context.r(16)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(post.anonymousAvatar,
-                    style: const TextStyle(fontSize: 24)),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        post.anonymousName,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: context.r(14),
+                      backgroundColor: const Color(0xFF9B59B6).withOpacity(0.3),
+                      child: Text(post.anonymousAvatar, style: TextStyle(fontSize: context.sp(14))),
+                    ),
+                    SizedBox(width: context.wp(2.5)),
+                    Text(
+                      post.anonymousName,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: context.sp(13),
                       ),
-                      Text(
-                        '${post.category.emoji} ${post.category.label} • ${post.timeAgo}',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.white.withOpacity(0.5),
-                        ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: context.r(8), vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    ],
+                      child: Text(
+                        post.category.label,
+                        style: TextStyle(color: Colors.white70, fontSize: context.sp(11)),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: context.hp(1.2)),
+                Text(
+                  post.title,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: context.sp(15),
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            // Title
-            Text(
-              post.title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 6),
-
-            // Content preview
-            Text(
-              post.content,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.white.withOpacity(0.8),
-                height: 1.5,
-              ),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 12),
-
-            // Stats
-            Row(
-              children: [
-                GestureDetector(
-                  onTap: onUpvote,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF3A3A4E),
-                      borderRadius: BorderRadius.circular(20),
+                const SizedBox(height: 6),
+                Text(
+                  post.content,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: context.sp(13),
+                    height: 1.4,
+                  ),
+                ),
+                SizedBox(height: context.hp(1.5)),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: onUpvote,
+                      child: Row(
+                        children: [
+                          Icon(Icons.arrow_upward_rounded, color: const Color(0xFF9B59B6), size: context.r(16)),
+                          const SizedBox(width: 4),
+                          Text('', style: TextStyle(color: Colors.white70, fontSize: context.sp(12))),
+                        ],
+                      ),
                     ),
-                    child: Row(
+                    SizedBox(width: context.wp(5)),
+                    Row(
                       children: [
-                        const Icon(Icons.arrow_upward_rounded,
-                            size: 16, color: Color(0xFF9B59B6)),
+                        Icon(Icons.mode_comment_outlined, color: Colors.white38, size: context.r(15)),
                         const SizedBox(width: 4),
-                        Text(
-                          '${post.upvoteCount}',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        Text('', style: TextStyle(color: Colors.white70, fontSize: context.sp(12))),
                       ],
                     ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF3A3A4E),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.chat_bubble_outline_rounded,
-                          size: 14, color: Colors.white70),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${post.replyCount}',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Colors.white70,
-                        ),
-                      ),
-                    ],
-                  ),
+                  ],
                 ),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );

@@ -1,19 +1,21 @@
 class AppRoutes {
-
-   static const splash = '/splash';
+  // ── Auth ────────────────────────────────────────────────
+  static const splash = '/splash';
   static const login = '/login';
   static const signup = '/signup';
-  static const roleSelection = '/role-selection';
-  static const helperSignup = '/helper-signup';
 
-   static const home = '/home';
+  // ── Core ────────────────────────────────────────────────
+  static const home = '/home';
   static const chat = '/chat';
-  static const sos = '/sos';
+  static const community = '/community';
 
-   static const helperDashboard = '/helper-dashboard';
-
-   static const doctorFinder = '/doctor-finder';
+  // ── Doctor Finder + Booking ──────────────────────────────
+  static const doctorFinder = '/doctor-finder';
   static const doctorDetails = '/doctor-details';
   static const booking = '/booking';
   static const bookingConfirmation = '/booking-confirmation';
+
+  // ── AI Medical Image Analysis ─────────────────────────────
+  static const imageAnalysis = '/image-analysis';
+  static const imageAnalysisHistory = '/image-analysis-history';
 }

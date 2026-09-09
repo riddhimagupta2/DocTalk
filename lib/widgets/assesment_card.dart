@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../models/chat_message_model.dart';
 import '../resources/AppTheme.dart';
+import '../resources/responsive.dart';
 
 class AssessmentCard extends StatelessWidget {
   final AssessmentData assessment;
@@ -44,10 +45,10 @@ class AssessmentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
+      margin: EdgeInsets.symmetric(vertical: context.hp(1.0).clamp(6.0, 12.0)),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(context.r(20)),
         border: Border.all(color: _severityColor.withOpacity(0.3), width: 1.5),
         boxShadow: [
           BoxShadow(
@@ -62,32 +63,32 @@ class AssessmentCard extends StatelessWidget {
         children: [
           // Header
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(context.r(16)),
             decoration: BoxDecoration(
               color: _severityColor.withOpacity(0.08),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(18),
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(context.r(18)),
               ),
             ),
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: EdgeInsets.all(context.r(8)),
                   decoration: BoxDecoration(
                     color: _severityColor.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(context.r(10)),
                   ),
-                  child: const Text('📋', style: TextStyle(fontSize: 20)),
+                  child: Text('📋', style: TextStyle(fontSize: context.sp(20))),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: context.wp(3).clamp(8.0, 16.0)),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Health Assessment',
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: context.sp(16),
                           fontWeight: FontWeight.w800,
                           color: AppColors.textPrimary,
                           fontFamily: 'Lato',
@@ -98,15 +99,18 @@ class AssessmentCard extends StatelessWidget {
                         children: [
                           Text(
                             _severityEmoji,
-                            style: const TextStyle(fontSize: 12),
+                            style: TextStyle(fontSize: context.sp(12)),
                           ),
                           const SizedBox(width: 4),
-                          Text(
-                            _severityLabel,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: _severityColor,
-                              fontWeight: FontWeight.w600,
+                          Expanded(
+                            child: Text(
+                              _severityLabel,
+                              style: TextStyle(
+                                fontSize: context.sp(12),
+                                color: _severityColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -120,13 +124,13 @@ class AssessmentCard extends StatelessWidget {
 
           // Body
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(context.r(16)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
+                // Likely Conditions
                 _SectionLabel(label: 'Possible Conditions'),
-                const SizedBox(height: 8),
+                SizedBox(height: context.hp(1)),
                 Wrap(
                   spacing: 8,
                   runSpacing: 6,
@@ -135,7 +139,7 @@ class AssessmentCard extends StatelessWidget {
                       .toList(),
                 ),
 
-                const SizedBox(height: 16),
+                SizedBox(height: context.hp(2)),
 
                 // Severity reason
                 _InfoRow(
@@ -144,36 +148,39 @@ class AssessmentCard extends StatelessWidget {
                   value: assessment.severityReason,
                 ),
 
-                const SizedBox(height: 12),
+                SizedBox(height: context.hp(1.5)),
 
+                // Recommended specialist
                 _InfoRow(
                   icon: '👨‍⚕️',
                   label: 'Consult',
                   value: assessment.recommendedSpecialist,
-                  valueStyle: const TextStyle(
-                    fontSize: 14,
+                  valueStyle: TextStyle(
+                    fontSize: context.sp(14),
                     fontWeight: FontWeight.w700,
                     color: AppColors.primary,
                   ),
                 ),
 
                 if (assessment.homeCare.isNotEmpty) ...[
-                  const SizedBox(height: 16),
+                  SizedBox(height: context.hp(2)),
                   _SectionLabel(label: 'Home Care Tips'),
-                  const SizedBox(height: 8),
-                  ...assessment.homeCare.take(3).map(
+                  SizedBox(height: context.hp(1)),
+                  ...assessment.homeCare
+                      .take(3)
+                      .map(
                         (tip) => Padding(
-                          padding: const EdgeInsets.only(bottom: 6),
+                          padding: EdgeInsets.only(bottom: context.hp(0.8)),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('✅', style: TextStyle(fontSize: 12)),
-                              const SizedBox(width: 8),
+                              Text('✅', style: TextStyle(fontSize: context.sp(12))),
+                              SizedBox(width: context.wp(2).clamp(6.0, 10.0)),
                               Expanded(
                                 child: Text(
                                   tip,
-                                  style: const TextStyle(
-                                    fontSize: 13,
+                                  style: TextStyle(
+                                    fontSize: context.sp(13),
                                     color: AppColors.textSecondary,
                                     height: 1.4,
                                   ),
@@ -187,12 +194,12 @@ class AssessmentCard extends StatelessWidget {
 
                 if (assessment.redFlags.isNotEmpty &&
                     assessment.severity != 'LOW') ...[
-                  const SizedBox(height: 16),
+                  SizedBox(height: context.hp(2)),
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: EdgeInsets.all(context.r(12)),
                     decoration: BoxDecoration(
                       color: AppColors.urgent.withOpacity(0.05),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(context.r(10)),
                       border: Border.all(
                         color: AppColors.urgent.withOpacity(0.2),
                       ),
@@ -200,28 +207,30 @@ class AssessmentCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Row(
+                        Row(
                           children: [
-                            Text('🚨', style: TextStyle(fontSize: 14)),
-                            SizedBox(width: 6),
+                            Text('🚨', style: TextStyle(fontSize: context.sp(14))),
+                            const SizedBox(width: 6),
                             Text(
                               'Go to ER if you experience:',
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: context.sp(13),
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.urgent,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 6),
-                        ...assessment.redFlags.take(2).map(
+                        SizedBox(height: context.hp(0.8)),
+                        ...assessment.redFlags
+                            .take(2)
+                            .map(
                               (flag) => Padding(
                                 padding: const EdgeInsets.only(top: 4),
                                 child: Text(
-                                  '• $flag',
+                                  '• ',
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: context.sp(12),
                                     color: AppColors.urgent.withOpacity(0.8),
                                     height: 1.4,
                                   ),
@@ -233,19 +242,19 @@ class AssessmentCard extends StatelessWidget {
                   ),
                 ],
 
-                const SizedBox(height: 16),
+                SizedBox(height: context.hp(2)),
 
                 // Disclaimer
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: EdgeInsets.all(context.r(10)),
                   decoration: BoxDecoration(
                     color: AppColors.border.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(context.r(8)),
                   ),
                   child: Text(
-                    '⚕️ ${assessment.disclaimer}',
-                    style: const TextStyle(
-                      fontSize: 11,
+                    '⚕️ ',
+                    style: TextStyle(
+                      fontSize: context.sp(11),
                       color: AppColors.textSecondary,
                       fontStyle: FontStyle.italic,
                       height: 1.4,
@@ -270,8 +279,8 @@ class _SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       label.toUpperCase(),
-      style: const TextStyle(
-        fontSize: 10,
+      style: TextStyle(
+        fontSize: context.sp(10),
         fontWeight: FontWeight.w700,
         color: AppColors.textHint,
         letterSpacing: 1.2,
@@ -288,16 +297,16 @@ class _ConditionChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: EdgeInsets.symmetric(horizontal: context.r(10), vertical: context.hp(0.6)),
       decoration: BoxDecoration(
         color: AppColors.primaryLight,
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(context.r(6)),
         border: Border.all(color: AppColors.primary.withOpacity(0.2)),
       ),
       child: Text(
         condition,
-        style: const TextStyle(
-          fontSize: 12,
+        style: TextStyle(
+          fontSize: context.sp(12),
           color: AppColors.primary,
           fontWeight: FontWeight.w600,
         ),
@@ -324,16 +333,16 @@ class _InfoRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(icon, style: const TextStyle(fontSize: 14)),
-        const SizedBox(width: 8),
+        Text(icon, style: TextStyle(fontSize: context.sp(14))),
+        SizedBox(width: context.wp(2).clamp(6.0, 10.0)),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 label,
-                style: const TextStyle(
-                  fontSize: 11,
+                style: TextStyle(
+                  fontSize: context.sp(11),
                   color: AppColors.textHint,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.5,
@@ -343,8 +352,8 @@ class _InfoRow extends StatelessWidget {
               Text(
                 value,
                 style: valueStyle ??
-                    const TextStyle(
-                      fontSize: 13,
+                    TextStyle(
+                      fontSize: context.sp(13),
                       color: AppColors.textSecondary,
                       height: 1.4,
                     ),

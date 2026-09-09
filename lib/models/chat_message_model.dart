@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 enum MessageRole { user, ai }
-
 enum MessageType { text, assessment, quickReply, typing }
 
 class ChatMessage {
@@ -31,19 +30,19 @@ class ChatMessage {
   });
 
   factory ChatMessage.user(String content) => ChatMessage(
-        id: '${DateTime.now().millisecondsSinceEpoch}_user',
-        content: content,
-        role: MessageRole.user,
-        type: MessageType.text,
-        timestamp: DateTime.now(),
-      );
+    id: '${DateTime.now().millisecondsSinceEpoch}_user',
+    content: content,
+    role: MessageRole.user,
+    type: MessageType.text,
+    timestamp: DateTime.now(),
+  );
 
   factory ChatMessage.ai(
-    String content, {
-    List<String>? quickReplies,
-    bool showDoctorButton = false,
-    String? doctorSpecialist,
-  }) =>
+      String content, {
+        List<String>? quickReplies,
+        bool showDoctorButton = false,
+        String? doctorSpecialist,
+      }) =>
       ChatMessage(
         id: '${DateTime.now().millisecondsSinceEpoch}_ai',
         content: content,
@@ -58,29 +57,29 @@ class ChatMessage {
       );
 
   factory ChatMessage.assessment(AssessmentData assessment) => ChatMessage(
-        id: '${DateTime.now().millisecondsSinceEpoch}_assessment',
-        content: '',
-        role: MessageRole.ai,
-        type: MessageType.assessment,
-        timestamp: DateTime.now(),
-        assessment: assessment,
-      );
+    id: '${DateTime.now().millisecondsSinceEpoch}_assessment',
+    content: '',
+    role: MessageRole.ai,
+    type: MessageType.assessment,
+    timestamp: DateTime.now(),
+    assessment: assessment,
+  );
 
   factory ChatMessage.typing() => ChatMessage(
-        id: 'typing',
-        content: '',
-        role: MessageRole.ai,
-        type: MessageType.typing,
-        timestamp: DateTime.now(),
-        isTyping: true,
-      );
+    id: 'typing',
+    content: '',
+    role: MessageRole.ai,
+    type: MessageType.typing,
+    timestamp: DateTime.now(),
+    isTyping: true,
+  );
 
   Map<String, dynamic> toFirestore() => {
-        'content': content,
-        'role': role.name,
-        'type': type.name,
-        'timestamp': Timestamp.fromDate(timestamp),
-      };
+    'content': content,
+    'role': role.name,
+    'type': type.name,
+    'timestamp': Timestamp.fromDate(timestamp),
+  };
 }
 
 class AssessmentData {
@@ -103,16 +102,16 @@ class AssessmentData {
   });
 
   factory AssessmentData.fromJson(Map<String, dynamic> json) => AssessmentData(
-        likelyconditions: List<String>.from(json['likely_conditions'] ?? []),
-        severity: (json['severity'] ?? 'MEDIUM').toString().toUpperCase(),
-        severityReason: json['severity_reason'] ?? '',
-        recommendedSpecialist:
-            json['recommended_specialist'] ?? 'General Physician',
-        homeCare: List<String>.from(json['home_care_tips'] ?? []),
-        redFlags: List<String>.from(json['red_flags'] ?? []),
-        disclaimer: json['disclaimer'] ??
-            'Yeh ek preliminary assessment hai. Doctor se milna zaroori hai.',
-      );
+    likelyconditions: List<String>.from(json['likely_conditions'] ?? []),
+    severity: (json['severity'] ?? 'MEDIUM').toString().toUpperCase(),
+    severityReason: json['severity_reason'] ?? '',
+    recommendedSpecialist:
+    json['recommended_specialist'] ?? 'General Physician',
+    homeCare: List<String>.from(json['home_care_tips'] ?? []),
+    redFlags: List<String>.from(json['red_flags'] ?? []),
+    disclaimer: json['disclaimer'] ??
+        'Yeh ek preliminary assessment hai. Doctor se milna zaroori hai.',
+  );
 
   Color get severityColor {
     switch (severity) {
@@ -148,4 +147,4 @@ class AssessmentData {
   }
 }
 
-
+// Needed for Color in AssessmentData

@@ -41,7 +41,7 @@ class BookingController extends GetxController {
     isBooking.value = true;
 
     try {
-      await Future.delayed(const Duration(seconds: 1));
+      await Future.delayed(const Duration(seconds: 1)); // simulate API
 
       final appointment = AppointmentModel(
         id: 'APT_${DateTime.now().millisecondsSinceEpoch}',

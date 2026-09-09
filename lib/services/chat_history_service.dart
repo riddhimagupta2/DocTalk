@@ -4,6 +4,7 @@ import '../models/chat_message_model.dart';
 class ChatHistoryService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
+  // Create a new chat session
   Future<String> createSession(String userId, String firstSymptom) async {
     final sessionRef = await _db
         .collection('users')
@@ -19,6 +20,7 @@ class ChatHistoryService {
     return sessionRef.id;
   }
 
+  // Save a message
   Future<void> saveMessage({
     required String userId,
     required String sessionId,
@@ -45,6 +47,7 @@ class ChatHistoryService {
     });
   }
 
+  // Save assessment result to session
   Future<void> saveAssessment({
     required String userId,
     required String sessionId,
@@ -66,6 +69,7 @@ class ChatHistoryService {
     });
   }
 
+  // Get all sessions for history screen
   Future<List<ChatSession>> getUserSessions(String userId) async {
     final snapshot = await _db
         .collection('users')
@@ -78,6 +82,7 @@ class ChatHistoryService {
     return snapshot.docs.map((doc) => ChatSession.fromFirestore(doc)).toList();
   }
 
+  // Get messages for a session
   Future<List<Map<String, dynamic>>> getSessionMessages({
     required String userId,
     required String sessionId,

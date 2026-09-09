@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../../resources/AppTheme.dart';
+import '../../resources/responsive.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -39,8 +40,8 @@ class CustomTextField extends StatelessWidget {
       maxLines: maxLines,
       validator: validator,
       onFieldSubmitted: onFieldSubmitted,
-      style: const TextStyle(
-        fontSize: 15,
+      style: TextStyle(
+        fontSize: context.sp(15),
         color: AppColors.textPrimary,
         fontFamily: 'Lato',
         fontWeight: FontWeight.w400,
@@ -51,46 +52,48 @@ class CustomTextField extends StatelessWidget {
         prefixIcon: Icon(
           prefixIcon,
           color: AppColors.textSecondary,
-          size: 20,
+          size: context.r(20),
         ),
         suffixIcon: suffixIcon,
         filled: true,
         fillColor: AppColors.white,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(context.r(14)),
           borderSide: const BorderSide(color: AppColors.border),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(context.r(14)),
           borderSide: const BorderSide(color: AppColors.border),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(context.r(14)),
           borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(context.r(14)),
           borderSide: const BorderSide(color: AppColors.error),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(context.r(14)),
           borderSide: const BorderSide(color: AppColors.error, width: 2),
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        labelStyle: const TextStyle(
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: context.r(16),
+          vertical: context.hp(1.8).clamp(12.0, 18.0),
+        ),
+        labelStyle: TextStyle(
           color: AppColors.textSecondary,
-          fontSize: 15,
+          fontSize: context.sp(15),
           fontFamily: 'Lato',
         ),
-        hintStyle: const TextStyle(
+        hintStyle: TextStyle(
           color: AppColors.textHint,
-          fontSize: 15,
+          fontSize: context.sp(15),
           fontFamily: 'Lato',
         ),
-        errorStyle: const TextStyle(
+        errorStyle: TextStyle(
           color: AppColors.error,
-          fontSize: 12,
+          fontSize: context.sp(12),
         ),
       ),
     );

@@ -27,8 +27,7 @@ class CommunityController extends GetxController {
 
   void _loadPosts() {
     isLoading.value = true;
-    _service.getPostsStream(category: selectedCategory.value).listen(
-        (loadedPosts) {
+    _service.getPostsStream(category: selectedCategory.value).listen((loadedPosts) {
       posts.value = loadedPosts;
       isLoading.value = false;
     }, onError: (error) {
@@ -49,7 +48,7 @@ class CommunityController extends GetxController {
         content: content,
         category: category,
       );
-      Get.back();
+      Get.back(); // Close create post screen
       Get.snackbar(
         'Posted! 🎉',
         'Your anonymous post is live',

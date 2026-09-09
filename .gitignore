@@ -11,6 +11,11 @@
 .svn/
 .swiftpm/
 .env
+*.env
+.env.*
+.env*.local
+backend/.env
+backend/*.env
 migrate_working_dir/
 
 

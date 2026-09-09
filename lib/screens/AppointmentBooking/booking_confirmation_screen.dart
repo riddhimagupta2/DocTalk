@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../models/appointment_model.dart';
 import '../../resources/AppRoutes.dart';
 import '../../resources/AppTheme.dart';
+import '../../resources/responsive.dart';
 
 class BookingConfirmationScreen extends StatefulWidget {
   const BookingConfirmationScreen({super.key});
@@ -13,7 +14,8 @@ class BookingConfirmationScreen extends StatefulWidget {
       _BookingConfirmationScreenState();
 }
 
-class _BookingConfirmationScreenState extends State<BookingConfirmationScreen>
+class _BookingConfirmationScreenState
+    extends State<BookingConfirmationScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animCtrl;
   late Animation<double> _scaleAnim;
@@ -28,8 +30,10 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen>
       duration: const Duration(milliseconds: 650),
     );
 
-    _scaleAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.elasticOut);
-    _fadeAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeIn);
+    _scaleAnim =
+        CurvedAnimation(parent: _animCtrl, curve: Curves.elasticOut);
+    _fadeAnim =
+        CurvedAnimation(parent: _animCtrl, curve: Curves.easeIn);
 
     _animCtrl.forward();
   }
@@ -42,7 +46,6 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen>
 
   @override
   Widget build(BuildContext context) {
-    /// SAFE ARGUMENT EXTRACTION
     final args = Get.arguments;
 
     AppointmentModel? appointment;
@@ -57,230 +60,149 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen>
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
-        child:
-            appointment == null ? _buildFallback() : _buildSuccess(appointment),
+        child: appointment == null
+            ? _buildFallback(context)
+            : _buildSuccess(context, appointment),
       ),
     );
   }
 
-  Widget _buildFallback() {
+  /// ---------------- FALLBACK UI ----------------
+  Widget _buildFallback(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.check_circle_rounded,
-              color: AppColors.success, size: 72),
-          const SizedBox(height: 20),
-          const Text(
+          Icon(Icons.check_circle_rounded,
+              color: AppColors.success, size: context.r(72)),
+          SizedBox(height: context.hp(2.5)),
+          Text(
             'Appointment Booked!',
             style: TextStyle(
-              fontSize: 22,
+              fontSize: context.sp(22),
               fontWeight: FontWeight.w800,
               fontFamily: 'Lato',
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: context.hp(3)),
           ElevatedButton(
             onPressed: () => Get.offAllNamed(AppRoutes.home),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.r(12))),
             ),
-            child: const Text('Back to Home'),
+            child: Text('Back to Home', style: TextStyle(fontSize: context.sp(14))),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSuccess(AppointmentModel appt) {
+  /// ---------------- SUCCESS UI ----------------
+  Widget _buildSuccess(BuildContext context, AppointmentModel appt) {
     final doctor = appt.doctor;
 
-    final bookingId =
-        appt.id.length > 8 ? appt.id.substring(appt.id.length - 8) : appt.id;
+    final bookingId = appt.id.length > 8
+        ? appt.id.substring(appt.id.length - 8)
+        : appt.id;
+
+    final successIconSize = context.r(100).clamp(70.0, 120.0);
 
     return FadeTransition(
       opacity: _fadeAnim,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.wp(6).clamp(16.0, 32.0),
+        ),
         child: Column(
           children: [
-            const SizedBox(height: 40),
+            SizedBox(height: context.hp(4).clamp(24.0, 48.0)),
 
-
+            /// Animated Icon
             ScaleTransition(
               scale: _scaleAnim,
               child: Container(
-                width: 100,
-                height: 100,
+                width: successIconSize,
+                height: successIconSize,
                 decoration: BoxDecoration(
                   color: AppColors.success.withOpacity(0.12),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.check_circle_rounded,
                   color: AppColors.success,
-                  size: 58,
+                  size: context.r(58),
                 ),
               ),
             ),
 
-            const SizedBox(height: 20),
+            SizedBox(height: context.hp(2)),
 
-            const Text(
+            Text(
               'Appointment Booked!',
               style: TextStyle(
                 color: AppColors.textPrimary,
-                fontSize: 24,
+                fontSize: context.sp(24),
                 fontWeight: FontWeight.w800,
                 fontFamily: 'Lato',
               ),
             ),
 
-            const SizedBox(height: 6),
+            SizedBox(height: context.hp(0.8)),
 
-            const Text(
-              'Aapka appointment successfully book ho gaya.',
-              textAlign: TextAlign.center,
+            Text(
+              'Booking ID: #$bookingId',
               style: TextStyle(
                 color: AppColors.textSecondary,
-                fontSize: 14,
+                fontSize: context.sp(13),
               ),
             ),
 
-            const SizedBox(height: 30),
+            SizedBox(height: context.hp(3)),
 
+            // Details card
             Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(context.r(20)),
               decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(20),
+                color: AppColors.background,
+                borderRadius: BorderRadius.circular(context.r(18)),
                 border: Border.all(color: AppColors.border),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
               ),
               child: Column(
                 children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryLight,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      'Booking ID: $bookingId',
-                      style: const TextStyle(
-                        color: AppColors.primaryDark,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Divider(color: AppColors.border),
-                  _DetailRow(
-                    icon: Icons.person,
-                    label: 'Doctor',
-                    value: doctor?.name ?? 'N/A',
-                  ),
-                  _DetailRow(
-                    icon: Icons.medical_services,
-                    label: 'Specialization',
-                    value: doctor?.specialization ?? 'N/A',
-                  ),
-                  _DetailRow(
-                    icon: Icons.calendar_today,
-                    label: 'Date',
-                    value: DateFormat('EEEE, d MMM yyyy').format(appt.date),
-                  ),
-                  _DetailRow(
-                    icon: Icons.access_time,
-                    label: 'Time',
-                    value: appt.timeSlot,
-                  ),
-                  _DetailRow(
-                    icon: Icons.location_on,
-                    label: 'Clinic',
-                    value: doctor?.address ?? 'N/A',
-                  ),
-                  _DetailRow(
-                    icon: Icons.person_outline,
-                    label: 'Patient',
-                    value: appt.patientName,
-                  ),
-                  _DetailRow(
-                    icon: Icons.currency_rupee,
-                    label: 'Fee',
-                    value: '₹${doctor?.consultationFee?.toInt() ?? 0}',
-                    isLast: true,
-                  ),
+                  _RowItem('Doctor', doctor.name, isBold: true),
+                  SizedBox(height: context.hp(1.2)),
+                  _RowItem('Specialization', doctor.specialization),
+                  SizedBox(height: context.hp(1.2)),
+                  _RowItem('Date', DateFormat('dd MMM yyyy').format(appt.date)),
+                  SizedBox(height: context.hp(1.2)),
+                  _RowItem('Time Slot', appt.timeSlot),
+                  SizedBox(height: context.hp(1.2)),
+                  _RowItem('Patient', appt.patientName),
                 ],
               ),
             ),
 
-            const SizedBox(height: 30),
-
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-              decoration: BoxDecoration(
-                color: AppColors.success.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.check_circle, color: AppColors.success, size: 15),
-                  SizedBox(width: 6),
-                  Text(
-                    'Confirmed',
-                    style: TextStyle(
-                        color: AppColors.success, fontWeight: FontWeight.w700),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 25),
+            SizedBox(height: context.hp(4)),
 
             SizedBox(
               width: double.infinity,
-              height: 52,
+              height: context.hp(6.2).clamp(46.0, 56.0),
               child: ElevatedButton(
                 onPressed: () => Get.offAllNamed(AppRoutes.home),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14)),
+                    borderRadius: BorderRadius.circular(context.r(14)),
+                  ),
                 ),
-                child: const Text('Back to Home'),
+                child: Text('Done', style: TextStyle(fontSize: context.sp(16), fontWeight: FontWeight.bold)),
               ),
             ),
 
-            const SizedBox(height: 10),
-
-            TextButton(
-              onPressed: () => Get.toNamed(
-                AppRoutes.doctorFinder,
-                arguments: {
-                  'specialist': doctor?.specialization ?? '',
-                },
-              ),
-              child: const Text(
-                'Book Another Appointment',
-                style: TextStyle(
-                    color: AppColors.primary, fontWeight: FontWeight.w600),
-              ),
-            ),
-
-            const SizedBox(height: 20),
+            SizedBox(height: context.hp(4)),
           ],
         ),
       ),
@@ -288,51 +210,33 @@ class _BookingConfirmationScreenState extends State<BookingConfirmationScreen>
   }
 }
 
-class _DetailRow extends StatelessWidget {
-  final IconData icon;
+class _RowItem extends StatelessWidget {
   final String label;
   final String value;
-  final bool isLast;
+  final bool isBold;
 
-  const _DetailRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.isLast = false,
-  });
+  const _RowItem(this.label, this.value, {this.isBold = false});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const SizedBox(height: 12),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, size: 16, color: AppColors.primary),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(label,
-                      style: const TextStyle(
-                          color: AppColors.textHint, fontSize: 11)),
-                  const SizedBox(height: 2),
-                  Text(value,
-                      style: const TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600)),
-                ],
-              ),
-            ),
-          ],
+        Text(
+          label,
+          style: TextStyle(
+            color: AppColors.textSecondary,
+            fontSize: context.sp(13),
+          ),
         ),
-        if (!isLast) ...[
-          const SizedBox(height: 12),
-          const Divider(color: AppColors.border),
-        ],
+        Text(
+          value,
+          style: TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: context.sp(13),
+            fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
+          ),
+        ),
       ],
     );
   }

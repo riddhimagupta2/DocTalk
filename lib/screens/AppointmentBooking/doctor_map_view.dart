@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import '../../models/doctor_model.dart';
 import '../../resources/AppTheme.dart';
 
+
+/// Pure Flutter map panel — zero google_maps_flutter, zero API key, zero crash.
+/// Shows a city-grid background with animated user dot + doctor pins.
 class DoctorMapView extends StatefulWidget {
   final List<DoctorModel> doctors;
   final double userLat;
@@ -65,25 +68,26 @@ class _DoctorMapViewState extends State<DoctorMapView>
       ),
       child: Stack(
         children: [
-
+          // Street grid background
           CustomPaint(
             size: Size(w, h),
             painter: _CityGridPainter(),
           ),
 
-
+          // Doctor pins
           ..._buildPins(w, h),
 
-
+          // User blue dot
           _buildUserDot(w, h),
 
+          // "Open in Google Maps" pill button
           Positioned(
             bottom: 10,
             right: 12,
             child: _MapsPill(onTap: widget.onOpenMaps),
           ),
 
-
+          // "Your location" label
           Positioned(
             top: 10,
             left: 12,
@@ -94,7 +98,8 @@ class _DoctorMapViewState extends State<DoctorMapView>
     );
   }
 
-   Widget _buildUserDot(double w, double h) {
+  // ── User dot (pulsing) ────────────────────────────────────────────────
+  Widget _buildUserDot(double w, double h) {
     return Positioned(
       left: w * 0.5 - 14,
       top: h * 0.5 - 14,
@@ -136,20 +141,14 @@ class _DoctorMapViewState extends State<DoctorMapView>
     );
   }
 
-   List<Widget> _buildPins(double w, double h) {
+  // ── Doctor pins ───────────────────────────────────────────────────────
+  List<Widget> _buildPins(double w, double h) {
     const cx = 0.5;
     const cy = 0.5;
-     final angles = [
-      -55.0,
-      25.0,
-      105.0,
-      -130.0,
-      55.0,
-      -20.0,
-      155.0,
-      -95.0,
-      75.0,
-      -160.0,
+    // Pre-computed spread angles so pins never overlap each other
+    final angles = [
+      -55.0, 25.0, 105.0, -130.0, 55.0,
+      -20.0, 155.0, -95.0, 75.0, -160.0,
     ];
 
     return widget.doctors.asMap().entries.map((entry) {
@@ -179,7 +178,7 @@ class _DoctorMapViewState extends State<DoctorMapView>
                 // Pin bubble
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                  const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                   decoration: BoxDecoration(
                     color: isSelected ? AppColors.primary : Colors.white,
                     borderRadius: BorderRadius.circular(10),
@@ -191,8 +190,8 @@ class _DoctorMapViewState extends State<DoctorMapView>
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color:
-                            Colors.black.withOpacity(isSelected ? 0.18 : 0.08),
+                        color: Colors.black
+                            .withOpacity(isSelected ? 0.18 : 0.08),
                         blurRadius: isSelected ? 12 : 5,
                         offset: const Offset(0, 2),
                       ),
@@ -204,7 +203,8 @@ class _DoctorMapViewState extends State<DoctorMapView>
                       Icon(
                         Icons.local_hospital_rounded,
                         size: 11,
-                        color: isSelected ? Colors.white : AppColors.primary,
+                        color:
+                        isSelected ? Colors.white : AppColors.primary,
                       ),
                       const SizedBox(width: 3),
                       Text(
@@ -212,7 +212,8 @@ class _DoctorMapViewState extends State<DoctorMapView>
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
-                          color: isSelected ? Colors.white : AppColors.primary,
+                          color:
+                          isSelected ? Colors.white : AppColors.primary,
                         ),
                       ),
                     ],
@@ -233,6 +234,7 @@ class _DoctorMapViewState extends State<DoctorMapView>
   }
 }
 
+// ── City grid painter ─────────────────────────────────────────────────────────
 
 class _CityGridPainter extends CustomPainter {
   @override
@@ -246,7 +248,7 @@ class _CityGridPainter extends CustomPainter {
       ..color = const Color(0xFFC8E6C9).withOpacity(0.45)
       ..style = PaintingStyle.fill;
 
-
+    // City blocks
     final rects = [
       Rect.fromLTWH(18, 22, 95, 62),
       Rect.fromLTWH(145, 15, 105, 52),
@@ -262,15 +264,15 @@ class _CityGridPainter extends CustomPainter {
           RRect.fromRectAndRadius(r, const Radius.circular(5)), block);
     }
 
-
+    // Horizontal roads
     for (final y in [92.0, 182.0]) {
       canvas.drawLine(Offset(0, y), Offset(size.width, y), roadPaint);
     }
-
+    // Vertical roads
     for (final x in [118.0, 248.0, 358.0]) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), roadPaint);
     }
-
+    // One diagonal road for realism
     final diag = Paint()
       ..color = Colors.white.withOpacity(0.55)
       ..strokeWidth = 7
@@ -285,6 +287,8 @@ class _CityGridPainter extends CustomPainter {
   @override
   bool shouldRepaint(_) => false;
 }
+
+// ── Pin tail triangle ─────────────────────────────────────────────────────────
 
 class _PinTail extends CustomPainter {
   final Color color;
@@ -305,6 +309,8 @@ class _PinTail extends CustomPainter {
   @override
   bool shouldRepaint(_) => false;
 }
+
+// ── Open in Maps pill ─────────────────────────────────────────────────────────
 
 class _MapsPill extends StatelessWidget {
   final VoidCallback onTap;
@@ -348,6 +354,8 @@ class _MapsPill extends StatelessWidget {
   }
 }
 
+// ── Location label ────────────────────────────────────────────────────────────
+
 class _LocationLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -366,7 +374,8 @@ class _LocationLabel extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: const [
-          Icon(Icons.my_location_rounded, size: 13, color: AppColors.primary),
+          Icon(Icons.my_location_rounded,
+              size: 13, color: AppColors.primary),
           SizedBox(width: 4),
           Text(
             'Your Location',

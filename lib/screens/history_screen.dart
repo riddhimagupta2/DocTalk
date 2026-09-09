@@ -101,16 +101,22 @@ class _HistoryScreenState extends State<HistoryScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-            _ConsultationsTab(
+          // ── Tab 1: Consultations (your original code, untouched) ───
+          _ConsultationsTab(
             authController: authController,
             historyService: historyService,
           ),
-           _AppointmentsTab(service: appointmentService),
+          // ── Tab 2: Booked Appointments ─────────────────────────────
+          _AppointmentsTab(service: appointmentService),
         ],
       ),
     );
   }
 }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Tab 1 — Consultations  (original logic, just moved into its own widget)
+// ══════════════════════════════════════════════════════════════════════════════
 
 class _ConsultationsTab extends StatelessWidget {
   final AuthController authController;
@@ -136,7 +142,8 @@ class _ConsultationsTab extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                valueColor:
+                AlwaysStoppedAnimation<Color>(AppColors.primary),
               ),
             );
           }
@@ -189,6 +196,10 @@ class _ConsultationsTab extends StatelessWidget {
   }
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+// Tab 2 — Booked Appointments
+// ══════════════════════════════════════════════════════════════════════════════
+
 class _AppointmentsTab extends StatefulWidget {
   final AppointmentService service;
   const _AppointmentsTab({required this.service});
@@ -213,11 +224,14 @@ class _AppointmentsTabState extends State<_AppointmentsTab> {
   Future<void> _cancel(String id) async {
     final confirmed = await Get.dialog<bool>(
       AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        shape:
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         title: const Text(
           'Cancel Appointment?',
           style: TextStyle(
-              fontWeight: FontWeight.w700, fontSize: 17, fontFamily: 'Lato'),
+              fontWeight: FontWeight.w700,
+              fontSize: 17,
+              fontFamily: 'Lato'),
         ),
         content: const Text(
           'Kya aap sach mein yeh appointment cancel karna chahte hain?',
@@ -236,7 +250,8 @@ class _AppointmentsTabState extends State<_AppointmentsTab> {
               backgroundColor: AppColors.error,
               foregroundColor: Colors.white,
               minimumSize: Size.zero,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 20, vertical: 10),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
             ),
@@ -259,7 +274,8 @@ class _AppointmentsTabState extends State<_AppointmentsTab> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
-              child: CircularProgressIndicator(color: AppColors.primary));
+              child:
+              CircularProgressIndicator(color: AppColors.primary));
         }
 
         final list = snapshot.data ?? [];
@@ -308,7 +324,8 @@ class _AppointmentsTabState extends State<_AppointmentsTab> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12)),
                       textStyle: const TextStyle(
-                          fontWeight: FontWeight.w700, fontFamily: 'Lato'),
+                          fontWeight: FontWeight.w700,
+                          fontFamily: 'Lato'),
                     ),
                   ),
                 ],
@@ -325,7 +342,8 @@ class _AppointmentsTabState extends State<_AppointmentsTab> {
             itemCount: list.length,
             itemBuilder: (_, i) => _AppointmentCard(
               data: list[i],
-              onCancel: () => _cancel(list[i]['id'] as String? ?? ''),
+              onCancel: () =>
+                  _cancel(list[i]['id'] as String? ?? ''),
             ),
           ),
         );
@@ -334,12 +352,16 @@ class _AppointmentsTabState extends State<_AppointmentsTab> {
   }
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+// Appointment Card
+// ══════════════════════════════════════════════════════════════════════════════
 
 class _AppointmentCard extends StatelessWidget {
   final Map<String, dynamic> data;
   final VoidCallback onCancel;
 
-  const _AppointmentCard({required this.data, required this.onCancel});
+  const _AppointmentCard(
+      {required this.data, required this.onCancel});
 
   String get _status => data['status'] as String? ?? 'confirmed';
   bool get _isCancelled => _status == 'cancelled';
@@ -364,7 +386,8 @@ class _AppointmentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-     DateTime? date;
+    // ── Parse fields safely ────────────────────────────────────────
+    DateTime? date;
     try {
       date = DateTime.parse(data['date'] as String? ?? '');
     } catch (_) {}
@@ -379,7 +402,7 @@ class _AppointmentCard extends StatelessWidget {
     final fee = (data['consultationFee'] as num?)?.toInt() ?? 0;
     final rawId = data['id'] as String? ?? '';
     final shortId =
-        rawId.length > 8 ? rawId.substring(rawId.length - 8) : rawId;
+    rawId.length > 8 ? rawId.substring(rawId.length - 8) : rawId;
 
     return Opacity(
       opacity: _isCancelled ? 0.6 : 1.0,
@@ -395,7 +418,8 @@ class _AppointmentCard extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(_isCancelled ? 0.02 : 0.05),
+              color: Colors.black
+                  .withOpacity(_isCancelled ? 0.02 : 0.05),
               blurRadius: 10,
               offset: const Offset(0, 3),
             ),
@@ -403,19 +427,21 @@ class _AppointmentCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-              Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+            // ── Gradient header ──────────────────────────────────────
+            Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 16, vertical: 13),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: _isCancelled
                       ? [
-                          Colors.grey.withOpacity(0.08),
-                          Colors.grey.withOpacity(0.04),
-                        ]
+                    Colors.grey.withOpacity(0.08),
+                    Colors.grey.withOpacity(0.04),
+                  ]
                       : [
-                          AppColors.primary.withOpacity(0.08),
-                          AppColors.primaryLight.withOpacity(0.5),
-                        ],
+                    AppColors.primary.withOpacity(0.08),
+                    AppColors.primaryLight.withOpacity(0.5),
+                  ],
                 ),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(18),
@@ -424,7 +450,7 @@ class _AppointmentCard extends StatelessWidget {
               ),
               child: Row(
                 children: [
-
+                  // Doctor avatar circle
                   Container(
                     width: 46,
                     height: 46,
@@ -436,13 +462,15 @@ class _AppointmentCard extends StatelessWidget {
                     ),
                     child: Icon(
                       Icons.person_rounded,
-                      color:
-                          _isCancelled ? AppColors.textHint : AppColors.primary,
+                      color: _isCancelled
+                          ? AppColors.textHint
+                          : AppColors.primary,
                       size: 24,
                     ),
                   ),
                   const SizedBox(width: 11),
 
+                  // Doctor name + specialization
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -469,18 +497,21 @@ class _AppointmentCard extends StatelessWidget {
                     ),
                   ),
 
+                  // Status pill
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 9, vertical: 4),
                     decoration: BoxDecoration(
                       color: _statusColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: _statusColor.withOpacity(0.25)),
+                      border: Border.all(
+                          color: _statusColor.withOpacity(0.25)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(_statusIcon, size: 11, color: _statusColor),
+                        Icon(_statusIcon,
+                            size: 11, color: _statusColor),
                         const SizedBox(width: 4),
                         Text(
                           _statusLabel,
@@ -497,8 +528,10 @@ class _AppointmentCard extends StatelessWidget {
               ),
             ),
 
-                    Padding(
-              padding: const EdgeInsets.fromLTRB(16, 13, 16, 14),
+            // ── Body ─────────────────────────────────────────────────
+            Padding(
+              padding:
+              const EdgeInsets.fromLTRB(16, 13, 16, 14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -508,27 +541,31 @@ class _AppointmentCard extends StatelessWidget {
                       _Chip(
                         icon: Icons.calendar_today_rounded,
                         label: date != null
-                            ? DateFormat('EEE, d MMM yyyy').format(date)
+                            ? DateFormat('EEE, d MMM yyyy')
+                            .format(date)
                             : '—',
                         color: AppColors.primary,
                       ),
                       const SizedBox(width: 8),
                       _Chip(
                         icon: Icons.access_time_rounded,
-                        label: timeSlot.isNotEmpty ? timeSlot : '—',
+                        label:
+                        timeSlot.isNotEmpty ? timeSlot : '—',
                         color: AppColors.coral,
                       ),
                     ],
                   ),
                   const SizedBox(height: 10),
 
-
+                  // Clinic address
                   if (address.isNotEmpty)
-                    _IconRow(icon: Icons.location_on_outlined, text: address),
+                    _IconRow(
+                        icon: Icons.location_on_outlined,
+                        text: address),
 
                   const SizedBox(height: 6),
 
-
+                  // Patient info
                   _IconRow(
                     icon: Icons.person_outline_rounded,
                     text: phone.isNotEmpty
@@ -536,13 +573,15 @@ class _AppointmentCard extends StatelessWidget {
                         : patientName,
                   ),
 
-
+                  // Visit reason
                   if (reason.isNotEmpty) ...[
                     const SizedBox(height: 6),
-                    _IconRow(icon: Icons.note_alt_outlined, text: reason),
+                    _IconRow(
+                        icon: Icons.note_alt_outlined,
+                        text: reason),
                   ],
 
-
+                  // Fee
                   if (fee > 0) ...[
                     const SizedBox(height: 6),
                     _IconRow(
@@ -554,7 +593,7 @@ class _AppointmentCard extends StatelessWidget {
                   const Divider(height: 1, color: AppColors.border),
                   const SizedBox(height: 10),
 
-
+                  // Bottom row: Booking ID + Cancel
                   Row(
                     children: [
                       Container(
@@ -582,16 +621,20 @@ class _AppointmentCard extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: AppColors.error.withOpacity(0.06),
-                              borderRadius: BorderRadius.circular(8),
+                              color:
+                              AppColors.error.withOpacity(0.06),
+                              borderRadius:
+                              BorderRadius.circular(8),
                               border: Border.all(
-                                  color: AppColors.error.withOpacity(0.2)),
+                                  color: AppColors.error
+                                      .withOpacity(0.2)),
                             ),
                             child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(Icons.close_rounded,
-                                    size: 12, color: AppColors.error),
+                                    size: 12,
+                                    color: AppColors.error),
                                 SizedBox(width: 4),
                                 Text(
                                   'Cancel',
@@ -617,17 +660,22 @@ class _AppointmentCard extends StatelessWidget {
   }
 }
 
+// ── Small reusable widgets ────────────────────────────────────────────────────
 
 class _Chip extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
-  const _Chip({required this.icon, required this.label, required this.color});
+  const _Chip(
+      {required this.icon,
+        required this.label,
+        required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding:
+      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: color.withOpacity(0.07),
         borderRadius: BorderRadius.circular(8),
@@ -668,14 +716,18 @@ class _IconRow extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style:
-                const TextStyle(color: AppColors.textSecondary, fontSize: 12.5),
+            style: const TextStyle(
+                color: AppColors.textSecondary, fontSize: 12.5),
           ),
         ),
       ],
     );
   }
 }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Original _HistoryCard — COMPLETELY UNCHANGED from your code
+// ══════════════════════════════════════════════════════════════════════════════
 
 class _HistoryCard extends StatelessWidget {
   final ChatSession session;
@@ -731,15 +783,16 @@ class _HistoryCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                if (session.hasAssessment && session.severity.isNotEmpty)
+                if (session.hasAssessment &&
+                    session.severity.isNotEmpty)
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: _severityColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(6),
-                      border:
-                          Border.all(color: _severityColor.withOpacity(0.3)),
+                      border: Border.all(
+                          color: _severityColor.withOpacity(0.3)),
                     ),
                     child: Text(
                       session.severity,
@@ -757,10 +810,13 @@ class _HistoryCard extends StatelessWidget {
             Row(
               children: [
                 Icon(Icons.access_time_rounded,
-                    size: 13, color: AppColors.textSecondary.withOpacity(0.6)),
+                    size: 13,
+                    color:
+                    AppColors.textSecondary.withOpacity(0.6)),
                 const SizedBox(width: 4),
                 Text(
-                  DateFormat('dd MMM yyyy, hh:mm a').format(session.createdAt),
+                  DateFormat('dd MMM yyyy, hh:mm a')
+                      .format(session.createdAt),
                   style: TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary.withOpacity(0.7),
@@ -787,10 +843,12 @@ class _HistoryCard extends StatelessWidget {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      session.assessment?['likelyconditions'] != null
-                          ? (session.assessment!['likelyconditions'] as List)
-                              .take(2)
-                              .join(', ')
+                      session.assessment?['likelyconditions'] !=
+                          null
+                          ? (session.assessment!['likelyconditions']
+                      as List)
+                          .take(2)
+                          .join(', ')
                           : 'Assessment available',
                       style: const TextStyle(
                         fontSize: 12,

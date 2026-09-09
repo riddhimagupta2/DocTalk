@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/auth_controller.dart';
 import '../../resources/AppTheme.dart';
-import '../../resources/constants.dart';
+import '../../resources/responsive.dart';
 import '../../widgets/CustomWidgets/custom_button.dart';
 import '../../widgets/CustomWidgets/custom_textfields.dart';
 
@@ -77,38 +77,40 @@ class _SignupScreenState extends State<SignupScreen>
           child: SlideTransition(
             position: _slideAnimation,
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+              padding: EdgeInsets.symmetric(
+                horizontal: context.wp(6).clamp(16.0, 32.0),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 24),
+                  SizedBox(height: context.hp(2.5)),
 
                   // Back button
                   GestureDetector(
                     onTap: () => Get.back(),
                     child: Container(
-                      width: 42,
-                      height: 42,
+                      width: context.r(42),
+                      height: context.r(42),
                       decoration: BoxDecoration(
                         color: AppColors.white,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(context.r(12)),
                         border: Border.all(color: AppColors.border),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.arrow_back_ios_new_rounded,
-                        size: 18,
+                        size: context.r(18),
                         color: AppColors.textPrimary,
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 28),
+                  SizedBox(height: context.hp(2.8)),
 
                   // Title
-                  const Text(
-                    'Join\nDocTalk 🌿',
+                  Text(
+                    'Join\nMediSaathi 🌿',
                     style: TextStyle(
-                      fontSize: 36,
+                      fontSize: context.sp(34),
                       fontWeight: FontWeight.w800,
                       color: AppColors.textPrimary,
                       height: 1.15,
@@ -116,17 +118,17 @@ class _SignupScreenState extends State<SignupScreen>
                       fontFamily: 'Lato',
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: context.hp(1)),
                   Text(
                     'Create your account and take charge of your health',
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: context.sp(15),
                       color: AppColors.textSecondary,
                       fontWeight: FontWeight.w300,
                     ),
                   ),
 
-                  const SizedBox(height: 32),
+                  SizedBox(height: context.hp(3.2)),
 
                   // Form
                   Form(
@@ -150,7 +152,7 @@ class _SignupScreenState extends State<SignupScreen>
                             return null;
                           },
                         ),
-                        const SizedBox(height: 14),
+                        SizedBox(height: context.hp(1.6)),
 
                         // Email
                         CustomTextField(
@@ -169,7 +171,7 @@ class _SignupScreenState extends State<SignupScreen>
                             return null;
                           },
                         ),
-                        const SizedBox(height: 14),
+                        SizedBox(height: context.hp(1.6)),
 
                         // Password
                         CustomTextField(
@@ -184,7 +186,7 @@ class _SignupScreenState extends State<SignupScreen>
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
                               color: AppColors.textSecondary,
-                              size: 20,
+                              size: context.r(20),
                             ),
                             onPressed: () => setState(
                               () => _obscurePassword = !_obscurePassword,
@@ -200,7 +202,7 @@ class _SignupScreenState extends State<SignupScreen>
                             return null;
                           },
                         ),
-                        const SizedBox(height: 14),
+                        SizedBox(height: context.hp(1.6)),
 
                         // Confirm Password
                         CustomTextField(
@@ -215,7 +217,7 @@ class _SignupScreenState extends State<SignupScreen>
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
                               color: AppColors.textSecondary,
-                              size: 20,
+                              size: context.r(20),
                             ),
                             onPressed: () => setState(
                               () => _obscureConfirm = !_obscureConfirm,
@@ -233,7 +235,7 @@ class _SignupScreenState extends State<SignupScreen>
                           },
                         ),
 
-                        const SizedBox(height: 28),
+                        SizedBox(height: context.hp(2.8)),
 
                         // Sign Up Button
                         Obx(
@@ -247,7 +249,7 @@ class _SignupScreenState extends State<SignupScreen>
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  SizedBox(height: context.hp(2.4)),
 
                   // Terms
                   Center(
@@ -255,34 +257,34 @@ class _SignupScreenState extends State<SignupScreen>
                       'By creating an account, you agree to our\nTerms of Service and Privacy Policy',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: context.sp(12),
                         color: AppColors.textSecondary.withOpacity(0.6),
                         height: 1.5,
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  SizedBox(height: context.hp(2)),
 
-                  // Login
+                  // Login redirect
                   Center(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
+                        Text(
                           'Already have an account? ',
                           style: TextStyle(
                             color: AppColors.textSecondary,
-                            fontSize: 15,
+                            fontSize: context.sp(15),
                           ),
                         ),
                         GestureDetector(
                           onTap: () => Get.back(),
-                          child: const Text(
+                          child: Text(
                             'Login',
                             style: TextStyle(
                               color: AppColors.primary,
-                              fontSize: 15,
+                              fontSize: context.sp(15),
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -291,7 +293,7 @@ class _SignupScreenState extends State<SignupScreen>
                     ),
                   ),
 
-                  const SizedBox(height: 32),
+                  SizedBox(height: context.hp(3.5)),
                 ],
               ),
             ),

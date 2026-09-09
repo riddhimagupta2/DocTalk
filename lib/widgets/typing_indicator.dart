@@ -1,4 +1,4 @@
-
+// typing_indicator.dart
 import 'package:flutter/material.dart';
 
 import '../resources/AppTheme.dart';
@@ -20,7 +20,7 @@ class _TypingIndicatorState extends State<TypingIndicator>
     super.initState();
     _controllers = List.generate(
       3,
-      (i) => AnimationController(
+          (i) => AnimationController(
         vsync: this,
         duration: const Duration(milliseconds: 600),
       )..repeat(reverse: true),
@@ -28,7 +28,7 @@ class _TypingIndicatorState extends State<TypingIndicator>
 
     _animations = List.generate(
       3,
-      (i) => Tween<double>(begin: 0, end: -6).animate(
+          (i) => Tween<double>(begin: 0, end: -6).animate(
         CurvedAnimation(
           parent: _controllers[i],
           curve: Curves.easeInOut,
@@ -36,6 +36,7 @@ class _TypingIndicatorState extends State<TypingIndicator>
       ),
     );
 
+    // Stagger the animations
     for (int i = 0; i < 3; i++) {
       Future.delayed(Duration(milliseconds: i * 150), () {
         if (mounted) _controllers[i].repeat(reverse: true);

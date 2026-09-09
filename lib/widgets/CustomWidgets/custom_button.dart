@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
-
+﻿import 'package:flutter/material.dart';
 import '../../resources/AppTheme.dart';
+import '../../resources/responsive.dart';
 
 class CustomButton extends StatelessWidget {
   final String label;
@@ -22,7 +22,7 @@ class CustomButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 54,
+      height: (context.hp(6.5)).clamp(48.0, 58.0),
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
@@ -30,36 +30,36 @@ class CustomButton extends StatelessWidget {
           foregroundColor: Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(context.r(14)),
           ),
           disabledBackgroundColor: AppColors.primary.withOpacity(0.6),
         ),
         child: isLoading
-            ? const SizedBox(
-                width: 22,
-                height: 22,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
+            ? SizedBox(
+          width: context.r(22),
+          height: context.r(22),
+          child: const CircularProgressIndicator(
+            strokeWidth: 2.5,
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+          ),
+        )
             : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (icon != null) ...[
-                    Icon(icon, size: 18),
-                    const SizedBox(width: 8),
-                  ],
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      fontFamily: 'Lato',
-                    ),
-                  ),
-                ],
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: context.r(18)),
+              SizedBox(width: context.r(8)),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: context.sp(16),
+                fontWeight: FontWeight.w700,
+                fontFamily: 'Lato',
               ),
+            ),
+          ],
+        ),
       ),
     );
   }

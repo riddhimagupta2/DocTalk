@@ -3,9 +3,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/anonymous_chat_model.dart';
 import '../resources/anonymous_name_generator.dart';
 
+
 class CommunityService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
+  /// Create a new anonymous post
   Future<String> createPost({
     required String authorId,
     required String title,
@@ -25,11 +27,11 @@ class CommunityService {
       createdAt: DateTime.now(),
     );
 
-    final docRef =
-        await _db.collection('community_posts').add(post.toFirestore());
+    final docRef = await _db.collection('community_posts').add(post.toFirestore());
     return docRef.id;
   }
 
+  /// Get all posts (stream for real-time updates)
   Stream<List<AnonymousPost>> getPostsStream({PostCategory? category}) {
     Query query = _db
         .collection('community_posts')
@@ -47,6 +49,7 @@ class CommunityService {
     });
   }
 
+  /// Create a reply to a post
   Future<void> createReply({
     required String postId,
     required String authorId,
@@ -64,6 +67,7 @@ class CommunityService {
       createdAt: DateTime.now(),
     );
 
+    // Add reply
     await _db
         .collection('community_posts')
         .doc(postId)
@@ -76,6 +80,7 @@ class CommunityService {
     });
   }
 
+  /// Get replies for a post (stream)
   Stream<List<AnonymousReply>> getRepliesStream(String postId) {
     return _db
         .collection('community_posts')
@@ -90,17 +95,20 @@ class CommunityService {
     });
   }
 
+  /// Upvote a post
   Future<void> upvotePost(String postId, String userId) async {
     final postRef = _db.collection('community_posts').doc(postId);
     final doc = await postRef.get();
     final upvoters = List<String>.from(doc.data()?['upvoters'] ?? []);
 
     if (upvoters.contains(userId)) {
+      // Remove upvote
       await postRef.update({
         'upvoters': FieldValue.arrayRemove([userId]),
         'upvoteCount': FieldValue.increment(-1),
       });
     } else {
+      // Add upvote
       await postRef.update({
         'upvoters': FieldValue.arrayUnion([userId]),
         'upvoteCount': FieldValue.increment(1),
@@ -108,6 +116,7 @@ class CommunityService {
     }
   }
 
+  /// Upvote a reply
   Future<void> upvoteReply(String postId, String replyId, String userId) async {
     final replyRef = _db
         .collection('community_posts')
@@ -119,11 +128,13 @@ class CommunityService {
     final upvoters = List<String>.from(doc.data()?['upvoters'] ?? []);
 
     if (upvoters.contains(userId)) {
+      // Remove upvote
       await replyRef.update({
         'upvoters': FieldValue.arrayRemove([userId]),
         'upvoteCount': FieldValue.increment(-1),
       });
     } else {
+      // Add upvote
       await replyRef.update({
         'upvoters': FieldValue.arrayUnion([userId]),
         'upvoteCount': FieldValue.increment(1),
@@ -131,15 +142,18 @@ class CommunityService {
     }
   }
 
+  /// Search posts by keyword
   Future<List<AnonymousPost>> searchPosts(String keyword) async {
+    // Simple search - in production use Algolia or similar
     final snapshot = await _db
         .collection('community_posts')
         .orderBy('createdAt', descending: true)
         .limit(100)
         .get();
 
-    final allPosts =
-        snapshot.docs.map((doc) => AnonymousPost.fromFirestore(doc)).toList();
+    final allPosts = snapshot.docs
+        .map((doc) => AnonymousPost.fromFirestore(doc))
+        .toList();
 
     final lowerKeyword = keyword.toLowerCase();
     return allPosts.where((post) {

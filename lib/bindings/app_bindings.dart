@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+
 import '../controllers/auth_controller.dart';
 import '../controllers/chat_controller.dart';
 import '../controllers/nav_controller.dart';
@@ -6,10 +7,10 @@ import '../controllers/nav_controller.dart';
 class AppBindings extends Bindings {
   @override
   void dependencies() {
-    // Auth controller
+    // Auth controller - permanent, lives throughout app life
     Get.put<AuthController>(AuthController(), permanent: true);
 
-    // Nav controller
+    // Nav controller - permanent for bottom nav state
     Get.put<NavController>(NavController(), permanent: true);
   }
 }

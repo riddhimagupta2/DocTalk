@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/auth_controller.dart';
 import '../../resources/AppRoutes.dart';
 import '../../resources/AppTheme.dart';
-import '../../resources/constants.dart';
+import '../../resources/responsive.dart';
 import '../../widgets/CustomWidgets/custom_button.dart';
 import '../../widgets/CustomWidgets/custom_textfields.dart';
 
@@ -72,22 +72,24 @@ class _LoginScreenState extends State<LoginScreen>
           child: SlideTransition(
             position: _slideAnimation,
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+              padding: EdgeInsets.symmetric(
+                horizontal: context.wp(6).clamp(16.0, 32.0),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 48),
+                  SizedBox(height: context.hp(5).clamp(24.0, 48.0)),
 
                   // Top Logo
-                  _buildTopLogo(),
+                  _buildTopLogo(context),
 
-                  const SizedBox(height: 40),
+                  SizedBox(height: context.hp(4).clamp(20.0, 40.0)),
 
                   // Title
-                  const Text(
+                  Text(
                     'Welcome\nBack! 👋',
                     style: TextStyle(
-                      fontSize: 36,
+                      fontSize: context.sp(34),
                       fontWeight: FontWeight.w800,
                       color: AppColors.textPrimary,
                       height: 1.15,
@@ -95,17 +97,17 @@ class _LoginScreenState extends State<LoginScreen>
                       fontFamily: 'Lato',
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: context.hp(1)),
                   Text(
                     'Login to your MediSaathi account',
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: context.sp(15),
                       color: AppColors.textSecondary,
                       fontWeight: FontWeight.w300,
                     ),
                   ),
 
-                  const SizedBox(height: 36),
+                  SizedBox(height: context.hp(3.5).clamp(20.0, 36.0)),
 
                   // Form
                   Form(
@@ -129,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen>
                           },
                         ),
 
-                        const SizedBox(height: 16),
+                        SizedBox(height: context.hp(1.8).clamp(12.0, 18.0)),
 
                         CustomTextField(
                           controller: _passwordController,
@@ -143,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen>
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
                               color: AppColors.textSecondary,
-                              size: 20,
+                              size: context.r(20),
                             ),
                             onPressed: () {
                               setState(() {
@@ -160,7 +162,7 @@ class _LoginScreenState extends State<LoginScreen>
                           },
                         ),
 
-                        const SizedBox(height: 28),
+                        SizedBox(height: context.hp(3).clamp(18.0, 28.0)),
 
                         // Login Button
                         Obx(
@@ -174,19 +176,19 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  SizedBox(height: context.hp(2.5)),
 
                   // Divider
                   Row(
                     children: [
                       const Expanded(child: Divider(color: AppColors.border)),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: EdgeInsets.symmetric(horizontal: context.r(16)),
                         child: Text(
                           'or',
                           style: TextStyle(
                             color: AppColors.textSecondary.withOpacity(0.6),
-                            fontSize: 14,
+                            fontSize: context.sp(14),
                           ),
                         ),
                       ),
@@ -194,27 +196,27 @@ class _LoginScreenState extends State<LoginScreen>
                     ],
                   ),
 
-                  const SizedBox(height: 24),
+                  SizedBox(height: context.hp(2.5)),
 
-
+                  // Sign Up redirect
                   Center(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           AppStrings.dontHaveAccount,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textSecondary,
-                            fontSize: 15,
+                            fontSize: context.sp(15),
                           ),
                         ),
                         GestureDetector(
                           onTap: () => Get.toNamed(AppRoutes.signup),
-                          child: const Text(
+                          child: Text(
                             'Sign Up',
                             style: TextStyle(
                               color: AppColors.primary,
-                              fontSize: 15,
+                              fontSize: context.sp(15),
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -223,7 +225,7 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                   ),
 
-                  const SizedBox(height: 32),
+                  SizedBox(height: context.hp(3.5)),
                 ],
               ),
             ),
@@ -233,19 +235,19 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  Widget _buildTopLogo() {
+  Widget _buildTopLogo(BuildContext context) {
     return Row(
       children: [
         Container(
-          width: 48,
-          height: 48,
+          width: context.r(48),
+          height: context.r(48),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               colors: [AppColors.primary, Color(0xFF089A97)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(context.r(14)),
             boxShadow: [
               BoxShadow(
                 color: AppColors.primary.withOpacity(0.3),
@@ -254,18 +256,18 @@ class _LoginScreenState extends State<LoginScreen>
               ),
             ],
           ),
-          child: const Center(
-            child: Text('🩺', style: TextStyle(fontSize: 24)),
+          child: Center(
+            child: Text('🩺', style: TextStyle(fontSize: context.sp(22))),
           ),
         ),
-        const SizedBox(width: 12),
-        const Column(
+        SizedBox(width: context.wp(3).clamp(8.0, 14.0)),
+        Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'DocTalk',
+              'MediSaathi',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: context.sp(18),
                 fontWeight: FontWeight.w800,
                 color: AppColors.textPrimary,
                 letterSpacing: -0.5,
@@ -275,7 +277,7 @@ class _LoginScreenState extends State<LoginScreen>
             Text(
               'Your AI Health Companion',
               style: TextStyle(
-                fontSize: 12,
+                fontSize: context.sp(12),
                 color: AppColors.textSecondary,
                 fontWeight: FontWeight.w300,
               ),

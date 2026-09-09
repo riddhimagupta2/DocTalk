@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/auth_controller.dart';
-import '../../models/user_model.dart';
 import '../../resources/AppRoutes.dart';
 import '../../resources/AppTheme.dart';
+import '../../resources/responsive.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -62,7 +62,8 @@ class _SplashScreenState extends State<SplashScreen>
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2000),
-    )..repeat(reverse: true);
+    )
+      ..repeat(reverse: true);
     _pulseScale = Tween<double>(begin: 0.95, end: 1.05).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
@@ -79,13 +80,9 @@ class _SplashScreenState extends State<SplashScreen>
     if (Get.currentRoute == AppRoutes.splash) {
       final authController = Get.find<AuthController>();
       if (authController.isLoggedIn) {
-        if (authController.userModel.value?.role == UserRole.helper) {
-          Get.offAllNamed(AppRoutes.helperDashboard);
-        } else {
-          Get.offAllNamed(AppRoutes.home);
-        }
+        Get.offAllNamed(AppRoutes.home);
       } else {
-        Get.offAllNamed(AppRoutes.roleSelection);
+        Get.offAllNamed(AppRoutes.login);
       }
     }
   }
@@ -100,6 +97,8 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final bgCircleSize = context.wp(75).clamp(240.0, 420.0);
+
     return Scaffold(
       backgroundColor: AppColors.navy,
       body: Stack(
@@ -125,8 +124,8 @@ class _SplashScreenState extends State<SplashScreen>
             child: ScaleTransition(
               scale: _pulseScale,
               child: Container(
-                width: 300,
-                height: 300,
+                width: bgCircleSize,
+                height: bgCircleSize,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
@@ -142,23 +141,23 @@ class _SplashScreenState extends State<SplashScreen>
 
           // Top decoration dots
           Positioned(
-            top: 80,
-            right: 40,
+            top: context.hp(10),
+            right: context.wp(10),
             child: _buildDot(8, AppColors.primary.withOpacity(0.4)),
           ),
           Positioned(
-            top: 120,
-            right: 80,
+            top: context.hp(15),
+            right: context.wp(20),
             child: _buildDot(5, AppColors.primary.withOpacity(0.2)),
           ),
           Positioned(
-            bottom: 160,
-            left: 30,
+            bottom: context.hp(18),
+            left: context.wp(8),
             child: _buildDot(10, AppColors.coral.withOpacity(0.3)),
           ),
           Positioned(
-            bottom: 200,
-            left: 70,
+            bottom: context.hp(23),
+            left: context.wp(18),
             child: _buildDot(6, AppColors.coral.withOpacity(0.15)),
           ),
 
@@ -175,10 +174,10 @@ class _SplashScreenState extends State<SplashScreen>
                     child: ScaleTransition(scale: _logoScale, child: child),
                   );
                 },
-                child: _buildLogo(),
+                child: _buildLogo(context),
               ),
 
-              const SizedBox(height: 32),
+              SizedBox(height: context.hp(3.5).clamp(20.0, 36.0)),
 
               // App name and tagline
               AnimatedBuilder(
@@ -191,21 +190,21 @@ class _SplashScreenState extends State<SplashScreen>
                 },
                 child: Column(
                   children: [
-                    const Text(
+                    Text(
                       'DocTalk',
                       style: TextStyle(
-                        fontSize: 38,
+                        fontSize: context.sp(38),
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
                         letterSpacing: -1,
                         fontFamily: 'Lato',
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: context.hp(1)),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 6,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: context.r(16),
+                        vertical: context.hp(0.8),
                       ),
                       decoration: BoxDecoration(
                         color: AppColors.primary.withOpacity(0.15),
@@ -214,24 +213,24 @@ class _SplashScreenState extends State<SplashScreen>
                           color: AppColors.primary.withOpacity(0.3),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Your AI Health Companion',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: context.sp(14),
                           color: AppColors.primary,
                           letterSpacing: 0.5,
                           fontFamily: 'Lato',
                         ),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: context.hp(2.5)),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 48),
+                      padding: EdgeInsets.symmetric(horizontal: context.wp(10).clamp(24.0, 56.0)),
                       child: Text(
-                        '"Doctors give you a diagnosis.\DocTalk gives you a Saathi."',
+                        'Doctors give you a diagnosis.\nDocTalk gives you a Saathi.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: context.sp(14),
                           color: Colors.white.withOpacity(0.4),
                           height: 1.6,
                           fontStyle: FontStyle.italic,
@@ -247,7 +246,7 @@ class _SplashScreenState extends State<SplashScreen>
 
           // Loading indicator at bottom
           Positioned(
-            bottom: 60,
+            bottom: context.hp(6).clamp(32.0, 64.0),
             left: 0,
             right: 0,
             child: AnimatedBuilder(
@@ -258,8 +257,8 @@ class _SplashScreenState extends State<SplashScreen>
               child: Column(
                 children: [
                   SizedBox(
-                    width: 24,
-                    height: 24,
+                    width: context.r(24),
+                    height: context.r(24),
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       valueColor: AlwaysStoppedAnimation<Color>(
@@ -267,11 +266,11 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: context.hp(1.2)),
                   Text(
                     'Loading...',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: context.sp(12),
                       color: Colors.white.withOpacity(0.3),
                       fontFamily: 'Lato',
                       letterSpacing: 1,
@@ -286,12 +285,13 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
-  Widget _buildLogo() {
+  Widget _buildLogo(BuildContext context) {
+    final logoSize = context.r(100).clamp(70.0, 120.0);
     return Container(
-      width: 100,
-      height: 100,
+      width: logoSize,
+      height: logoSize,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(context.r(28)),
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -305,7 +305,7 @@ class _SplashScreenState extends State<SplashScreen>
           ),
         ],
       ),
-      child: const Center(child: Text('🩺', style: TextStyle(fontSize: 48))),
+      child: Center(child: Text('🩺', style: TextStyle(fontSize: context.sp(44)))),
     );
   }
 
