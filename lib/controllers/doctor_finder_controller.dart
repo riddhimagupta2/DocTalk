@@ -35,10 +35,13 @@ class DoctorFinderController extends GetxController {
       if (position != null) {
         userLat.value = position.latitude;
         userLng.value = position.longitude;
+      } else {
+        // Location not available — use default and inform user
+        errorMessage.value = '';
       }
       await _searchWithCoordinates(userLat.value, userLng.value);
     } catch (e) {
-      errorMessage.value = 'Doctors dhundhne mein problem aayi.\nRetry karein.';
+      errorMessage.value = 'Doctors search mein issue aaya. Please retry.';
     } finally {
       isLoading.value = false;
     }
@@ -61,7 +64,7 @@ class DoctorFinderController extends GetxController {
       userLng.value = locations.first.longitude;
       await _searchWithCoordinates(userLat.value, userLng.value);
     } catch (e) {
-      errorMessage.value = 'Location search failed.';
+      errorMessage.value = 'Location search failed. Please try again.';
     } finally {
       isLoading.value = false;
     }
@@ -76,7 +79,7 @@ class DoctorFinderController extends GetxController {
     );
     if (found.isEmpty) {
       errorMessage.value =
-      'Koi doctor nahi mila.\nDusri location search karein.';
+          'No $specialist found nearby.\nTry searching a different location.';
     } else {
       doctors.value = found;
     }
@@ -95,7 +98,8 @@ class DoctorFinderController extends GetxController {
   Future<void> openInGoogleMaps(DoctorModel doctor) async {
     final url = Uri.parse(
       'https://www.google.com/maps/search/?api=1'
-          '&query=${doctor.latitude},${doctor.longitude}',
+      '&query=${doctor.latitude},${doctor.longitude}'
+      '&query_place_id=${doctor.placeId}',
     );
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
@@ -109,7 +113,7 @@ class DoctorFinderController extends GetxController {
     final query = Uri.encodeComponent('$specialist near me');
     final url = Uri.parse(
       'https://www.google.com/maps/search/$query/'
-          '@${userLat.value},${userLng.value},15z',
+      '@${userLat.value},${userLng.value},15z',
     );
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);

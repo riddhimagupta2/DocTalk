@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../controllers/doctor_finder_controller.dart';
 import '../models/doctor_model.dart';
 import '../resources/AppTheme.dart';
@@ -169,6 +171,24 @@ class DoctorFinderScreen extends StatelessWidget {
                   controller.openInGoogleMaps(controller.doctors[i]),
             ),
           )),
+        ),
+
+        // Map Data Attribution
+        Container(
+          color: AppColors.white,
+          padding: EdgeInsets.symmetric(
+            vertical: context.hp(0.8).clamp(4.0, 8.0),
+          ),
+          child: Center(
+            child: Text(
+              'Powered by OpenStreetMap',
+              style: TextStyle(
+                color: AppColors.textHint,
+                fontSize: context.sp(10),
+                fontFamily: 'Lato',
+              ),
+            ),
+          ),
         ),
       ],
     );
@@ -407,20 +427,42 @@ class _DoctorCard extends StatelessWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Avatar
-                    Container(
-                      width: context.r(52),
-                      height: context.r(52),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(colors: [
-                          AppColors.primaryLight,
-                          AppColors.primary.withOpacity(0.12),
-                        ]),
-                        borderRadius: BorderRadius.circular(context.r(13)),
-                      ),
-                      child: Icon(Icons.person_rounded,
-                          color: AppColors.primary, size: context.r(26)),
-                    ),
+                    // Avatar / Place Photo
+                    Builder(builder: (context) {
+                      final apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] ?? '';
+                      final photoUrl = doctor.getPhotoUrl(apiKey);
+                      return Container(
+                        width: context.r(52),
+                        height: context.r(52),
+                        decoration: BoxDecoration(
+                          gradient: photoUrl == null
+                              ? LinearGradient(colors: [
+                                  AppColors.primaryLight,
+                                  AppColors.primary.withOpacity(0.12),
+                                ])
+                              : null,
+                          borderRadius: BorderRadius.circular(context.r(13)),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: photoUrl != null
+                            ? CachedNetworkImage(
+                                imageUrl: photoUrl,
+                                fit: BoxFit.cover,
+                                placeholder: (_, __) => Container(
+                                  color: AppColors.primaryLight,
+                                  child: Icon(Icons.local_hospital_rounded,
+                                      color: AppColors.primary, size: context.r(22)),
+                                ),
+                                errorWidget: (_, __, ___) => Container(
+                                  color: AppColors.primaryLight,
+                                  child: Icon(Icons.local_hospital_rounded,
+                                      color: AppColors.primary, size: context.r(22)),
+                                ),
+                              )
+                            : Icon(Icons.local_hospital_rounded,
+                                color: AppColors.primary, size: context.r(26)),
+                      );
+                    }),
                     SizedBox(width: context.wp(2.5).clamp(8.0, 14.0)),
 
                     // Name / spec / exp
