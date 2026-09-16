@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:doctalk/features/image_analysis/controllers/image_analysis_controller.dart';
 import 'package:doctalk/features/image_analysis/widgets/image_source_picker.dart';
@@ -7,9 +7,10 @@ import 'package:doctalk/features/image_analysis/widgets/analysis_loading_widget.
 import 'package:doctalk/features/image_analysis/widgets/emergency_banner.dart';
 import 'package:doctalk/features/image_analysis/widgets/consent_dialog.dart';
 import 'package:doctalk/features/image_analysis/widgets/analysis_result_card.dart';
-import 'package:doctalk/resources/AppTheme.dart';
-import 'package:doctalk/resources/AppRoutes.dart';
+import 'package:doctalk/resources/app_theme.dart';
 import 'package:doctalk/resources/responsive.dart';
+
+import '../../../resources/app_routes.dart';
 
 class ImageAnalysisScreen extends StatelessWidget {
   const ImageAnalysisScreen({super.key});
@@ -260,7 +261,7 @@ class ImageAnalysisScreen extends StatelessWidget {
           child: OutlinedButton(
             onPressed: controller.reset,
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.primary),
+              side: const BorderSide(width: 1),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.r(14))),
             ),
             child: Text(
@@ -321,3 +322,6 @@ class ImageAnalysisScreen extends StatelessWidget {
     );
   }
 }
+
+
+

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
   static const primary = Color(0xFF0ABFBC);
@@ -32,16 +33,15 @@ class AppTheme {
         brightness: Brightness.light,
       ),
       scaffoldBackgroundColor: AppColors.background,
-      fontFamily: 'Lato',
-      appBarTheme: const AppBarTheme(
+      textTheme: GoogleFonts.poppinsTextTheme(),
+      appBarTheme: AppBarTheme(
         backgroundColor: AppColors.white,
         elevation: 0,
-        iconTheme: IconThemeData(color: AppColors.textPrimary),
-        titleTextStyle: TextStyle(
+        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        titleTextStyle: GoogleFonts.poppins(
           color: AppColors.textPrimary,
           fontSize: 18,
           fontWeight: FontWeight.w700,
-          fontFamily: 'Lato',
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -53,10 +53,9 @@ class AppTheme {
             borderRadius: BorderRadius.circular(14),
           ),
           minimumSize: const Size(double.infinity, 54),
-          textStyle: const TextStyle(
+          textStyle: GoogleFonts.poppins(
             fontSize: 16,
             fontWeight: FontWeight.w700,
-            fontFamily: 'Lato',
           ),
         ),
       ),
@@ -65,33 +64,31 @@ class AppTheme {
         fillColor: AppColors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: const BorderSide(),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: const BorderSide(),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+          borderSide: const BorderSide(),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.error),
+          borderSide: const BorderSide(),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 16,
         ),
-        hintStyle: const TextStyle(
+        hintStyle: GoogleFonts.poppins(
           color: AppColors.textHint,
           fontSize: 15,
-          fontFamily: 'Lato',
         ),
-        labelStyle: const TextStyle(
+        labelStyle: GoogleFonts.poppins(
           color: AppColors.textSecondary,
           fontSize: 15,
-          fontFamily: 'Lato',
         ),
       ),
     );
@@ -102,7 +99,7 @@ class AppStrings {
   static const appName = 'MediSaathi';
   static const tagline = 'Your AI Health Companion';
   static const splashTagline =
-      'Doctors give you a diagnosis.\nMediSaathi gives you a Saathi.';
+      'Doctors give you a diagnosis.\\nMediSaathi gives you a Saathi.';
 
   // Auth
   static const login = 'Login';

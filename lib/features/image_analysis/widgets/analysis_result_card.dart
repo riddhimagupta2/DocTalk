@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:doctalk/features/image_analysis/models/image_analysis_model.dart';
 import 'package:doctalk/features/image_analysis/widgets/severity_badge.dart';
 import 'package:doctalk/features/image_analysis/widgets/confidence_badge.dart';
-import 'package:doctalk/resources/AppTheme.dart';
+import '../../../resources/app_theme.dart';
 import 'package:doctalk/resources/responsive.dart';
 
 class AnalysisResultCard extends StatelessWidget {
@@ -32,11 +32,11 @@ class AnalysisResultCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '📷 Image Could Not Be Analyzed',
+          'Image Could Not Be Analyzed',
           style: TextStyle(fontSize: context.sp(18), fontWeight: FontWeight.bold, color: AppColors.error),
         ),
         SizedBox(height: context.hp(2)),
-        _buildSectionHeader(context, '📋 Recommendations'),
+        _buildSectionHeader(context, 'Recommendations'),
         ...result.recommendations.map((e) => _buildBulletPoint(context, e, icon: Icons.info_outline)),
         SizedBox(height: context.hp(2)),
         _buildDisclaimer(context),
@@ -61,7 +61,7 @@ class AnalysisResultCard extends StatelessWidget {
         const Divider(),
         SizedBox(height: context.hp(2)),
         
-        _buildSectionHeader(context, '🩺 Possible Conditions'),
+        _buildSectionHeader(context, 'Possible Conditions'),
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -72,14 +72,14 @@ class AnalysisResultCard extends StatelessWidget {
           SizedBox(height: context.hp(2)),
           const Divider(),
           SizedBox(height: context.hp(2)),
-          _buildSectionHeader(context, '🔍 Possible Causes'),
+          _buildSectionHeader(context, 'Possible Causes'),
           ...result.possibleCauses.map((e) => _buildBulletPoint(context, e)),
         ],
 
         SizedBox(height: context.hp(2)),
         const Divider(),
         SizedBox(height: context.hp(2)),
-        _buildSectionHeader(context, '📋 Recommendations'),
+        _buildSectionHeader(context, 'Recommendations'),
         ...result.recommendations.asMap().entries.map(
               (entry) => _buildBulletPoint(context, entry.value, icon: Icons.check_circle_outline, color: AppColors.primary),
             ),
@@ -88,7 +88,7 @@ class AnalysisResultCard extends StatelessWidget {
           SizedBox(height: context.hp(2)),
           const Divider(),
           SizedBox(height: context.hp(2)),
-          _buildSectionHeader(context, '🏥 First Aid'),
+          _buildSectionHeader(context, 'First Aid'),
           ...result.firstAid.map((e) => _buildBulletPoint(context, e, icon: Icons.add_box, color: AppColors.coral)),
         ],
 
@@ -97,13 +97,13 @@ class AnalysisResultCard extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(context.r(12)),
             decoration: BoxDecoration(
-              color: AppColors.error.withOpacity(0.1),
+              color: AppColors.error.withValues(alpha:0.1),
               borderRadius: BorderRadius.circular(context.r(12)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildSectionHeader(context, '⚠️ Red Flags - Watch For'),
+                _buildSectionHeader(context, 'Red Flags - Watch For'),
                 ...result.redFlags.map((e) => _buildBulletPoint(context, e, color: AppColors.error)),
               ],
             ),
@@ -113,14 +113,14 @@ class AnalysisResultCard extends StatelessWidget {
         SizedBox(height: context.hp(2)),
         const Divider(),
         SizedBox(height: context.hp(2)),
-        _buildSectionHeader(context, '👨‍⚕️ When to Visit Doctor'),
+        _buildSectionHeader(context, 'When to Visit Doctor'),
         Text(result.whenToVisitDoctor, style: TextStyle(color: AppColors.textSecondary, fontSize: context.sp(14))),
 
         if (result.doctorSpeciality.isNotEmpty) ...[
           SizedBox(height: context.hp(2)),
           const Divider(),
           SizedBox(height: context.hp(2)),
-          _buildSectionHeader(context, '🏥 Recommended Specialist'),
+          _buildSectionHeader(context, 'Recommended Specialist'),
           Wrap(
             spacing: 12,
             runSpacing: 8,
@@ -129,12 +129,12 @@ class AnalysisResultCard extends StatelessWidget {
             children: [
               Chip(
                 label: Text(result.doctorSpeciality, style: TextStyle(fontWeight: FontWeight.bold, fontSize: context.sp(13))),
-                backgroundColor: AppColors.primary.withOpacity(0.1),
+                backgroundColor: AppColors.primary.withValues(alpha:0.1),
               ),
               GestureDetector(
                 onTap: () => Get.toNamed('/doctor-finder', arguments: {'specialist': result.doctorSpeciality}),
                 child: Text(
-                  'Find Nearby  →',
+                  'Find Nearby',
                   style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: context.sp(13)),
                 ),
               ),
@@ -176,7 +176,7 @@ class AnalysisResultCard extends StatelessWidget {
           Container(
             padding: EdgeInsets.symmetric(horizontal: context.r(6), vertical: 2),
             decoration: BoxDecoration(
-              color: condition.likelihoodColor.withOpacity(0.1),
+              color: condition.likelihoodColor.withValues(alpha:0.1),
               borderRadius: BorderRadius.circular(context.r(8)),
             ),
             child: Text(
@@ -207,13 +207,13 @@ class AnalysisResultCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(context.r(12)),
       decoration: BoxDecoration(
-        color: AppColors.border.withOpacity(0.5),
+        color: AppColors.border.withValues(alpha:0.5),
         borderRadius: BorderRadius.circular(context.r(12)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('⚠️', style: TextStyle(fontSize: context.sp(16))),
+          Icon(Icons.info_outline_rounded, size: context.sp(16), color: AppColors.textSecondary),
           SizedBox(width: context.r(8)),
           Expanded(
             child: Text(
@@ -226,3 +226,5 @@ class AnalysisResultCard extends StatelessWidget {
     );
   }
 }
+
+

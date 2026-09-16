@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../models/appointment_model.dart';
-import '../../resources/AppRoutes.dart';
-import '../../resources/AppTheme.dart';
+import '../../../resources/app_theme.dart';
+import '../../resources/app_routes.dart';
 import '../../resources/responsive.dart';
 
 class BookingConfirmationScreen extends StatefulWidget {
@@ -126,7 +126,7 @@ class _BookingConfirmationScreenState
                 width: successIconSize,
                 height: successIconSize,
                 decoration: BoxDecoration(
-                  color: AppColors.success.withOpacity(0.12),
+                  color: AppColors.success.withValues(alpha:0.12),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -241,3 +241,5 @@ class _RowItem extends StatelessWidget {
     );
   }
 }
+
+

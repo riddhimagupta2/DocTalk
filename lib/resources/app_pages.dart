@@ -1,16 +1,17 @@
 import 'package:get/get.dart';
-import 'package:doctalk/resources/AppRoutes.dart';
+import 'package:doctalk/resources/app_routes.dart';
 import 'package:doctalk/screens/Auth/login_screen.dart';
-import 'package:doctalk/screens/Auth/signUp_screen.dart';
+import 'package:doctalk/screens/Auth/sign_up_screen.dart';
+import 'package:doctalk/features/image_analysis/screens/image_analysis_screen.dart';
+
 import 'package:doctalk/screens/Auth/splash_screen.dart';
-import 'package:doctalk/screens/HomeScreen.dart';
+import 'package:doctalk/screens/home_screen.dart';
 import 'package:doctalk/screens/chat_screen.dart';
 import 'package:doctalk/screens/AnonymousChat/community_screen.dart';
 import 'package:doctalk/screens/doctor_finder_screen.dart';
 import '../screens/AppointmentBooking/booking_confirmation_screen.dart';
 import '../screens/AppointmentBooking/booking_screen.dart';
 import '../screens/AppointmentBooking/doctor_detail_screen.dart';
-import '../features/image_analysis/screens/image_analysis_screen.dart';
 import '../features/image_analysis/screens/image_analysis_history_screen.dart';
 import '../features/image_analysis/bindings/image_analysis_binding.dart';
 
@@ -114,3 +115,4 @@ class AppPages {
     ),
   ];
 }
+

@@ -1,7 +1,7 @@
 // typing_indicator.dart
 import 'package:flutter/material.dart';
 
-import '../resources/AppTheme.dart';
+import '../resources/app_theme.dart';
 
 class TypingIndicator extends StatefulWidget {
   const TypingIndicator({super.key});
@@ -66,7 +66,11 @@ class _TypingIndicatorState extends State<TypingIndicator>
             borderRadius: BorderRadius.circular(8),
           ),
           child: const Center(
-            child: Text('🩺', style: TextStyle(fontSize: 16)),
+            child: Icon(
+              Icons.health_and_safety_rounded,
+              size: 18,
+              color: Colors.white,
+            ),
           ),
         ),
         const SizedBox(width: 8),
@@ -83,7 +87,7 @@ class _TypingIndicatorState extends State<TypingIndicator>
             border: Border.all(color: AppColors.border),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha:0.05),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -116,3 +120,4 @@ class _TypingIndicatorState extends State<TypingIndicator>
     );
   }
 }
+

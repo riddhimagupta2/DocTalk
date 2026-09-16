@@ -1,8 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/nav_controller.dart';
-import '../resources/AppTheme.dart';
+import '../../../resources/app_theme.dart';
 import '../resources/responsive.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -58,11 +58,15 @@ class ProfileScreen extends StatelessWidget {
                     width: context.r(76),
                     height: context.r(76),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha:0.2),
                       shape: BoxShape.circle,
                     ),
                     child: Center(
-                      child: Text('👤', style: TextStyle(fontSize: context.sp(34))),
+                      child: Icon(
+                        Icons.person_rounded,
+                        size: context.r(44),
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                   SizedBox(height: context.hp(1.5)),
@@ -80,7 +84,7 @@ class ProfileScreen extends StatelessWidget {
                         authController.userEmail,
                         style: TextStyle(
                           fontSize: context.sp(14),
-                          color: Colors.white.withOpacity(0.75),
+                          color: Colors.white.withValues(alpha:0.75),
                         ),
                       )),
                 ],
@@ -139,14 +143,18 @@ class ProfileScreen extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(context.r(16)),
               decoration: BoxDecoration(
-                color: AppColors.gold.withOpacity(0.1),
+                color: AppColors.gold.withValues(alpha:0.1),
                 borderRadius: BorderRadius.circular(context.r(12)),
-                border: Border.all(color: AppColors.gold.withOpacity(0.3)),
+                border: Border.all(color: AppColors.gold.withValues(alpha:0.3)),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('⚠️', style: TextStyle(fontSize: context.sp(16))),
+                  Icon(
+                    Icons.info_outline_rounded,
+                    size: context.r(18),
+                    color: AppColors.gold,
+                  ),
                   SizedBox(width: context.wp(2.5).clamp(8.0, 14.0)),
                   Expanded(
                     child: Text(
@@ -205,10 +213,10 @@ class ProfileScreen extends StatelessWidget {
                 icon: Icon(Icons.logout_rounded, size: context.r(18)),
                 label: Text('Logout', style: TextStyle(fontSize: context.sp(15), fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.error.withOpacity(0.1),
+                  backgroundColor: AppColors.error.withValues(alpha:0.1),
                   foregroundColor: AppColors.error,
                   elevation: 0,
-                  side: BorderSide(color: AppColors.error.withOpacity(0.3)),
+                  side: BorderSide(color: AppColors.error.withValues(alpha:0.3)),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.r(14))),
                 ),
               ),
@@ -280,3 +288,5 @@ class _ProfileMenuTile extends StatelessWidget {
     );
   }
 }
+
+

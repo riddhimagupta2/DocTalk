@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:doctalk/resources/AppTheme.dart';
+import '../../../resources/app_theme.dart';
 
 class ConsentDialog extends StatelessWidget {
   final VoidCallback onAccept;
   final VoidCallback onDecline;
 
   const ConsentDialog({
-    Key? key,
+    super.key,
     required this.onAccept,
     required this.onDecline,
-  }) : super(key: key);
+  });
 
   static Future<bool> show(BuildContext context) async {
     final result = await showDialog<bool>(
@@ -80,3 +80,4 @@ class ConsentDialog extends StatelessWidget {
     );
   }
 }
+

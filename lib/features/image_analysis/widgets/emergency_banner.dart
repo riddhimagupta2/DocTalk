@@ -1,6 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:doctalk/resources/AppTheme.dart';
+import '../../../resources/app_theme.dart';
 import 'package:doctalk/resources/responsive.dart';
 
 class EmergencyBanner extends StatelessWidget {
@@ -18,14 +18,14 @@ class EmergencyBanner extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('🚨', style: TextStyle(fontSize: context.sp(24))),
+            Text('\u{26A0}\u{FE0F}', style: TextStyle(fontSize: context.sp(24))),
             SizedBox(width: context.wp(3).clamp(8.0, 14.0)),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '⚠️ EMERGENCY',
+                    '\u{26A0}\u{FE0F} EMERGENCY',
                     style: TextStyle(color: Colors.white, fontSize: context.sp(18), fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
@@ -43,15 +43,14 @@ class EmergencyBanner extends StatelessWidget {
             ),
           ],
         ),
-      );
+    );
 
-    if (animate) {
-      return Pulse(
-        infinite: true,
-        duration: const Duration(seconds: 2),
-        child: bannerContent,
-      );
-    }
-    return bannerContent;
+    if (!animate) return bannerContent;
+
+    return Flash(
+      duration: const Duration(seconds: 2),
+      infinite: true,
+      child: bannerContent,
+    );
   }
 }

@@ -4,8 +4,10 @@ import 'package:doctalk/features/image_analysis/controllers/image_analysis_contr
 import 'package:doctalk/features/image_analysis/widgets/history_list_tile.dart';
 import 'package:doctalk/features/image_analysis/widgets/analysis_result_card.dart';
 import 'package:doctalk/features/image_analysis/models/image_analysis_model.dart';
-import 'package:doctalk/resources/AppTheme.dart';
+
 import 'package:doctalk/resources/responsive.dart';
+
+import '../../../resources/app_theme.dart';
 
 class ImageAnalysisHistoryScreen extends StatelessWidget {
   const ImageAnalysisHistoryScreen({super.key});
@@ -73,7 +75,7 @@ class ImageAnalysisHistoryScreen extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.history_rounded, size: context.r(80), color: AppColors.textHint.withOpacity(0.5)),
+          Icon(Icons.history_rounded, size: context.r(80), color: AppColors.textHint.withValues(alpha:0.5)),
           SizedBox(height: context.hp(2)),
           Text(
             'No analyses yet',
@@ -149,3 +151,5 @@ class ImageAnalysisHistoryScreen extends StatelessWidget {
     );
   }
 }
+
+

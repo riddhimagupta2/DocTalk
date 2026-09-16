@@ -3,8 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/user_model.dart';
-import '../resources/AppRoutes.dart';
-import '../resources/AppTheme.dart';
+import '../resources/app_routes.dart';
+import '../resources/app_theme.dart';
 
 class AuthController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -200,3 +200,4 @@ class AuthController extends GetxController {
   String get userEmail => firebaseUser.value?.email ?? '';
   String get userFirstName => userName.split(' ').first;
 }
+

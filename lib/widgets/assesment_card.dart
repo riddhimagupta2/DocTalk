@@ -1,7 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../models/chat_message_model.dart';
-import '../resources/AppTheme.dart';
+import '../resources/app_theme.dart';
 import '../resources/responsive.dart';
 
 class AssessmentCard extends StatelessWidget {
@@ -20,14 +20,14 @@ class AssessmentCard extends StatelessWidget {
     }
   }
 
-  String get _severityEmoji {
+  IconData get _severityIcon {
     switch (assessment.severity) {
       case 'URGENT':
-        return '🔴';
+        return Icons.warning_rounded;
       case 'MEDIUM':
-        return '🟡';
+        return Icons.warning_amber_rounded;
       default:
-        return '🟢';
+        return Icons.check_circle_outline_rounded;
     }
   }
 
@@ -49,10 +49,10 @@ class AssessmentCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(context.r(20)),
-        border: Border.all(color: _severityColor.withOpacity(0.3), width: 1.5),
+        border: Border.all(color: _severityColor.withValues(alpha:0.3), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: _severityColor.withOpacity(0.1),
+            color: _severityColor.withValues(alpha:0.1),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -65,7 +65,7 @@ class AssessmentCard extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(context.r(16)),
             decoration: BoxDecoration(
-              color: _severityColor.withOpacity(0.08),
+              color: _severityColor.withValues(alpha:0.08),
               borderRadius: BorderRadius.vertical(
                 top: Radius.circular(context.r(18)),
               ),
@@ -75,10 +75,10 @@ class AssessmentCard extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.all(context.r(8)),
                   decoration: BoxDecoration(
-                    color: _severityColor.withOpacity(0.15),
+                    color: _severityColor.withValues(alpha:0.15),
                     borderRadius: BorderRadius.circular(context.r(10)),
                   ),
-                  child: Text('📋', style: TextStyle(fontSize: context.sp(20))),
+                  child: Icon(_severityIcon, size: context.r(22), color: _severityColor),
                 ),
                 SizedBox(width: context.wp(3).clamp(8.0, 16.0)),
                 Expanded(
@@ -97,10 +97,7 @@ class AssessmentCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Row(
                         children: [
-                          Text(
-                            _severityEmoji,
-                            style: TextStyle(fontSize: context.sp(12)),
-                          ),
+                          Icon(_severityIcon, size: context.r(14), color: _severityColor),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
@@ -143,7 +140,7 @@ class AssessmentCard extends StatelessWidget {
 
                 // Severity reason
                 _InfoRow(
-                  icon: '💡',
+                  icon: Icons.info_outline_rounded,
                   label: 'Why this assessment',
                   value: assessment.severityReason,
                 ),
@@ -152,7 +149,7 @@ class AssessmentCard extends StatelessWidget {
 
                 // Recommended specialist
                 _InfoRow(
-                  icon: '👨‍⚕️',
+                  icon: Icons.medical_services_outlined,
                   label: 'Consult',
                   value: assessment.recommendedSpecialist,
                   valueStyle: TextStyle(
@@ -174,7 +171,11 @@ class AssessmentCard extends StatelessWidget {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('✅', style: TextStyle(fontSize: context.sp(12))),
+                              Icon(
+                                Icons.check_circle_outline_rounded,
+                                size: context.r(15),
+                                color: AppColors.primary,
+                              ),
                               SizedBox(width: context.wp(2).clamp(6.0, 10.0)),
                               Expanded(
                                 child: Text(
@@ -198,10 +199,10 @@ class AssessmentCard extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.all(context.r(12)),
                     decoration: BoxDecoration(
-                      color: AppColors.urgent.withOpacity(0.05),
+                      color: AppColors.urgent.withValues(alpha:0.05),
                       borderRadius: BorderRadius.circular(context.r(10)),
                       border: Border.all(
-                        color: AppColors.urgent.withOpacity(0.2),
+                        color: AppColors.urgent.withValues(alpha:0.2),
                       ),
                     ),
                     child: Column(
@@ -209,7 +210,11 @@ class AssessmentCard extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Text('🚨', style: TextStyle(fontSize: context.sp(14))),
+                            Icon(
+                              Icons.warning_amber_rounded,
+                              size: context.r(16),
+                              color: AppColors.urgent,
+                            ),
                             const SizedBox(width: 6),
                             Text(
                               'Go to ER if you experience:',
@@ -228,10 +233,10 @@ class AssessmentCard extends StatelessWidget {
                               (flag) => Padding(
                                 padding: const EdgeInsets.only(top: 4),
                                 child: Text(
-                                  '• ',
+                                  '• $flag',
                                   style: TextStyle(
                                     fontSize: context.sp(12),
-                                    color: AppColors.urgent.withOpacity(0.8),
+                                    color: AppColors.urgent.withValues(alpha:0.8),
                                     height: 1.4,
                                   ),
                                 ),
@@ -248,17 +253,30 @@ class AssessmentCard extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.all(context.r(10)),
                   decoration: BoxDecoration(
-                    color: AppColors.border.withOpacity(0.5),
+                    color: AppColors.border.withValues(alpha:0.5),
                     borderRadius: BorderRadius.circular(context.r(8)),
                   ),
-                  child: Text(
-                    '⚕️ ',
-                    style: TextStyle(
-                      fontSize: context.sp(11),
-                      color: AppColors.textSecondary,
-                      fontStyle: FontStyle.italic,
-                      height: 1.4,
-                    ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.info_outline_rounded,
+                        size: context.r(14),
+                        color: AppColors.textSecondary,
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          'DocTalk provides preliminary AI guidance for informational purposes only. Always consult a qualified doctor for diagnosis and clinical care.',
+                          style: TextStyle(
+                            fontSize: context.sp(11),
+                            color: AppColors.textSecondary,
+                            fontStyle: FontStyle.italic,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -301,7 +319,7 @@ class _ConditionChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.primaryLight,
         borderRadius: BorderRadius.circular(context.r(6)),
-        border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+        border: Border.all(color: AppColors.primary.withValues(alpha:0.2)),
       ),
       child: Text(
         condition,
@@ -316,7 +334,7 @@ class _ConditionChip extends StatelessWidget {
 }
 
 class _InfoRow extends StatelessWidget {
-  final String icon;
+  final IconData icon;
   final String label;
   final String value;
   final TextStyle? valueStyle;
@@ -333,7 +351,7 @@ class _InfoRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(icon, style: TextStyle(fontSize: context.sp(14))),
+        Icon(icon, size: context.r(16), color: AppColors.primary),
         SizedBox(width: context.wp(2).clamp(6.0, 10.0)),
         Expanded(
           child: Column(
@@ -365,3 +383,6 @@ class _InfoRow extends StatelessWidget {
     );
   }
 }
+
+
+

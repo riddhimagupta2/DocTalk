@@ -1,7 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/auth_controller.dart';
-import '../../resources/AppTheme.dart';
+import '../../resources/app_theme.dart';
 import '../../resources/responsive.dart';
 import '../../widgets/CustomWidgets/custom_button.dart';
 import '../../widgets/CustomWidgets/custom_textfields.dart';
@@ -108,7 +108,7 @@ class _SignupScreenState extends State<SignupScreen>
 
                   // Title
                   Text(
-                    'Join\nMediSaathi 🌿',
+                    'Join\nMediSaathi ',
                     style: TextStyle(
                       fontSize: context.sp(34),
                       fontWeight: FontWeight.w800,
@@ -258,7 +258,7 @@ class _SignupScreenState extends State<SignupScreen>
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: context.sp(12),
-                        color: AppColors.textSecondary.withOpacity(0.6),
+                        color: AppColors.textSecondary.withValues(alpha:0.6),
                         height: 1.5,
                       ),
                     ),
@@ -303,3 +303,6 @@ class _SignupScreenState extends State<SignupScreen>
     );
   }
 }
+
+
+

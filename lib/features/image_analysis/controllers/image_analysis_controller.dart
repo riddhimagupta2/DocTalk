@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:doctalk/features/image_analysis/models/image_analysis_model.dart';
 import 'package:doctalk/features/image_analysis/services/image_analysis_service.dart';
-import 'package:doctalk/resources/AppTheme.dart';
+import '../../../resources/app_theme.dart';
 
 class ImageAnalysisController extends GetxController {
   final ImageAnalysisService _service = ImageAnalysisService();
@@ -186,3 +186,4 @@ class ImageAnalysisController extends GetxController {
     _isProcessing = false;
   }
 }
+

@@ -1,5 +1,5 @@
 ﻿import 'package:flutter/material.dart';
-import '../../resources/AppTheme.dart';
+import '../../../resources/app_theme.dart';
 import '../../resources/responsive.dart';
 
 class CustomButton extends StatelessWidget {
@@ -32,7 +32,7 @@ class CustomButton extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(context.r(14)),
           ),
-          disabledBackgroundColor: AppColors.primary.withOpacity(0.6),
+          disabledBackgroundColor: AppColors.primary.withValues(alpha:0.6),
         ),
         child: isLoading
             ? SizedBox(
@@ -64,3 +64,5 @@ class CustomButton extends StatelessWidget {
     );
   }
 }
+
+

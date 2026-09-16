@@ -21,3 +21,4 @@ class ChatBindings extends Bindings {
     Get.put<ChatController>(ChatController());
   }
 }
+

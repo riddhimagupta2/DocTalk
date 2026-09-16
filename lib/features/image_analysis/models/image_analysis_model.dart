@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:doctalk/resources/AppTheme.dart';
+import '../../../resources/app_theme.dart';
 
 class PossibleCondition {
   final String name;
@@ -274,3 +274,4 @@ class ImageAnalysisResult {
     return 'Just now';
   }
 }
+

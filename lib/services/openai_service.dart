@@ -288,3 +288,4 @@ class AIResponse {
 // Aliases for seamless backwards compatibility
 typedef GeminiResponse = AIResponse;
 typedef GeminiService = OpenAIService;
+

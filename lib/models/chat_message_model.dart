@@ -135,16 +135,28 @@ class AssessmentData {
     }
   }
 
+  IconData get severityIcon {
+    switch (severity) {
+      case 'URGENT':
+        return Icons.warning_rounded;
+      case 'MEDIUM':
+        return Icons.warning_amber_rounded;
+      default:
+        return Icons.check_circle_outline_rounded;
+    }
+  }
+
   String get severityEmoji {
     switch (severity) {
       case 'URGENT':
-        return '🚨';
+        return 'Urgent';
       case 'MEDIUM':
-        return '⚠️';
+        return 'Moderate';
       default:
-        return '✅';
+        return 'Mild';
     }
   }
 }
 
 // Needed for Color in AssessmentData
+

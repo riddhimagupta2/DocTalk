@@ -1,6 +1,6 @@
-﻿import 'dart:io';
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:doctalk/resources/AppTheme.dart';
+import '../../../resources/app_theme.dart';
 import 'package:doctalk/resources/responsive.dart';
 
 class ImagePreviewWidget extends StatelessWidget {
@@ -9,11 +9,11 @@ class ImagePreviewWidget extends StatelessWidget {
   final VoidCallback onRetake;
 
   const ImagePreviewWidget({
-    Key? key,
+    super.key,
     required this.imageFile,
     required this.onRemove,
     required this.onRetake,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class ImagePreviewWidget extends StatelessWidget {
             child: Container(
               padding: EdgeInsets.all(context.r(6)),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.5),
+                color: Colors.black.withValues(alpha:0.5),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.close, color: Colors.white, size: context.r(20)),
@@ -75,7 +75,7 @@ class ImagePreviewWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(context.r(20)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha:0.1),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -101,3 +101,5 @@ class ImagePreviewWidget extends StatelessWidget {
     );
   }
 }
+
+

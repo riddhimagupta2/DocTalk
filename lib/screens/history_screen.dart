@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../controllers/auth_controller.dart';
-import '../resources/AppTheme.dart';
+import '../../../resources/app_theme.dart';
+import '../resources/responsive.dart';
 import '../services/appoint_service.dart';
 import '../services/chat_history_service.dart';
 
@@ -38,10 +39,10 @@ class _HistoryScreenState extends State<HistoryScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'My Health Records',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: context.sp(17),
             fontWeight: FontWeight.w800,
             color: AppColors.textPrimary,
             fontFamily: 'Lato',
@@ -60,24 +61,24 @@ class _HistoryScreenState extends State<HistoryScreen>
                 unselectedLabelColor: AppColors.textSecondary,
                 indicatorColor: AppColors.primary,
                 indicatorWeight: 2.5,
-                labelStyle: const TextStyle(
+                labelStyle: TextStyle(
                   fontWeight: FontWeight.w700,
-                  fontSize: 13,
+                  fontSize: context.sp(12.5),
                   fontFamily: 'Lato',
                 ),
-                unselectedLabelStyle: const TextStyle(
+                unselectedLabelStyle: TextStyle(
                   fontWeight: FontWeight.w500,
-                  fontSize: 13,
+                  fontSize: context.sp(12.5),
                 ),
-                tabs: const [
+                tabs: [
                   Tab(
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.chat_bubble_outline_rounded, size: 15),
-                        SizedBox(width: 6),
-                        Text('Consultations'),
+                        Icon(Icons.chat_bubble_outline_rounded, size: context.r(15)),
+                        const SizedBox(width: 6),
+                        const Text('Consultations'),
                       ],
                     ),
                   ),
@@ -86,9 +87,9 @@ class _HistoryScreenState extends State<HistoryScreen>
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.calendar_today_rounded, size: 15),
-                        SizedBox(width: 6),
-                        Text('Appointments'),
+                        Icon(Icons.calendar_today_rounded, size: context.r(15)),
+                        const SizedBox(width: 6),
+                        const Text('Appointments'),
                       ],
                     ),
                   ),
@@ -101,12 +102,12 @@ class _HistoryScreenState extends State<HistoryScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          // ── Tab 1: Consultations (your original code, untouched) ───
+          // -- Tab 1: Consultations (your original code, untouched) â”€â”€â”€
           _ConsultationsTab(
             authController: authController,
             historyService: historyService,
           ),
-          // ── Tab 2: Booked Appointments ─────────────────────────────
+          // -- Tab 2: Booked Appointments â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           _AppointmentsTab(service: appointmentService),
         ],
       ),
@@ -114,9 +115,9 @@ class _HistoryScreenState extends State<HistoryScreen>
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// Tab 1 — Consultations  (original logic, just moved into its own widget)
-// ══════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// Tab 1 - Consultations  (original logic, just moved into its own widget)
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 class _ConsultationsTab extends StatelessWidget {
   final AuthController authController;
@@ -149,12 +150,12 @@ class _ConsultationsTab extends StatelessWidget {
           }
 
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return _buildEmptyState();
+            return _buildEmptyState(context);
           }
 
           final sessions = snapshot.data!;
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(context.r(16)),
             itemCount: sessions.length,
             itemBuilder: (context, index) =>
                 _HistoryCard(session: sessions[index]),
@@ -164,29 +165,29 @@ class _ConsultationsTab extends StatelessWidget {
     });
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('📋', style: TextStyle(fontSize: 64)),
-          const SizedBox(height: 16),
-          const Text(
+          Icon(Icons.assignment_rounded, color: AppColors.primary, size: context.sp(56)), // ,
+          SizedBox(height: context.hp(1.6)),
+          Text(
             'No consultations yet',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: context.sp(17),
               fontWeight: FontWeight.w700,
               color: AppColors.textPrimary,
               fontFamily: 'Lato',
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: context.hp(0.8)),
           Text(
             'Tap the + button to start your\nfirst health check',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 14,
-              color: AppColors.textSecondary.withOpacity(0.7),
+              fontSize: context.sp(13.5),
+              color: AppColors.textSecondary.withValues(alpha:0.7),
               height: 1.5,
             ),
           ),
@@ -196,9 +197,9 @@ class _ConsultationsTab extends StatelessWidget {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// Tab 2 — Booked Appointments
-// ══════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// Tab 2 - Booked Appointments
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 class _AppointmentsTab extends StatefulWidget {
   final AppointmentService service;
@@ -225,23 +226,23 @@ class _AppointmentsTabState extends State<_AppointmentsTab> {
     final confirmed = await Get.dialog<bool>(
       AlertDialog(
         shape:
-        RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        title: const Text(
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.r(18))),
+        title: Text(
           'Cancel Appointment?',
           style: TextStyle(
               fontWeight: FontWeight.w700,
-              fontSize: 17,
+              fontSize: context.sp(16),
               fontFamily: 'Lato'),
         ),
-        content: const Text(
+        content: Text(
           'Kya aap sach mein yeh appointment cancel karna chahte hain?',
           style: TextStyle(
-              color: AppColors.textSecondary, fontSize: 14, height: 1.5),
+              color: AppColors.textSecondary, fontSize: context.sp(13.5), height: 1.5),
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
-            child: const Text('No',
+            child: Text('No',
                 style: TextStyle(color: AppColors.textSecondary)),
           ),
           ElevatedButton(
@@ -253,9 +254,9 @@ class _AppointmentsTabState extends State<_AppointmentsTab> {
               padding: const EdgeInsets.symmetric(
                   horizontal: 20, vertical: 10),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
+                  borderRadius: BorderRadius.circular(context.r(10))),
             ),
-            child: const Text('Yes, Cancel'),
+            child: Text('Yes, Cancel'),
           ),
         ],
       ),
@@ -283,47 +284,47 @@ class _AppointmentsTabState extends State<_AppointmentsTab> {
         if (list.isEmpty) {
           return Center(
             child: Padding(
-              padding: const EdgeInsets.all(40),
+              padding: EdgeInsets.all(context.r(32)),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('📅', style: TextStyle(fontSize: 64)),
-                  const SizedBox(height: 16),
-                  const Text(
+                  Icon(Icons.calendar_month_rounded, color: AppColors.primary, size: context.sp(56)), // ,
+                  SizedBox(height: context.hp(1.6)),
+                  Text(
                     'No appointments booked',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: context.sp(17),
                       fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary,
                       fontFamily: 'Lato',
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: context.hp(0.8)),
                   Text(
                     'Chat mein "Doctor Dhundho" tap karein\naur apna pehla appointment book karein',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textSecondary.withOpacity(0.7),
+                      fontSize: context.sp(13.5),
+                      color: AppColors.textSecondary.withValues(alpha:0.7),
                       height: 1.6,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: context.hp(2.4)),
                   ElevatedButton.icon(
                     onPressed: () => Get.toNamed(
                       '/doctor-finder',
                       arguments: {'specialist': 'General Physician'},
                     ),
-                    icon: const Icon(Icons.search_rounded, size: 17),
-                    label: const Text('Find a Doctor'),
+                    icon: Icon(Icons.search_rounded, size: context.r(17)),
+                    label: Text('Find a Doctor'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 24, vertical: 13),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                      textStyle: const TextStyle(
+                          borderRadius: BorderRadius.circular(context.r(12))),
+                      textStyle: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontFamily: 'Lato'),
                     ),
@@ -338,7 +339,7 @@ class _AppointmentsTabState extends State<_AppointmentsTab> {
           color: AppColors.primary,
           onRefresh: () async => setState(_load),
           child: ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(context.r(16)),
             itemCount: list.length,
             itemBuilder: (_, i) => _AppointmentCard(
               data: list[i],
@@ -352,9 +353,9 @@ class _AppointmentsTabState extends State<_AppointmentsTab> {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // Appointment Card
-// ══════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 class _AppointmentCard extends StatelessWidget {
   final Map<String, dynamic> data;
@@ -386,7 +387,7 @@ class _AppointmentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ── Parse fields safely ────────────────────────────────────────
+    // -- Parse fields safely â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     DateTime? date;
     try {
       date = DateTime.parse(data['date'] as String? ?? '');
@@ -410,16 +411,16 @@ class _AppointmentCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 14),
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(context.r(18)),
           border: Border.all(
             color: _isCancelled
-                ? AppColors.error.withOpacity(0.2)
+                ? AppColors.error.withValues(alpha:0.2)
                 : AppColors.border,
           ),
           boxShadow: [
             BoxShadow(
               color: Colors.black
-                  .withOpacity(_isCancelled ? 0.02 : 0.05),
+                  .withValues(alpha:_isCancelled ? 0.02 : 0.05),
               blurRadius: 10,
               offset: const Offset(0, 3),
             ),
@@ -427,7 +428,7 @@ class _AppointmentCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-            // ── Gradient header ──────────────────────────────────────
+            // -- Gradient header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Container(
               padding: const EdgeInsets.symmetric(
                   horizontal: 16, vertical: 13),
@@ -435,17 +436,17 @@ class _AppointmentCard extends StatelessWidget {
                 gradient: LinearGradient(
                   colors: _isCancelled
                       ? [
-                    Colors.grey.withOpacity(0.08),
-                    Colors.grey.withOpacity(0.04),
+                    Colors.grey.withValues(alpha:0.08),
+                    Colors.grey.withValues(alpha:0.04),
                   ]
                       : [
-                    AppColors.primary.withOpacity(0.08),
-                    AppColors.primaryLight.withOpacity(0.5),
+                    AppColors.primary.withValues(alpha:0.08),
+                    AppColors.primaryLight.withValues(alpha:0.5),
                   ],
                 ),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(18),
-                  topRight: Radius.circular(18),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(context.r(18)),
+                  topRight: Radius.circular(context.r(18)),
                 ),
               ),
               child: Row(
@@ -456,7 +457,7 @@ class _AppointmentCard extends StatelessWidget {
                     height: 46,
                     decoration: BoxDecoration(
                       color: _isCancelled
-                          ? Colors.grey.withOpacity(0.15)
+                          ? Colors.grey.withValues(alpha:0.15)
                           : AppColors.primaryLight,
                       borderRadius: BorderRadius.circular(13),
                     ),
@@ -477,19 +478,19 @@ class _AppointmentCard extends StatelessWidget {
                       children: [
                         Text(
                           doctorName,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textPrimary,
                             fontWeight: FontWeight.w700,
-                            fontSize: 14.5,
+                            fontSize: context.sp(13.5),
                             fontFamily: 'Lato',
                           ),
                         ),
                         if (spec.isNotEmpty)
                           Text(
                             spec,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.primary,
-                              fontSize: 12,
+                              fontSize: context.sp(11.5),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -502,22 +503,22 @@ class _AppointmentCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 9, vertical: 4),
                     decoration: BoxDecoration(
-                      color: _statusColor.withOpacity(0.1),
+                      color: _statusColor.withValues(alpha:0.1),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                          color: _statusColor.withOpacity(0.25)),
+                          color: _statusColor.withValues(alpha:0.25)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(_statusIcon,
-                            size: 11, color: _statusColor),
-                        const SizedBox(width: 4),
+                            size: context.r(11), color: _statusColor),
+                        SizedBox(width: context.wp(1.0)),
                         Text(
                           _statusLabel,
                           style: TextStyle(
                             color: _statusColor,
-                            fontSize: 10.5,
+                            fontSize: context.sp(10),
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -528,7 +529,7 @@ class _AppointmentCard extends StatelessWidget {
               ),
             ),
 
-            // ── Body ─────────────────────────────────────────────────
+            // -- Body â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Padding(
               padding:
               const EdgeInsets.fromLTRB(16, 13, 16, 14),
@@ -543,19 +544,19 @@ class _AppointmentCard extends StatelessWidget {
                         label: date != null
                             ? DateFormat('EEE, d MMM yyyy')
                             .format(date)
-                            : '—',
+                            : '-',
                         color: AppColors.primary,
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: context.wp(2.0)),
                       _Chip(
                         icon: Icons.access_time_rounded,
                         label:
-                        timeSlot.isNotEmpty ? timeSlot : '—',
+                        timeSlot.isNotEmpty ? timeSlot : '-',
                         color: AppColors.coral,
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: context.hp(1.0)),
 
                   // Clinic address
                   if (address.isNotEmpty)
@@ -563,7 +564,7 @@ class _AppointmentCard extends StatelessWidget {
                         icon: Icons.location_on_outlined,
                         text: address),
 
-                  const SizedBox(height: 6),
+                  SizedBox(height: context.hp(0.6)),
 
                   // Patient info
                   _IconRow(
@@ -575,7 +576,7 @@ class _AppointmentCard extends StatelessWidget {
 
                   // Visit reason
                   if (reason.isNotEmpty) ...[
-                    const SizedBox(height: 6),
+                    SizedBox(height: context.hp(0.6)),
                     _IconRow(
                         icon: Icons.note_alt_outlined,
                         text: reason),
@@ -583,15 +584,15 @@ class _AppointmentCard extends StatelessWidget {
 
                   // Fee
                   if (fee > 0) ...[
-                    const SizedBox(height: 6),
+                    SizedBox(height: context.hp(0.6)),
                     _IconRow(
                         icon: Icons.currency_rupee,
                         text: 'Consultation fee: ₹$fee'),
                   ],
 
-                  const SizedBox(height: 12),
+                  SizedBox(height: context.hp(1.2)),
                   const Divider(height: 1, color: AppColors.border),
-                  const SizedBox(height: 10),
+                  SizedBox(height: context.hp(1.0)),
 
                   // Bottom row: Booking ID + Cancel
                   Row(
@@ -605,9 +606,9 @@ class _AppointmentCard extends StatelessWidget {
                         ),
                         child: Text(
                           'ID: $shortId',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textSecondary,
-                            fontSize: 10.5,
+                            fontSize: context.sp(10),
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Lato',
                           ),
@@ -622,25 +623,25 @@ class _AppointmentCard extends StatelessWidget {
                                 horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
                               color:
-                              AppColors.error.withOpacity(0.06),
+                              AppColors.error.withValues(alpha:0.06),
                               borderRadius:
                               BorderRadius.circular(8),
                               border: Border.all(
                                   color: AppColors.error
-                                      .withOpacity(0.2)),
+                                      .withValues(alpha:0.2)),
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(Icons.close_rounded,
-                                    size: 12,
+                                    size: context.r(12),
                                     color: AppColors.error),
                                 SizedBox(width: 4),
                                 Text(
                                   'Cancel',
                                   style: TextStyle(
                                     color: AppColors.error,
-                                    fontSize: 11.5,
+                                    fontSize: context.sp(11),
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -660,7 +661,7 @@ class _AppointmentCard extends StatelessWidget {
   }
 }
 
-// ── Small reusable widgets ────────────────────────────────────────────────────
+// -- Small reusable widgets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _Chip extends StatelessWidget {
   final IconData icon;
@@ -677,20 +678,20 @@ class _Chip extends StatelessWidget {
       padding:
       const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.07),
+        color: color.withValues(alpha:0.07),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha:0.2)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12, color: color),
-          const SizedBox(width: 5),
+          Icon(icon, size: context.r(12), color: color),
+          SizedBox(width: context.wp(1.2)),
           Text(
             label,
             style: TextStyle(
               color: color,
-              fontSize: 11.5,
+              fontSize: context.sp(11),
               fontWeight: FontWeight.w600,
               fontFamily: 'Lato',
             ),
@@ -711,13 +712,13 @@ class _IconRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 13, color: AppColors.textHint),
-        const SizedBox(width: 6),
+        Icon(icon, size: context.r(13), color: AppColors.textHint),
+        SizedBox(width: context.wp(1.5)),
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(
-                color: AppColors.textSecondary, fontSize: 12.5),
+            style: TextStyle(
+                color: AppColors.textSecondary, fontSize: context.sp(12)),
           ),
         ),
       ],
@@ -725,9 +726,9 @@ class _IconRow extends StatelessWidget {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// Original _HistoryCard — COMPLETELY UNCHANGED from your code
-// ══════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// Original _HistoryCard - COMPLETELY UNCHANGED from your code
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 class _HistoryCard extends StatelessWidget {
   final ChatSession session;
@@ -753,18 +754,18 @@ class _HistoryCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(context.r(16)),
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha:0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(context.r(16)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -773,8 +774,8 @@ class _HistoryCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     session.firstSymptom,
-                    style: const TextStyle(
-                      fontSize: 15,
+                    style: TextStyle(
+                      fontSize: context.sp(14.5),
                       fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary,
                       fontFamily: 'Lato',
@@ -789,15 +790,15 @@ class _HistoryCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: _severityColor.withOpacity(0.1),
+                      color: _severityColor.withValues(alpha:0.1),
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(
-                          color: _severityColor.withOpacity(0.3)),
+                          color: _severityColor.withValues(alpha:0.3)),
                     ),
                     child: Text(
                       session.severity,
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: context.sp(10.5),
                         fontWeight: FontWeight.w700,
                         color: _severityColor,
                         letterSpacing: 0.5,
@@ -806,41 +807,41 @@ class _HistoryCard extends StatelessWidget {
                   ),
               ],
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: context.hp(0.8)),
             Row(
               children: [
                 Icon(Icons.access_time_rounded,
-                    size: 13,
+                    size: context.r(13),
                     color:
-                    AppColors.textSecondary.withOpacity(0.6)),
-                const SizedBox(width: 4),
+                    AppColors.textSecondary.withValues(alpha:0.6)),
+                SizedBox(width: context.wp(1.0)),
                 Text(
                   DateFormat('dd MMM yyyy, hh:mm a')
                       .format(session.createdAt),
                   style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSecondary.withOpacity(0.7),
+                    fontSize: context.sp(11.5),
+                    color: AppColors.textSecondary.withValues(alpha:0.7),
                   ),
                 ),
                 const Spacer(),
                 Text(
                   '${session.messageCount} messages',
                   style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSecondary.withOpacity(0.7),
+                    fontSize: context.sp(11.5),
+                    color: AppColors.textSecondary.withValues(alpha:0.7),
                   ),
                 ),
               ],
             ),
             if (session.hasAssessment) ...[
-              const SizedBox(height: 10),
+              SizedBox(height: context.hp(1.0)),
               Container(height: 1, color: AppColors.border),
-              const SizedBox(height: 10),
+              SizedBox(height: context.hp(1.0)),
               Row(
                 children: [
-                  const Icon(Icons.medical_services_outlined,
-                      size: 14, color: AppColors.primary),
-                  const SizedBox(width: 6),
+                  Icon(Icons.medical_services_outlined,
+                      size: context.r(14), color: AppColors.primary),
+                  SizedBox(width: context.wp(1.5)),
                   Expanded(
                     child: Text(
                       session.assessment?['likelyconditions'] !=
@@ -850,8 +851,8 @@ class _HistoryCard extends StatelessWidget {
                           .take(2)
                           .join(', ')
                           : 'Assessment available',
-                      style: const TextStyle(
-                        fontSize: 12,
+                      style: TextStyle(
+                        fontSize: context.sp(11.5),
                         color: AppColors.primary,
                         fontWeight: FontWeight.w500,
                       ),
@@ -868,3 +869,4 @@ class _HistoryCard extends StatelessWidget {
     );
   }
 }
+

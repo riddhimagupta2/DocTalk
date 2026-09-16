@@ -1,7 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/chat_message_model.dart';
-import '../resources/AppTheme.dart';
+import '../../../resources/app_theme.dart';
 import '../resources/responsive.dart';
 
 class MessageBubble extends StatelessWidget {
@@ -48,7 +48,7 @@ class MessageBubble extends StatelessWidget {
                     boxShadow: [
                       BoxShadow(
                         color: (isUser ? AppColors.primary : Colors.black)
-                            .withOpacity(isUser ? 0.2 : 0.06),
+                            .withValues(alpha:isUser ? 0.2 : 0.06),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -77,7 +77,7 @@ class MessageBubble extends StatelessWidget {
                   DateFormat('hh:mm a').format(message.timestamp),
                   style: TextStyle(
                     fontSize: context.sp(10),
-                    color: AppColors.textHint.withOpacity(0.7),
+                    color: AppColors.textHint.withValues(alpha:0.7),
                   ),
                 ),
               ],
@@ -101,7 +101,11 @@ class MessageBubble extends StatelessWidget {
         borderRadius: BorderRadius.circular(context.r(8)),
       ),
       child: Center(
-        child: Text('🩺', style: TextStyle(fontSize: context.sp(16))),
+        child: Icon(
+          Icons.health_and_safety_rounded,
+          size: context.r(18),
+          color: Colors.white,
+        ),
       ),
     );
   }
@@ -111,7 +115,7 @@ class MessageBubble extends StatelessWidget {
       width: context.r(32),
       height: context.r(32),
       decoration: BoxDecoration(
-        color: AppColors.coral.withOpacity(0.15),
+        color: AppColors.coral.withValues(alpha:0.15),
         borderRadius: BorderRadius.circular(context.r(8)),
       ),
       child: Center(
@@ -124,3 +128,5 @@ class MessageBubble extends StatelessWidget {
     );
   }
 }
+
+

@@ -3,7 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:doctalk/features/image_analysis/models/image_analysis_model.dart';
 import 'package:doctalk/features/image_analysis/widgets/severity_badge.dart';
 import 'package:doctalk/features/image_analysis/widgets/confidence_badge.dart';
-import 'package:doctalk/resources/AppTheme.dart';
+import '../../../resources/app_theme.dart';
 
 class HistoryListTile extends StatelessWidget {
   final ImageAnalysisResult analysis;
@@ -11,11 +11,11 @@ class HistoryListTile extends StatelessWidget {
   final VoidCallback onDelete;
 
   const HistoryListTile({
-    Key? key,
+    super.key,
     required this.analysis,
     required this.onTap,
     required this.onDelete,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class HistoryListTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha:0.05),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -94,3 +94,5 @@ class HistoryListTile extends StatelessWidget {
     );
   }
 }
+
+

@@ -3,6 +3,7 @@ import '../models/chat_message_model.dart';
 import '../services/openai_service.dart';
 import '../services/chat_history_service.dart';
 import '../controllers/auth_controller.dart';
+import 'package:flutter/foundation.dart';
 
 class ChatController extends GetxController {
   final OpenAIService _aiService = OpenAIService();
@@ -16,9 +17,9 @@ class ChatController extends GetxController {
   final RxBool showDoctorFinder = false.obs;
   final Rx<AssessmentData?> currentAssessment = Rx<AssessmentData?>(null);
 
-  // ══════════════════════════════════════════════════
-  // 🚨 EMERGENCY DUPLICATE PROTECTION
-  // ══════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // EMERGENCY DUPLICATE PROTECTION
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   bool _isSending = false;
   String? _lastSentMessage;
   DateTime? _lastSendTime;
@@ -31,7 +32,7 @@ class ChatController extends GetxController {
 
   void _startSession() {
     messages.add(ChatMessage.ai(
-      'Namaste! 🙏 Main DocTalk hoon.\n\nAaj aap kaisa feel kar rahe hain? Symptoms batayein.',
+      'Namaste! ðŸ™ Main DocTalk hoon.\n\nAaj aap kaisa feel kar rahe hain? Symptoms batayein.',
       quickReplies: ['Sar dard', 'Bukhar', 'Pet dard', 'Khasi', 'Kuch aur'],
     ));
     isSessionStarted.value = true;
@@ -41,21 +42,21 @@ class ChatController extends GetxController {
     final trimmedText = text.trim();
     if (trimmedText.isEmpty) return;
 
-    print('');
-    print('═══════════════════════════════════════');
-    print('🎯 CONTROLLER: sendMessage called');
-    print('📝 Message: "$trimmedText"');
-    print('🔒 Is sending: $_isSending');
-    print('⏰ Last send: $_lastSendTime');
-    print('═══════════════════════════════════════');
+    debugPrint('');
+    debugPrint('â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•');
+    debugPrint('CONTROLLER: sendMessage called');
+    debugPrint('ðŸ“ Message: "$trimmedText"');
+    debugPrint('Is sending: $_isSending');
+    debugPrint('â° Last send: $_lastSendTime');
+    debugPrint('â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•');
 
-    // ══════════════════════════════════════════════════
-    // 🚨 TRIPLE LAYER PROTECTION
-    // ══════════════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // TRIPLE LAYER PROTECTION
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
     // Layer 1: Already sending
     if (_isSending) {
-      print('⛔ LAYER 1 BLOCKED: Already sending');
+      debugPrint('LAYER 1 BLOCKED: Already sending');
       Get.snackbar(
         'Please Wait',
         'Processing previous message...',
@@ -67,7 +68,7 @@ class ChatController extends GetxController {
 
     // Layer 2: Exact duplicate
     if (_lastSentMessage == trimmedText) {
-      print('⛔ LAYER 2 BLOCKED: Duplicate message');
+      debugPrint('LAYER 2 BLOCKED: Duplicate message');
       Get.snackbar(
         'Duplicate',
         'Already processing this message',
@@ -82,7 +83,7 @@ class ChatController extends GetxController {
     if (_lastSendTime != null) {
       final gap = DateTime.now().difference(_lastSendTime!);
       if (gap.inSeconds < 3) {
-        print('⛔ LAYER 3 BLOCKED: Too fast (${gap.inSeconds}s gap)');
+        debugPrint('LAYER 3 BLOCKED: Too fast (${gap.inSeconds}s gap)');
         Get.snackbar(
           'Too Fast',
           'Wait ${3 - gap.inSeconds} seconds',
@@ -93,16 +94,16 @@ class ChatController extends GetxController {
       }
     }
 
-    // ══════════════════════════════════════════════════
-    // 🚨 SPECIAL: Doctor Finder (BEFORE AI)
-    // ══════════════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // SPECIAL: Doctor Finder (BEFORE AI)
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     if (_isDoctorFinderTrigger(trimmedText)) {
-      print('✅ DOCTOR FINDER TRIGGERED');
+      debugPrint('DOCTOR FINDER TRIGGERED');
 
       final userMessage = ChatMessage.user(trimmedText);
       messages.add(userMessage);
 
-      final confirmMsg = ChatMessage.ai('Finding nearby doctors... 🗺️');
+      final confirmMsg = ChatMessage.ai('Finding nearby doctors... ðŸ—ºï¸');
       messages.add(confirmMsg);
 
       await Future.delayed(const Duration(milliseconds: 500));
@@ -115,9 +116,9 @@ class ChatController extends GetxController {
       return;
     }
 
-    // ══════════════════════════════════════════════════
-    // 🔐 LOCK
-    // ══════════════════════════════════════════════════
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ðŸ” LOCK
+    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     _isSending = true;
     _lastSentMessage = trimmedText;
     _lastSendTime = DateTime.now();
@@ -135,9 +136,9 @@ class ChatController extends GetxController {
       isTyping.value = true;
       messages.add(ChatMessage.typing());
 
-      // ══════════════════════════════════════════════════
-      // 🚀 SEND TO OPENAI
-      // ══════════════════════════════════════════════════
+      // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+      // SEND TO OPENAI
+      // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
       final response = await _aiService.sendMessage(trimmedText);
 
       messages.removeWhere((m) => m.isTyping);
@@ -149,11 +150,11 @@ class ChatController extends GetxController {
         return;
       }
 
-      // ══════════════════════════════════════════════════
+      // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
       // HANDLE ASSESSMENT
-      // ══════════════════════════════════════════════════
+      // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
       if (response.hasAssessment) {
-        print('✅ ASSESSMENT RECEIVED');
+        debugPrint('ASSESSMENT RECEIVED');
 
         final summaryMsg = ChatMessage.ai(
           response.text,
@@ -177,11 +178,11 @@ class ChatController extends GetxController {
         await Future.delayed(const Duration(milliseconds: 800));
 
         final doctorPromptMsg = ChatMessage.ai(
-          'Kya aap nearby ${response.assessment!.recommendedSpecialist} dhundna chahenge? 🗺️',
+          'Kya aap nearby ${response.assessment!.recommendedSpecialist} dhundna chahenge? ðŸ—ºï¸',
           quickReplies: [
-            '📍 Haan, Doctor Dhundho',
-            '🏠 Ghar pe manage',
-            '❓ Questions'
+            'ðŸ“ Haan, Doctor Dhundho',
+            'ðŸ  Ghar pe manage',
+            'â“ Questions'
           ],
         );
         messages.add(doctorPromptMsg);
@@ -200,20 +201,20 @@ class ChatController extends GetxController {
 
       final errorMsg = ChatMessage.ai('Error: ${e.toString()}');
       messages.add(errorMsg);
-      print('❌ Error: $e');
+      debugPrint('âŒ Error: $e');
     } finally {
-      // ══════════════════════════════════════════════════
-      // 🔓 UNLOCK AFTER 3 SECONDS (FORCED DELAY)
-      // ══════════════════════════════════════════════════
+      // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+      // UNLOCK AFTER 3 SECONDS (FORCED DELAY)
+      // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
       await Future.delayed(const Duration(seconds: 3));
       _isSending = false;
-      print('🔓 CONTROLLER UNLOCKED');
+      debugPrint('CONTROLLER UNLOCKED');
     }
   }
 
   bool _isDoctorFinderTrigger(String text) {
     final lower = text.toLowerCase();
-    return text == '📍 Haan, Doctor Dhundho' ||
+    return text == 'ðŸ“ Haan, Doctor Dhundho' ||
         lower.contains('doctor dhundho') ||
         lower.contains('doctor dhundo') ||
         lower.contains('find doctor');
@@ -227,7 +228,7 @@ class ChatController extends GetxController {
       );
       sessionId.value = id;
     } catch (e) {
-      print('❌ Session error: $e');
+      debugPrint('âŒ Session error: $e');
     }
   }
 
@@ -243,7 +244,7 @@ class ChatController extends GetxController {
         message: message,
       );
     } catch (e) {
-      print('❌ Save error: $e');
+      debugPrint('âŒ Save error: $e');
     }
   }
 
@@ -266,3 +267,5 @@ class ChatController extends GetxController {
     super.onClose();
   }
 }
+
+

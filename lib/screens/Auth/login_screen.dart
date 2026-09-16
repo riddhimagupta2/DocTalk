@@ -1,8 +1,8 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/auth_controller.dart';
-import '../../resources/AppRoutes.dart';
-import '../../resources/AppTheme.dart';
+import '../../../resources/app_theme.dart';
+import '../../resources/app_routes.dart';
 import '../../resources/responsive.dart';
 import '../../widgets/CustomWidgets/custom_button.dart';
 import '../../widgets/CustomWidgets/custom_textfields.dart';
@@ -87,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen>
 
                   // Title
                   Text(
-                    'Welcome\nBack! 👋',
+                    'Welcome\nBack!',
                     style: TextStyle(
                       fontSize: context.sp(34),
                       fontWeight: FontWeight.w800,
@@ -187,7 +187,7 @@ class _LoginScreenState extends State<LoginScreen>
                         child: Text(
                           'or',
                           style: TextStyle(
-                            color: AppColors.textSecondary.withOpacity(0.6),
+                            color: AppColors.textSecondary.withValues(alpha:0.6),
                             fontSize: context.sp(14),
                           ),
                         ),
@@ -250,14 +250,14 @@ class _LoginScreenState extends State<LoginScreen>
             borderRadius: BorderRadius.circular(context.r(14)),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withOpacity(0.3),
+                color: AppColors.primary.withValues(alpha:0.3),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
             ],
           ),
           child: Center(
-            child: Text('🩺', style: TextStyle(fontSize: context.sp(22))),
+            child: Icon(Icons.health_and_safety_rounded, color: AppColors.primary, size: context.r(60)), // style: TextStyle(fontSize: context.sp(22))),
           ),
         ),
         SizedBox(width: context.wp(3).clamp(8.0, 14.0)),
@@ -288,3 +288,5 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 }
+
+

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../controllers/community_controller.dart';
 import '../../models/anonymous_chat_model.dart';
+import '../../resources/responsive.dart';
 
 class PostDetailScreen extends StatefulWidget {
   final AnonymousPost post;
@@ -43,14 +44,14 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF0F0F1E),
         elevation: 0,
-        title: const Text('Discussion',
+        title: Text('Discussion',
             style: TextStyle(
-                fontSize: 18,
+                fontSize: context.sp(17),
                 fontWeight: FontWeight.w800,
                 color: Colors.white)),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: Colors.white, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded,
+              color: Colors.white, size: context.r(20)),
           onPressed: () => Get.back(),
         ),
       ),
@@ -58,11 +59,11 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         children: [
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(context.r(16)),
               children: [
                 // Original Post
                 _buildPostCard(),
-                const SizedBox(height: 20),
+                SizedBox(height: context.hp(2.0)),
 
                 // Replies
                 Obx(() {
@@ -75,12 +76,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   }
 
                   if (controller.replies.isEmpty) {
-                    return const Center(
+                    return Center(
                       child: Padding(
-                        padding: EdgeInsets.all(32),
+                        padding: EdgeInsets.all(context.r(28)),
                         child: Text('No replies yet. Be the first to help!',
                             style:
-                                TextStyle(color: Colors.white70, fontSize: 14)),
+                                TextStyle(color: Colors.white70, fontSize: context.sp(13))),
                       ),
                     );
                   }
@@ -89,11 +90,11 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('${controller.replies.length} Replies',
-                          style: const TextStyle(
-                              fontSize: 16,
+                          style: TextStyle(
+                              fontSize: context.sp(15),
                               fontWeight: FontWeight.w700,
                               color: Colors.white)),
-                      const SizedBox(height: 12),
+                      SizedBox(height: context.hp(1.2)),
                       ...controller.replies.map((reply) => _ReplyCard(
                           reply: reply,
                           onUpvote: () => controller.upvoteReply(reply))),
@@ -106,12 +107,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
           // Reply Input
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(context.r(16)),
             decoration: BoxDecoration(
               color: const Color(0xFF0F0F1E),
               boxShadow: [
                 BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withValues(alpha:0.2),
                     blurRadius: 10,
                     offset: const Offset(0, -2))
               ],
@@ -123,14 +124,14 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   Expanded(
                     child: TextField(
                       controller: _replyController,
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         hintText: 'Share your thoughts...',
-                        hintStyle: const TextStyle(color: Colors.white38),
+                        hintStyle: TextStyle(color: Colors.white38),
                         filled: true,
                         fillColor: const Color(0xFF2A2A3E),
                         border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(24),
+                            borderRadius: BorderRadius.circular(context.r(20)),
                             borderSide: BorderSide.none),
                         contentPadding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 12),
@@ -139,19 +140,19 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       minLines: 1,
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: context.wp(2.5)),
                   GestureDetector(
                     onTap: _submitReply,
                     child: Container(
-                      width: 48,
-                      height: 48,
+                      width: context.r(46),
+                      height: context.r(46),
                       decoration: const BoxDecoration(
                         gradient: LinearGradient(
                             colors: [Color(0xFF9B59B6), Color(0xFF8E44AD)]),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.send_rounded,
-                          color: Colors.white, size: 20),
+                      child: Icon(Icons.send_rounded,
+                          color: Colors.white, size: context.r(20)),
                     ),
                   ),
                 ],
@@ -165,50 +166,55 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   Widget _buildPostCard() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(context.r(16)),
       decoration: BoxDecoration(
         color: const Color(0xFF2A2A3E),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF9B59B6).withOpacity(0.3)),
+        borderRadius: BorderRadius.circular(context.r(14)),
+        border: Border.all(color: const Color(0xFF9B59B6).withValues(alpha:0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Text(widget.post.anonymousAvatar,
-                  style: const TextStyle(fontSize: 28)),
-              const SizedBox(width: 10),
+              Icon(Icons.person_outline_rounded, color: Colors.white, size: context.sp(26)),
+              SizedBox(width: context.wp(2.5)),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(widget.post.anonymousName,
-                        style: const TextStyle(
-                            fontSize: 15,
+                        style: TextStyle(
+                            fontSize: context.sp(14),
                             fontWeight: FontWeight.w700,
                             color: Colors.white)),
-                    Text(
-                        '${widget.post.category.emoji} ${widget.post.category.label} • ${widget.post.timeAgo}',
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.white.withOpacity(0.5))),
+                    Row(
+                      children: [
+                        Icon(widget.post.category.icon, size: context.sp(12), color: Colors.white.withValues(alpha:0.5)),
+                        SizedBox(width: 4),
+                        Text(
+                            '${widget.post.category.label} • ${widget.post.timeAgo}',
+                            style: TextStyle(
+                                fontSize: context.sp(11),
+                                color: Colors.white.withValues(alpha:0.5))),
+                      ],
+                    ),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: context.hp(1.6)),
           Text(widget.post.title,
-              style: const TextStyle(
-                  fontSize: 18,
+              style: TextStyle(
+                  fontSize: context.sp(17),
                   fontWeight: FontWeight.w700,
                   color: Colors.white)),
-          const SizedBox(height: 8),
+          SizedBox(height: context.hp(0.8)),
           Text(widget.post.content,
               style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.white.withOpacity(0.9),
+                  fontSize: context.sp(14),
+                  color: Colors.white.withValues(alpha:0.9),
                   height: 1.6)),
         ],
       ),
@@ -226,31 +232,31 @@ class _ReplyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(context.r(14)),
       decoration: BoxDecoration(
         color: const Color(0xFF2A2A3E),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(context.r(12)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Text(reply.anonymousAvatar, style: const TextStyle(fontSize: 20)),
-              const SizedBox(width: 8),
+              Icon(Icons.person_outline_rounded, color: Colors.white, size: context.sp(18)),
+              SizedBox(width: context.wp(2.0)),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(reply.anonymousName,
-                        style: const TextStyle(
-                            fontSize: 13,
+                        style: TextStyle(
+                            fontSize: context.sp(12),
                             fontWeight: FontWeight.w700,
                             color: Colors.white)),
                     Text(reply.timeAgo,
                         style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.white.withOpacity(0.5))),
+                            fontSize: context.sp(10.5),
+                            color: Colors.white.withValues(alpha:0.5))),
                   ],
                 ),
               ),
@@ -261,15 +267,15 @@ class _ReplyCard extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                       color: const Color(0xFF3A3A4E),
-                      borderRadius: BorderRadius.circular(16)),
+                      borderRadius: BorderRadius.circular(context.r(14))),
                   child: Row(
                     children: [
-                      const Icon(Icons.arrow_upward_rounded,
-                          size: 14, color: Color(0xFF9B59B6)),
-                      const SizedBox(width: 4),
+                      Icon(Icons.arrow_upward_rounded,
+                          size: context.r(14), color: Color(0xFF9B59B6)),
+                      SizedBox(width: context.wp(1.0)),
                       Text('${reply.upvoteCount}',
-                          style: const TextStyle(
-                              fontSize: 12,
+                          style: TextStyle(
+                              fontSize: context.sp(11),
                               color: Colors.white,
                               fontWeight: FontWeight.w600)),
                     ],
@@ -278,14 +284,16 @@ class _ReplyCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: context.hp(1.0)),
           Text(reply.content,
               style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.white.withOpacity(0.9),
+                  fontSize: context.sp(13),
+                  color: Colors.white.withValues(alpha:0.9),
                   height: 1.5)),
         ],
       ),
     );
   }
 }
+
+

@@ -2,7 +2,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/doctor_model.dart';
-import '../resources/AppRoutes.dart';
+import '../resources/app_routes.dart';
 import '../services/doctor_finder_service.dart';
 
 class DoctorFinderController extends GetxController {

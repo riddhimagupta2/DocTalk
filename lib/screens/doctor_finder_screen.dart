@@ -4,7 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../controllers/doctor_finder_controller.dart';
 import '../models/doctor_model.dart';
-import '../resources/AppTheme.dart';
+import '../../../resources/app_theme.dart';
 import '../resources/responsive.dart';
 import 'AppointmentBooking/doctor_map_view.dart';
 
@@ -92,7 +92,7 @@ class DoctorFinderScreen extends StatelessWidget {
     );
   }
 
-  // ── Main body ─────────────────────────────────────────────────────────
+  // -- Main body ---------------------------------------------------------
   Widget _mainBody(BuildContext context, DoctorFinderController controller) {
     return Column(
       children: [
@@ -194,7 +194,7 @@ class DoctorFinderScreen extends StatelessWidget {
     );
   }
 
-  // ── Loading ───────────────────────────────────────────────────────────
+  // -- Loading -----------------------------------------------------------
   Widget _loadingView(BuildContext context) {
     return Center(
       child: Column(
@@ -215,7 +215,7 @@ class DoctorFinderScreen extends StatelessWidget {
     );
   }
 
-  // ── Error ─────────────────────────────────────────────────────────────
+  // -- Error -------------------------------------------------------------
   Widget _errorView(BuildContext context, DoctorFinderController controller) {
     return Center(
       child: Padding(
@@ -226,7 +226,7 @@ class DoctorFinderScreen extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(context.r(22)),
               decoration: BoxDecoration(
-                color: AppColors.error.withOpacity(0.07),
+                color: AppColors.error.withValues(alpha:0.07),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.wifi_off_rounded,
@@ -268,7 +268,7 @@ class DoctorFinderScreen extends StatelessWidget {
                 label: Text('Location Manually Enter Karein', style: TextStyle(fontSize: context.sp(14), fontWeight: FontWeight.w600)),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primary,
-                  side: const BorderSide(color: AppColors.primary),
+                  side: const BorderSide(width: 1),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(context.r(14))),
                 ),
@@ -280,7 +280,7 @@ class DoctorFinderScreen extends StatelessWidget {
     );
   }
 
-  // ── Empty ─────────────────────────────────────────────────────────────
+  // -- Empty -------------------------------------------------------------
   Widget _emptyView(BuildContext context, DoctorFinderController controller) {
     return Center(
       child: Column(
@@ -313,7 +313,7 @@ class DoctorFinderScreen extends StatelessWidget {
     );
   }
 
-  // ── Location dialog ───────────────────────────────────────────────────
+  // -- Location dialog ---------------------------------------------------
   void _locationDialog(BuildContext context, DoctorFinderController controller) {
     final tc = TextEditingController();
     Get.defaultDialog(
@@ -405,8 +405,8 @@ class _DoctorCard extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: isSelected
-                ? AppColors.primary.withOpacity(0.14)
-                : Colors.black.withOpacity(0.055),
+                ? AppColors.primary.withValues(alpha:0.14)
+                : Colors.black.withValues(alpha:0.055),
             blurRadius: isSelected ? 16 : 8,
             offset: const Offset(0, 3),
           ),
@@ -423,7 +423,7 @@ class _DoctorCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Top row ────────────────────────────────────
+                // -- Top row ------------------------------------
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -438,7 +438,7 @@ class _DoctorCard extends StatelessWidget {
                           gradient: photoUrl == null
                               ? LinearGradient(colors: [
                                   AppColors.primaryLight,
-                                  AppColors.primary.withOpacity(0.12),
+                                  AppColors.primary.withValues(alpha:0.12),
                                 ])
                               : null,
                           borderRadius: BorderRadius.circular(context.r(13)),
@@ -503,8 +503,8 @@ class _DoctorCard extends StatelessWidget {
                           horizontal: context.r(8), vertical: context.hp(0.5)),
                       decoration: BoxDecoration(
                         color: doctor.isAvailableToday
-                            ? AppColors.success.withOpacity(0.1)
-                            : AppColors.error.withOpacity(0.08),
+                            ? AppColors.success.withValues(alpha:0.1)
+                            : AppColors.error.withValues(alpha:0.08),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -537,7 +537,7 @@ class _DoctorCard extends StatelessWidget {
 
                 SizedBox(height: context.hp(1)),
 
-                // ── Address ───────────────────────────────────
+                // -- Address -----------------------------------
                 Row(
                   children: [
                     Icon(Icons.location_on_outlined,
@@ -558,7 +558,7 @@ class _DoctorCard extends StatelessWidget {
                 Container(height: 1, color: AppColors.border),
                 SizedBox(height: context.hp(1)),
 
-                // ── Stats row ─────────────────────────────────
+                // -- Stats row ---------------------------------
                 Row(
                   children: [
                     _Chip(
@@ -593,7 +593,7 @@ class _DoctorCard extends StatelessWidget {
 
                 SizedBox(height: context.hp(1.5)),
 
-                // ── Book button ───────────────────────────────
+                // -- Book button -------------------------------
                 SizedBox(
                   width: double.infinity,
                   height: context.hp(5.5).clamp(42.0, 50.0),
@@ -650,3 +650,6 @@ class _Chip extends StatelessWidget {
     );
   }
 }
+
+
+

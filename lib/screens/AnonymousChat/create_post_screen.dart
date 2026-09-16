@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../controllers/community_controller.dart';
 import '../../models/anonymous_chat_model.dart';
+import '../../resources/responsive.dart';
 
 
 class CreatePostScreen extends StatefulWidget {
@@ -47,9 +48,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF0F0F1E),
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Share Your Story',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.white),
+          style: TextStyle(fontSize: context.sp(17), fontWeight: FontWeight.w800, color: Colors.white),
         ),
         leading: IconButton(
           icon: const Icon(Icons.close_rounded, color: Colors.white),
@@ -58,44 +59,44 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         actions: [
           TextButton(
             onPressed: _submit,
-            child: const Text(
+            child: Text(
               'Post',
-              style: TextStyle(color: Color(0xFF9B59B6), fontSize: 16, fontWeight: FontWeight.w700),
+              style: TextStyle(color: Color(0xFF9B59B6), fontSize: context.sp(15), fontWeight: FontWeight.w700),
             ),
           ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(context.r(20)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Anonymous info
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(context.r(16)),
               decoration: BoxDecoration(
-                color: const Color(0xFF9B59B6).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF9B59B6).withOpacity(0.3)),
+                color: const Color(0xFF9B59B6).withValues(alpha:0.1),
+                borderRadius: BorderRadius.circular(context.r(12)),
+                border: Border.all(color: const Color(0xFF9B59B6).withValues(alpha:0.3)),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.shield_outlined, color: Color(0xFF9B59B6), size: 20),
+                  Icon(Icons.shield_outlined, color: Color(0xFF9B59B6), size: context.r(20)),
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       'You will be anonymous. A random name will be generated.',
-                      style: TextStyle(color: Colors.white70, fontSize: 12),
+                      style: TextStyle(color: Colors.white70, fontSize: context.sp(11.5)),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: context.hp(2.5)),
 
             // Category selector
-            const Text('Category', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white)),
-            const SizedBox(height: 8),
+            Text('Category', style: TextStyle(fontSize: context.sp(13.5), fontWeight: FontWeight.w700, color: Colors.white)),
+            SizedBox(height: context.hp(0.8)),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -104,50 +105,57 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 return GestureDetector(
                   onTap: () => setState(() => _selectedCategory = cat),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    padding: EdgeInsets.symmetric(horizontal: context.r(14), vertical: context.hp(1.0)),
                     decoration: BoxDecoration(
                       color: isSelected ? const Color(0xFF9B59B6) : const Color(0xFF2A2A3E),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(context.r(20)),
                     ),
-                    child: Text(
-                      '${cat.emoji} ${cat.label}',
-                      style: TextStyle(color: isSelected ? Colors.white : Colors.white70, fontSize: 13),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(cat.icon, size: context.r(14), color: isSelected ? Colors.white : Colors.white70),
+                        SizedBox(width: 6),
+                        Text(
+                          cat.label,
+                          style: TextStyle(color: isSelected ? Colors.white : Colors.white70, fontSize: context.sp(12.5)),
+                        ),
+                      ],
                     ),
                   ),
                 );
               }).toList(),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: context.hp(2.0)),
 
             // Title
-            const Text('Title', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white)),
-            const SizedBox(height: 8),
+            Text('Title', style: TextStyle(fontSize: context.sp(13.5), fontWeight: FontWeight.w700, color: Colors.white)),
+            SizedBox(height: context.hp(0.8)),
             TextField(
               controller: _titleController,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 hintText: 'Brief title for your post...',
-                hintStyle: const TextStyle(color: Colors.white38),
+                hintStyle: TextStyle(color: Colors.white38),
                 filled: true,
                 fillColor: const Color(0xFF2A2A3E),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(context.r(12)), borderSide: BorderSide.none),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: context.hp(2.0)),
 
             // Content
-            const Text('Your Story', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white)),
-            const SizedBox(height: 8),
+            Text('Your Story', style: TextStyle(fontSize: context.sp(13.5), fontWeight: FontWeight.w700, color: Colors.white)),
+            SizedBox(height: context.hp(0.8)),
             TextField(
               controller: _contentController,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: Colors.white),
               maxLines: 8,
               decoration: InputDecoration(
                 hintText: 'Share your experience, ask for help, or offer guidance...',
-                hintStyle: const TextStyle(color: Colors.white38),
+                hintStyle: TextStyle(color: Colors.white38),
                 filled: true,
                 fillColor: const Color(0xFF2A2A3E),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(context.r(12)), borderSide: BorderSide.none),
               ),
             ),
           ],
@@ -156,3 +164,4 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     );
   }
 }
+

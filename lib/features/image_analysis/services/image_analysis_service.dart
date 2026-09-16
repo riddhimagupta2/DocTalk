@@ -37,3 +37,4 @@ class ImageAnalysisService {
   Future<void> deleteAnalysis(String analysisId) =>
       _repository.deleteAnalysis(analysisId);
 }
+

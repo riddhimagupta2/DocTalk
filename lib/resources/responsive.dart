@@ -73,3 +73,4 @@ extension ResponsiveContext on BuildContext {
     return value * scale;
   }
 }
+

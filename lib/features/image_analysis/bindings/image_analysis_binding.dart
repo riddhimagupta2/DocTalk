@@ -7,3 +7,4 @@ class ImageAnalysisBinding extends Bindings {
     Get.lazyPut<ImageAnalysisController>(() => ImageAnalysisController());
   }
 }
+

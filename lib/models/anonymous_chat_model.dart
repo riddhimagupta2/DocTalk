@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 enum PostCategory {
@@ -28,22 +29,22 @@ enum PostCategory {
     }
   }
 
-  String get emoji {
+  IconData get icon {
     switch (this) {
       case PostCategory.mentalHealth:
-        return '🧠';
+        return Icons.psychology;
       case PostCategory.sexualHealth:
-        return '💗';
+        return Icons.favorite;
       case PostCategory.chronicIllness:
-        return '🩺';
+        return Icons.health_and_safety;
       case PostCategory.skinConditions:
-        return '🌸';
+        return Icons.spa;
       case PostCategory.addiction:
-        return '🎗️';
+        return Icons.healing;
       case PostCategory.pregnancy:
-        return '🤰';
+        return Icons.pregnant_woman;
       case PostCategory.other:
-        return '💬';
+        return Icons.chat_bubble;
     }
   }
 }

@@ -1,5 +1,5 @@
-﻿import 'package:flutter/material.dart';
-import 'package:doctalk/resources/AppTheme.dart';
+import 'package:flutter/material.dart';
+import '../../../resources/app_theme.dart';
 import 'package:doctalk/resources/responsive.dart';
 
 class ImageSourcePicker extends StatelessWidget {
@@ -7,10 +7,10 @@ class ImageSourcePicker extends StatelessWidget {
   final VoidCallback onGalleryTap;
 
   const ImageSourcePicker({
-    Key? key,
+    super.key,
     required this.onCameraTap,
     required this.onGalleryTap,
-  }) : super(key: key);
+  });
 
   static void show(BuildContext context, {required VoidCallback onCamera, required VoidCallback onGallery}) {
     showModalBottomSheet(
@@ -101,7 +101,7 @@ class ImageSourcePicker extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(context.r(16)),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha:0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: context.r(32), color: color),
@@ -121,3 +121,5 @@ class ImageSourcePicker extends StatelessWidget {
     );
   }
 }
+
+

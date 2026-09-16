@@ -1,6 +1,6 @@
-import 'package:doctalk/resources/AppPages.dart';
-import 'package:doctalk/resources/AppRoutes.dart';
-import 'package:doctalk/resources/AppTheme.dart';
+import 'package:doctalk/resources/app_pages.dart';
+import 'package:doctalk/resources/app_routes.dart';
+import 'package:doctalk/resources/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';

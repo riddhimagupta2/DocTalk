@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../models/doctor_model.dart';
-import '../../resources/AppRoutes.dart';
-import '../../resources/AppTheme.dart';
+import '../../resources/app_theme.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../../resources/app_routes.dart';
 import '../../resources/responsive.dart';
 
 class DoctorDetailsScreen extends StatelessWidget {
@@ -48,13 +49,14 @@ class DoctorDetailsScreen extends StatelessWidget {
       );
     }
 
+    final doc = doctor;
     final avatarSize = context.r(82).clamp(64.0, 100.0);
 
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
-          // ── Hero header ───────────────────────────────────────────
+          // â”€â”€ Hero header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           SliverAppBar(
             expandedHeight: context.hp(28).clamp(200.0, 280.0),
             pinned: true,
@@ -63,7 +65,7 @@ class DoctorDetailsScreen extends StatelessWidget {
               icon: Container(
                 padding: EdgeInsets.all(context.r(8)),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha:0.2),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.arrow_back_ios_new_rounded,
@@ -89,10 +91,10 @@ class DoctorDetailsScreen extends StatelessWidget {
                         width: avatarSize,
                         height: avatarSize,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha:0.2),
                           shape: BoxShape.circle,
                           border: Border.all(
-                              color: Colors.white.withOpacity(0.45), width: 2.5),
+                              color: Colors.white.withValues(alpha:0.45), width: 2.5),
                         ),
                         child: Icon(Icons.person_rounded,
                             color: Colors.white, size: context.r(44)),
@@ -111,7 +113,7 @@ class DoctorDetailsScreen extends StatelessWidget {
                       Text(
                         doctor.specialization,
                         style: TextStyle(
-                            color: Colors.white.withOpacity(0.85),
+                            color: Colors.white.withValues(alpha:0.85),
                             fontSize: context.sp(14)),
                       ),
                       SizedBox(height: context.hp(1)),
@@ -120,23 +122,34 @@ class DoctorDetailsScreen extends StatelessWidget {
                             horizontal: context.r(14), vertical: context.hp(0.6)),
                         decoration: BoxDecoration(
                           color: doctor.isAvailableToday
-                              ? Colors.green.withOpacity(0.25)
-                              : Colors.red.withOpacity(0.25),
+                              ? Colors.green.withValues(alpha:0.25)
+                              : Colors.red.withValues(alpha:0.25),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
                             color: doctor.isAvailableToday
-                                ? Colors.greenAccent.withOpacity(0.5)
-                                : Colors.redAccent.withOpacity(0.5),
+                                ? Colors.greenAccent.withValues(alpha:0.5)
+                                : Colors.redAccent.withValues(alpha:0.5),
                           ),
                         ),
-                        child: Text(
-                          doctor.isAvailableToday
-                              ? '✓  Available Today'
-                              : '✗  Not Available Today',
-                          style: TextStyle(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              doctor.isAvailableToday ? Icons.check_circle_outline : Icons.cancel_outlined,
                               color: Colors.white,
-                              fontSize: context.sp(12),
-                              fontWeight: FontWeight.w600),
+                              size: context.sp(14),
+                            ),
+                            SizedBox(width: 4),
+                            Text(
+                              doctor.isAvailableToday
+                                  ? 'Available Today'
+                                  : 'Not Available Today',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: context.sp(12),
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -155,11 +168,11 @@ class DoctorDetailsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── Stats row ──────────────────────────────────────
+                  // â”€â”€ Stats row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                   _StatsRow(doctor: doctor),
                   SizedBox(height: context.hp(2)),
 
-                  // ── Info card ──────────────────────────────────────
+                  // â”€â”€ Info card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                   _InfoCard(children: [
                     _InfoRow(
                         icon: Icons.location_on_outlined,
@@ -174,14 +187,14 @@ class DoctorDetailsScreen extends StatelessWidget {
                     _InfoRow(
                         icon: Icons.currency_rupee,
                         text:
-                        'Consultation Fee: \₹${doctor.consultationFee.toInt()}'),
+                        'Consultation Fee: ₹${doctor.consultationFee.toInt()}'),
                     const _Divider(),
                     _InfoRow(
                         icon: Icons.workspace_premium_outlined,
                         text: 'Experience: ${doctor.experience}'),
                   ]),
 
-                  // ── Available Slots ────────────────────────────────
+                  // â”€â”€ Available Slots â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                   if (doctor.availableSlots.isNotEmpty) ...[
                     SizedBox(height: context.hp(2.5)),
                     const _SectionTitle(
@@ -200,7 +213,7 @@ class DoctorDetailsScreen extends StatelessWidget {
                             color: AppColors.primaryLight,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                                color: AppColors.primary.withOpacity(0.3)),
+                                color: AppColors.primary.withValues(alpha:0.3)),
                           ),
                           child: Text(
                             slot,
@@ -218,7 +231,61 @@ class DoctorDetailsScreen extends StatelessWidget {
 
                   SizedBox(height: context.hp(3.5)),
 
-                  // ── Book button ────────────────────────────────────
+                  // Navigate in Google Maps button
+                  SizedBox(
+                    width: double.infinity,
+                    height: context.hp(6.5).clamp(48.0, 56.0),
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        final lat = doc.latitude;
+                        final lng = doc.longitude;
+                        final name = Uri.encodeComponent(doc.name);
+                        final uri = Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng&query_place_id=${doc.placeId}');
+                        final fallbackUri = Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+                        final geoUri = Uri.parse('geo:$lat,$lng?q=$lat,$lng($name)');
+
+                        try {
+                          if (await canLaunchUrl(geoUri)) {
+                            await launchUrl(geoUri, mode: LaunchMode.externalApplication);
+                          } else if (await canLaunchUrl(uri)) {
+                            await launchUrl(uri, mode: LaunchMode.externalApplication);
+                          } else if (await canLaunchUrl(fallbackUri)) {
+                            await launchUrl(fallbackUri, mode: LaunchMode.externalApplication);
+                          } else {
+                            Get.snackbar(
+                              'Maps Unavailable',
+                              'Could not open Google Maps navigation.',
+                              snackPosition: SnackPosition.BOTTOM,
+                            );
+                          }
+                        } catch (e) {
+                          Get.snackbar(
+                            'Navigation Error',
+                            'Could not launch maps: $e',
+                            snackPosition: SnackPosition.BOTTOM,
+                          );
+                        }
+                      },
+                      icon: Icon(Icons.directions, size: context.r(20)),
+                      label: Text(
+                        'Navigate (Google Maps)',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: context.sp(15),
+                          fontFamily: 'Lato',
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        side: const BorderSide(color: AppColors.primary, width: 1.5),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(context.r(14))),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: context.hp(1.5)),
+
+                  // Book button
                   SizedBox(
                     width: double.infinity,
                     height: context.hp(6.5).clamp(48.0, 56.0),
@@ -257,7 +324,7 @@ class DoctorDetailsScreen extends StatelessWidget {
   }
 }
 
-// ── Sub-widgets ───────────────────────────────────────────────────────────────
+// â”€â”€ Sub-widgets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _StatsRow extends StatelessWidget {
   final DoctorModel doctor;
@@ -272,7 +339,7 @@ class _StatsRow extends StatelessWidget {
         borderRadius: BorderRadius.circular(context.r(16)),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha:0.05),
               blurRadius: 8,
               offset: const Offset(0, 2)),
         ],
@@ -282,19 +349,19 @@ class _StatsRow extends StatelessWidget {
         children: [
           _StatItem(
               icon: Icons.star_rounded,
-              value: '',
+              value: doctor.rating > 0 ? doctor.rating.toStringAsFixed(1) : '4.5',
               label: 'Rating',
               color: AppColors.gold),
           _vDivider(),
           _StatItem(
               icon: Icons.reviews_outlined,
-              value: '',
+              value: doctor.reviewCount > 0 ? '${doctor.reviewCount}' : '25+',
               label: 'Reviews',
               color: AppColors.primary),
           _vDivider(),
           _StatItem(
               icon: Icons.near_me_rounded,
-              value: 'km',
+              value: doctor.distanceKm > 0 ? '${doctor.distanceKm.toStringAsFixed(1)} km' : 'Nearby',
               label: 'Away',
               color: AppColors.coral),
         ],
@@ -348,7 +415,7 @@ class _InfoCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(context.r(16)),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha:0.05),
               blurRadius: 8,
               offset: const Offset(0, 2)),
         ],
@@ -410,3 +477,5 @@ class _SectionTitle extends StatelessWidget {
     ]);
   }
 }
+
+

@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
 import '../models/anonymous_chat_model.dart';
 import '../services/community_servic.dart';
+import 'package:flutter/foundation.dart';
 
 class CommunityController extends GetxController {
   final CommunityService _service = CommunityService();
@@ -31,7 +32,7 @@ class CommunityController extends GetxController {
       posts.value = loadedPosts;
       isLoading.value = false;
     }, onError: (error) {
-      print('Error loading posts: $error');
+      debugPrint('Error loading posts: $error');
       isLoading.value = false;
     });
   }
@@ -50,7 +51,7 @@ class CommunityController extends GetxController {
       );
       Get.back(); // Close create post screen
       Get.snackbar(
-        'Posted! 🎉',
+        'Posted! ',
         'Your anonymous post is live',
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 2),
@@ -68,7 +69,7 @@ class CommunityController extends GetxController {
     try {
       await _service.upvotePost(post.id, _authController.currentUserId);
     } catch (e) {
-      print('Error upvoting: $e');
+      debugPrint('Error upvoting: $e');
     }
   }
 
@@ -92,7 +93,7 @@ class CommunityController extends GetxController {
       posts.value = results;
       isLoading.value = false;
     } catch (e) {
-      print('Search error: $e');
+      debugPrint('Search error: $e');
       isLoading.value = false;
     }
   }
@@ -120,7 +121,7 @@ class PostDetailController extends GetxController {
       replies.value = loadedReplies;
       isLoading.value = false;
     }, onError: (error) {
-      print('Error loading replies: $error');
+      debugPrint('Error loading replies: $error');
       isLoading.value = false;
     });
   }
@@ -133,7 +134,7 @@ class PostDetailController extends GetxController {
         content: content,
       );
       Get.snackbar(
-        'Reply Posted! 💬',
+        'Reply Posted! ',
         'Your anonymous reply is live',
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 2),
@@ -155,7 +156,8 @@ class PostDetailController extends GetxController {
         _authController.currentUserId,
       );
     } catch (e) {
-      print('Error upvoting reply: $e');
+      debugPrint('Error upvoting reply: $e');
     }
   }
 }
+

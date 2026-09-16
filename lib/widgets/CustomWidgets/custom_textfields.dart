@@ -1,5 +1,5 @@
-﻿import 'package:flutter/material.dart';
-import '../../resources/AppTheme.dart';
+import 'package:flutter/material.dart';
+import '../../../resources/app_theme.dart';
 import '../../resources/responsive.dart';
 
 class CustomTextField extends StatelessWidget {
@@ -59,23 +59,23 @@ class CustomTextField extends StatelessWidget {
         fillColor: AppColors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(context.r(14)),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: const BorderSide(width: 1),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(context.r(14)),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: const BorderSide(width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(context.r(14)),
-          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+          borderSide: const BorderSide(width: 1),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(context.r(14)),
-          borderSide: const BorderSide(color: AppColors.error),
+          borderSide: const BorderSide(width: 1),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(context.r(14)),
-          borderSide: const BorderSide(color: AppColors.error, width: 2),
+          borderSide: const BorderSide(width: 1),
         ),
         contentPadding: EdgeInsets.symmetric(
           horizontal: context.r(16),
@@ -99,3 +99,5 @@ class CustomTextField extends StatelessWidget {
     );
   }
 }
+
+

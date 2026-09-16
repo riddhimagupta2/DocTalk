@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
-import '../resources/AppTheme.dart';
-
+﻿import 'package:flutter/material.dart';
+import '../../../resources/app_theme.dart';
 class QuickReplyChips extends StatefulWidget {
   final List<String> options;
   final Function(String) onSelected;
@@ -68,7 +67,7 @@ class _QuickReplyChipsState extends State<QuickReplyChips>
                 borderRadius: BorderRadius.circular(50),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.1),
+                    color: AppColors.primary.withValues(alpha:0.1),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
@@ -90,3 +89,4 @@ class _QuickReplyChipsState extends State<QuickReplyChips>
     );
   }
 }
+

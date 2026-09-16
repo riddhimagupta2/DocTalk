@@ -1,10 +1,11 @@
-import 'dart:math' as math;
+﻿import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../../models/doctor_model.dart';
-import '../../resources/AppTheme.dart';
+import '../../../resources/app_theme.dart';
 
 
-/// Pure Flutter map panel — zero google_maps_flutter, zero API key, zero crash.
+
+/// Pure Flutter map panel - zero google_maps_flutter, zero API key, zero crash.
 /// Shows a city-grid background with animated user dot + doctor pins.
 class DoctorMapView extends StatefulWidget {
   final List<DoctorModel> doctors;
@@ -98,7 +99,7 @@ class _DoctorMapViewState extends State<DoctorMapView>
     );
   }
 
-  // ── User dot (pulsing) ────────────────────────────────────────────────
+  // -- User dot (pulsing) ------------------------------------------------
   Widget _buildUserDot(double w, double h) {
     return Positioned(
       left: w * 0.5 - 14,
@@ -116,7 +117,7 @@ class _DoctorMapViewState extends State<DoctorMapView>
                 height: 28 * _ring.value,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.primary.withOpacity(0.18),
+                  color: AppColors.primary.withValues(alpha:0.18),
                 ),
               ),
               Container(
@@ -128,7 +129,7 @@ class _DoctorMapViewState extends State<DoctorMapView>
                   border: Border.all(color: Colors.white, width: 2.5),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.45),
+                      color: AppColors.primary.withValues(alpha:0.45),
                       blurRadius: 8,
                     ),
                   ],
@@ -141,7 +142,7 @@ class _DoctorMapViewState extends State<DoctorMapView>
     );
   }
 
-  // ── Doctor pins ───────────────────────────────────────────────────────
+  // -- Doctor pins -------------------------------------------------------
   List<Widget> _buildPins(double w, double h) {
     const cx = 0.5;
     const cy = 0.5;
@@ -185,13 +186,13 @@ class _DoctorMapViewState extends State<DoctorMapView>
                     border: Border.all(
                       color: isSelected
                           ? AppColors.primary
-                          : AppColors.primary.withOpacity(0.4),
+                          : AppColors.primary.withValues(alpha:0.4),
                       width: 1.5,
                     ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black
-                            .withOpacity(isSelected ? 0.18 : 0.08),
+                            .withValues(alpha:isSelected ? 0.18 : 0.08),
                         blurRadius: isSelected ? 12 : 5,
                         offset: const Offset(0, 2),
                       ),
@@ -234,18 +235,18 @@ class _DoctorMapViewState extends State<DoctorMapView>
   }
 }
 
-// ── City grid painter ─────────────────────────────────────────────────────────
+// -- City grid painter ---------------------------------------------------------
 
 class _CityGridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final roadPaint = Paint()
-      ..color = Colors.white.withOpacity(0.75)
+      ..color = Colors.white.withValues(alpha:0.75)
       ..strokeWidth = 9
       ..strokeCap = StrokeCap.round;
 
     final block = Paint()
-      ..color = const Color(0xFFC8E6C9).withOpacity(0.45)
+      ..color = const Color(0xFFC8E6C9).withValues(alpha:0.45)
       ..style = PaintingStyle.fill;
 
     // City blocks
@@ -274,7 +275,7 @@ class _CityGridPainter extends CustomPainter {
     }
     // One diagonal road for realism
     final diag = Paint()
-      ..color = Colors.white.withOpacity(0.55)
+      ..color = Colors.white.withValues(alpha:0.55)
       ..strokeWidth = 7
       ..strokeCap = StrokeCap.round;
     canvas.drawLine(
@@ -288,7 +289,7 @@ class _CityGridPainter extends CustomPainter {
   bool shouldRepaint(_) => false;
 }
 
-// ── Pin tail triangle ─────────────────────────────────────────────────────────
+// -- Pin tail triangle ---------------------------------------------------------
 
 class _PinTail extends CustomPainter {
   final Color color;
@@ -310,7 +311,7 @@ class _PinTail extends CustomPainter {
   bool shouldRepaint(_) => false;
 }
 
-// ── Open in Maps pill ─────────────────────────────────────────────────────────
+// -- Open in Maps pill ---------------------------------------------------------
 
 class _MapsPill extends StatelessWidget {
   final VoidCallback onTap;
@@ -327,7 +328,7 @@ class _MapsPill extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.12),
+              color: Colors.black.withValues(alpha:0.12),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -354,7 +355,7 @@ class _MapsPill extends StatelessWidget {
   }
 }
 
-// ── Location label ────────────────────────────────────────────────────────────
+// -- Location label ------------------------------------------------------------
 
 class _LocationLabel extends StatelessWidget {
   @override
@@ -362,11 +363,11 @@ class _LocationLabel extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
+        color: Colors.white.withValues(alpha:0.9),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.07),
+              color: Colors.black.withValues(alpha:0.07),
               blurRadius: 6,
               offset: const Offset(0, 1)),
         ],
@@ -390,3 +391,4 @@ class _LocationLabel extends StatelessWidget {
     );
   }
 }
+

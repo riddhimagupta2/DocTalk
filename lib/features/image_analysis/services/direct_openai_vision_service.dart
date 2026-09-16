@@ -258,3 +258,4 @@ Do NOT output markdown code fences outside JSON. Return only pure JSON.''';
 
 // Backwards compatibility alias
 typedef DirectGeminiVisionService = DirectOpenAIVisionService;
+

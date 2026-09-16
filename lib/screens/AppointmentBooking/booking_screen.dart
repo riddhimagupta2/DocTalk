@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../models/doctor_model.dart';
 import '../../models/appointment_model.dart';
-import '../../resources/AppRoutes.dart';
-import '../../resources/AppTheme.dart';
+import '../../../resources/app_theme.dart';
+import '../../resources/app_routes.dart';
 import '../../resources/responsive.dart';
 import '../../services/appoint_service.dart';
 
@@ -154,24 +154,24 @@ class _BookingScreenState extends State<BookingScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Doctor mini card ──────────────────────────────────
+            // -- Doctor mini card ----------------------------------
             Container(
               padding: EdgeInsets.all(context.r(14)),
               decoration: BoxDecoration(
                 gradient: LinearGradient(colors: [
                   AppColors.primaryLight,
-                  AppColors.primary.withOpacity(0.08)
+                  AppColors.primary.withValues(alpha:0.08)
                 ]),
                 borderRadius: BorderRadius.circular(context.r(16)),
                 border: Border.all(
-                    color: AppColors.primary.withOpacity(0.2)),
+                    color: AppColors.primary.withValues(alpha:0.2)),
               ),
               child: Row(children: [
                 Container(
                   width: context.r(48),
                   height: context.r(48),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.15),
+                    color: AppColors.primary.withValues(alpha:0.15),
                     borderRadius: BorderRadius.circular(context.r(12)),
                   ),
                   child: Icon(Icons.person_rounded,
@@ -206,7 +206,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
             SizedBox(height: context.hp(2.5)),
 
-            // ── Date selector ─────────────────────────────────────
+            // -- Date selector -------------------------------------
             _sectionTitle(context, Icons.calendar_month_rounded, 'Select Date'),
             SizedBox(height: context.hp(1.2)),
             SizedBox(
@@ -244,7 +244,7 @@ class _BookingScreenState extends State<BookingScreen> {
                             ? [
                           BoxShadow(
                               color: AppColors.primary
-                                  .withOpacity(0.25),
+                                  .withValues(alpha:0.25),
                               blurRadius: 8,
                               offset: const Offset(0, 3))
                         ]
@@ -297,14 +297,14 @@ class _BookingScreenState extends State<BookingScreen> {
 
             SizedBox(height: context.hp(2.5)),
 
-            // ── Time slot selector ────────────────────────────────
+            // -- Time slot selector --------------------------------
             _sectionTitle(context, Icons.access_time_rounded, 'Select Time Slot'),
             SizedBox(height: context.hp(1.2)),
             slots.isEmpty
                 ? Container(
               padding: EdgeInsets.all(context.r(14)),
               decoration: BoxDecoration(
-                color: AppColors.error.withOpacity(0.07),
+                color: AppColors.error.withValues(alpha:0.07),
                 borderRadius: BorderRadius.circular(context.r(12)),
               ),
               child: Row(children: [
@@ -342,7 +342,7 @@ class _BookingScreenState extends State<BookingScreen> {
                           ? [
                         BoxShadow(
                             color: AppColors.primary
-                                .withOpacity(0.2),
+                                .withValues(alpha:0.2),
                             blurRadius: 8,
                             offset: const Offset(0, 2))
                       ]
@@ -366,7 +366,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
             SizedBox(height: context.hp(2.5)),
 
-            // ── Patient details ───────────────────────────────────
+            // -- Patient details -----------------------------------
             _sectionTitle(
                 context, Icons.person_outline_rounded, 'Your Details'),
             SizedBox(height: context.hp(1.2)),
@@ -396,7 +396,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
             SizedBox(height: context.hp(3.5)),
 
-            // ── Confirm button ────────────────────────────────────
+            // -- Confirm button ------------------------------------
             SizedBox(
               width: double.infinity,
               height: context.hp(6.5).clamp(48.0, 56.0),
@@ -486,16 +486,16 @@ class _AppField extends StatelessWidget {
         fillColor: AppColors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(context.r(13)),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: const BorderSide(),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(context.r(13)),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: const BorderSide(),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(context.r(13)),
           borderSide:
-          const BorderSide(color: AppColors.primary, width: 2),
+          const BorderSide(width: 1),
         ),
         contentPadding: EdgeInsets.symmetric(
             horizontal: context.r(16), vertical: maxLines > 1 ? context.hp(1.5) : 0),
@@ -503,3 +503,6 @@ class _AppField extends StatelessWidget {
     );
   }
 }
+
+
+

@@ -91,7 +91,7 @@ class CommunityScreen extends StatelessWidget {
                 ),
                 ...PostCategory.values.map(
                       (cat) => _CategoryChip(
-                    label: ' ',
+                    label: cat.label,
                     isSelected: controller.selectedCategory.value == cat,
                     onTap: () => controller.filterByCategory(cat),
                   ),
@@ -273,8 +273,8 @@ class _PostCard extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: context.r(14),
-                      backgroundColor: const Color(0xFF9B59B6).withOpacity(0.3),
-                      child: Text(post.anonymousAvatar, style: TextStyle(fontSize: context.sp(14))),
+                      backgroundColor: const Color(0xFF9B59B6).withValues(alpha:0.3),
+                      child: Icon(Icons.person_outline_rounded, color: Colors.white, size: context.r(16)),
                     ),
                     SizedBox(width: context.wp(2.5)),
                     Text(
@@ -289,7 +289,7 @@ class _PostCard extends StatelessWidget {
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: context.r(8), vertical: 3),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.08),
+                        color: Colors.white.withValues(alpha:0.08),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -350,3 +350,5 @@ class _PostCard extends StatelessWidget {
     );
   }
 }
+
+

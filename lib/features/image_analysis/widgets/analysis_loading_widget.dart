@@ -1,6 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:doctalk/resources/AppTheme.dart';
+import '../../../resources/app_theme.dart';
 import 'package:doctalk/resources/responsive.dart';
 
 class AnalysisLoadingWidget extends StatelessWidget {
@@ -30,13 +30,13 @@ class AnalysisLoadingWidget extends StatelessWidget {
               Icon(Icons.cloud_upload_outlined, size: context.r(48), color: AppColors.primary),
               SizedBox(height: context.hp(2)),
               Text(
-                '📤 Uploading Image...',
+                '?? Uploading Image...',
                 style: TextStyle(fontSize: context.sp(16), fontWeight: FontWeight.bold),
               ),
               SizedBox(height: context.hp(2)),
               LinearProgressIndicator(
                 value: uploadProgress,
-                backgroundColor: AppColors.primary.withOpacity(0.2),
+                backgroundColor: AppColors.primary.withValues(alpha:0.2),
                 valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
                 borderRadius: BorderRadius.circular(context.r(8)),
                 minHeight: context.hp(1.0).clamp(6.0, 10.0),
@@ -45,13 +45,13 @@ class AnalysisLoadingWidget extends StatelessWidget {
               Text('%', style: TextStyle(color: AppColors.textSecondary, fontSize: context.sp(13))),
             ] else if (isAnalyzing) ...[
               Shimmer.fromColors(
-                baseColor: AppColors.primary.withOpacity(0.5),
+                baseColor: AppColors.primary.withValues(alpha:0.5),
                 highlightColor: AppColors.primary,
                 child: Icon(Icons.science, size: context.r(48)),
               ),
               SizedBox(height: context.hp(2)),
               Text(
-                '🔬 AI is analyzing your image...',
+                '?? AI is analyzing your image...',
                 style: TextStyle(fontSize: context.sp(16), fontWeight: FontWeight.bold),
               ),
               SizedBox(height: context.hp(1)),
@@ -73,3 +73,5 @@ class AnalysisLoadingWidget extends StatelessWidget {
     );
   }
 }
+
+

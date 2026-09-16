@@ -1,8 +1,8 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/auth_controller.dart';
-import '../../resources/AppRoutes.dart';
-import '../../resources/AppTheme.dart';
+import '../../resources/app_routes.dart';
+import '../../../resources/app_theme.dart';
 import '../../resources/responsive.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -130,7 +130,7 @@ class _SplashScreenState extends State<SplashScreen>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      AppColors.primary.withOpacity(0.15),
+                      AppColors.primary.withValues(alpha:0.15),
                       Colors.transparent,
                     ],
                   ),
@@ -143,22 +143,22 @@ class _SplashScreenState extends State<SplashScreen>
           Positioned(
             top: context.hp(10),
             right: context.wp(10),
-            child: _buildDot(8, AppColors.primary.withOpacity(0.4)),
+            child: _buildDot(8, AppColors.primary.withValues(alpha:0.4)),
           ),
           Positioned(
             top: context.hp(15),
             right: context.wp(20),
-            child: _buildDot(5, AppColors.primary.withOpacity(0.2)),
+            child: _buildDot(5, AppColors.primary.withValues(alpha:0.2)),
           ),
           Positioned(
             bottom: context.hp(18),
             left: context.wp(8),
-            child: _buildDot(10, AppColors.coral.withOpacity(0.3)),
+            child: _buildDot(10, AppColors.coral.withValues(alpha:0.3)),
           ),
           Positioned(
             bottom: context.hp(23),
             left: context.wp(18),
-            child: _buildDot(6, AppColors.coral.withOpacity(0.15)),
+            child: _buildDot(6, AppColors.coral.withValues(alpha:0.15)),
           ),
 
           // Main content
@@ -207,10 +207,10 @@ class _SplashScreenState extends State<SplashScreen>
                         vertical: context.hp(0.8),
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.15),
+                        color: AppColors.primary.withValues(alpha:0.15),
                         borderRadius: BorderRadius.circular(50),
                         border: Border.all(
-                          color: AppColors.primary.withOpacity(0.3),
+                          color: AppColors.primary.withValues(alpha:0.3),
                         ),
                       ),
                       child: Text(
@@ -231,7 +231,7 @@ class _SplashScreenState extends State<SplashScreen>
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: context.sp(14),
-                          color: Colors.white.withOpacity(0.4),
+                          color: Colors.white.withValues(alpha:0.4),
                           height: 1.6,
                           fontStyle: FontStyle.italic,
                           fontFamily: 'Lato',
@@ -262,7 +262,7 @@ class _SplashScreenState extends State<SplashScreen>
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        AppColors.primary.withOpacity(0.7),
+                        AppColors.primary.withValues(alpha:0.7),
                       ),
                     ),
                   ),
@@ -271,7 +271,7 @@ class _SplashScreenState extends State<SplashScreen>
                     'Loading...',
                     style: TextStyle(
                       fontSize: context.sp(12),
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withValues(alpha:0.3),
                       fontFamily: 'Lato',
                       letterSpacing: 1,
                     ),
@@ -299,7 +299,7 @@ class _SplashScreenState extends State<SplashScreen>
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.4),
+            color: AppColors.primary.withValues(alpha:0.4),
             blurRadius: 30,
             spreadRadius: 5,
           ),
@@ -317,3 +317,5 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 }
+
+

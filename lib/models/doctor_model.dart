@@ -110,7 +110,7 @@ class DoctorModel {
     final distMeters = Geolocator.distanceBetween(userLat, userLng, lat, lng);
     final distKm = double.parse((distMeters / 1000).toStringAsFixed(1));
 
-    final osmId = json['id']?.toString() ?? 'osm_${lat}_${lng}';
+    final osmId = json['id']?.toString() ?? 'osm_${lat}_$lng';
     final int hash = osmId.hashCode.abs();
 
     String rawName = tags['name'] as String? ?? tags['brand'] as String? ?? '';
@@ -165,7 +165,7 @@ class DoctorModel {
     final distMeters = Geolocator.distanceBetween(userLat, userLng, lat, lng);
     final distKm = double.parse((distMeters / 1000).toStringAsFixed(1));
 
-    final osmId = json['place_id']?.toString() ?? 'nom_${lat}_${lng}';
+    final osmId = json['place_id']?.toString() ?? 'nom_${lat}_$lng';
     final int hash = osmId.hashCode.abs();
 
     final displayName = json['display_name'] as String? ?? 'Medical Clinic';

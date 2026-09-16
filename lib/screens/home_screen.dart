@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/nav_controller.dart';
-import '../resources/AppTheme.dart';
-import '../resources/AppRoutes.dart';
+import '../../../resources/app_theme.dart';
+
+import '../resources/app_routes.dart';
 import '../resources/responsive.dart';
 import 'AnonymousChat/community_screen.dart';
 import 'chat_screen.dart';
@@ -40,7 +41,7 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ── CENTER FAB ──
+// --- CENTER FAB ---
 class _CenterFAB extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -66,7 +67,7 @@ class _CenterFAB extends StatelessWidget {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withOpacity(0.4),
+              color: AppColors.primary.withValues(alpha:0.4),
               blurRadius: 16,
               offset: const Offset(0, 4),
             ),
@@ -80,7 +81,7 @@ class _CenterFAB extends StatelessWidget {
   }
 }
 
-// ── BOTTOM NAV BAR ──
+// --- BOTTOM NAV BAR ---
 class _BottomNavBar extends StatelessWidget {
   final NavController navController;
 
@@ -93,7 +94,7 @@ class _BottomNavBar extends StatelessWidget {
       notchMargin: 8,
       color: AppColors.white,
       elevation: 8,
-      shadowColor: Colors.black.withOpacity(0.1),
+      shadowColor: Colors.black.withValues(alpha:0.1),
       child: SizedBox(
         height: context.hp(7.5).clamp(54.0, 68.0),
         child: Obx(
@@ -195,7 +196,7 @@ class _NavItem extends StatelessWidget {
   }
 }
 
-// ── HOME TAB CONTENT ──
+// --- HOME TAB CONTENT ---
 class _HomeTab extends StatelessWidget {
   const _HomeTab();
 
@@ -223,7 +224,7 @@ class _HomeTab extends StatelessWidget {
                       children: [
                         Obx(
                           () => Text(
-                            'Namaste, ${authController.userFirstName}! 🙏',
+                            'Namaste, ${authController.userFirstName}!',
                             style: TextStyle(
                               fontSize: context.sp(24),
                               fontWeight: FontWeight.w800,
@@ -270,7 +271,7 @@ class _HomeTab extends StatelessWidget {
                         borderRadius: BorderRadius.circular(context.r(14)),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF9B59B6).withOpacity(0.3),
+                            color: const Color(0xFF9B59B6).withValues(alpha:0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -313,7 +314,7 @@ class _HomeTab extends StatelessWidget {
                     borderRadius: BorderRadius.circular(context.r(24)),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primary.withOpacity(0.35),
+                        color: AppColors.primary.withValues(alpha:0.35),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -331,7 +332,7 @@ class _HomeTab extends StatelessWidget {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha:0.2),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
@@ -389,7 +390,7 @@ class _HomeTab extends StatelessWidget {
                         ),
                       ),
                       SizedBox(width: context.wp(2.5)),
-                      Text('🩺', style: TextStyle(fontSize: context.sp(62))),
+                      Icon(Icons.medical_services_rounded, size: context.r(58), color: Colors.white),
                     ],
                   ),
                 ),
@@ -415,7 +416,7 @@ class _HomeTab extends StatelessWidget {
                     borderRadius: BorderRadius.circular(context.r(20)),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF6C5CE7).withOpacity(0.35),
+                        color: const Color(0xFF6C5CE7).withValues(alpha:0.35),
                         blurRadius: 16,
                         offset: const Offset(0, 6),
                       ),
@@ -427,11 +428,11 @@ class _HomeTab extends StatelessWidget {
                         width: context.r(52),
                         height: context.r(52),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha:0.2),
                           borderRadius: BorderRadius.circular(context.r(14)),
                         ),
                         child: Center(
-                          child: Text('📸', style: TextStyle(fontSize: context.sp(26))),
+                          child: Icon(Icons.document_scanner_rounded, size: context.r(26), color: Colors.white),
                         ),
                       ),
                       SizedBox(width: context.wp(4).clamp(12.0, 18.0)),
@@ -454,7 +455,7 @@ class _HomeTab extends StatelessWidget {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.25),
+                                    color: Colors.white.withValues(alpha:0.25),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Text(
@@ -510,7 +511,7 @@ class _HomeTab extends StatelessWidget {
                     borderRadius: BorderRadius.circular(context.r(20)),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF2980B9).withOpacity(0.35),
+                        color: const Color(0xFF2980B9).withValues(alpha:0.35),
                         blurRadius: 16,
                         offset: const Offset(0, 6),
                       ),
@@ -522,11 +523,11 @@ class _HomeTab extends StatelessWidget {
                         width: context.r(52),
                         height: context.r(52),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha:0.2),
                           borderRadius: BorderRadius.circular(context.r(14)),
                         ),
                         child: Center(
-                          child: Text('👨‍⚕️', style: TextStyle(fontSize: context.sp(26))),
+                          child: Icon(Icons.medical_services_rounded, size: context.r(26), color: Colors.white),
                         ),
                       ),
                       SizedBox(width: context.wp(4).clamp(12.0, 18.0)),
@@ -557,7 +558,7 @@ class _HomeTab extends StatelessWidget {
                       Container(
                         padding: EdgeInsets.all(context.r(8)),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha:0.2),
                           borderRadius: BorderRadius.circular(context.r(10)),
                         ),
                         child: Icon(
@@ -598,7 +599,7 @@ class _HomeTab extends StatelessWidget {
                     borderRadius: BorderRadius.circular(context.r(20)),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF9B59B6).withOpacity(0.4),
+                        color: const Color(0xFF9B59B6).withValues(alpha:0.4),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -610,11 +611,11 @@ class _HomeTab extends StatelessWidget {
                         width: context.r(52),
                         height: context.r(52),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha:0.2),
                           borderRadius: BorderRadius.circular(context.r(14)),
                         ),
                         child: Center(
-                          child: Text('🎭', style: TextStyle(fontSize: context.sp(26))),
+                          child: Icon(Icons.groups_rounded, size: context.r(26), color: Colors.white),
                         ),
                       ),
                       SizedBox(width: context.wp(4).clamp(12.0, 18.0)),
@@ -645,7 +646,7 @@ class _HomeTab extends StatelessWidget {
                       Container(
                         padding: EdgeInsets.all(context.r(8)),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha:0.2),
                           borderRadius: BorderRadius.circular(context.r(10)),
                         ),
                         child: Icon(
@@ -681,28 +682,32 @@ class _HomeTab extends StatelessWidget {
                 childAspectRatio: context.isTabletDevice ? 1.4 : 1.3,
                 children: const [
                   _SymptomCard(
-                    emoji: '🤕',
+                    icon: Icons.thermostat_rounded,
+                    iconColor: Color(0xFFE67E22),
                     title: 'Head & Fever',
                     color: Color(0xFFFFF3D6),
                     borderColor: Color(0xFFFFC947),
                     symptom: 'Sar dard aur bukhar hai',
                   ),
                   _SymptomCard(
-                    emoji: '🫁',
+                    icon: Icons.air_rounded,
+                    iconColor: AppColors.primary,
                     title: 'Cough & Cold',
                     color: Color(0xFFD0F4F4),
                     borderColor: AppColors.primary,
                     symptom: 'Khasi aur nazla ho raha hai',
                   ),
                   _SymptomCard(
-                    emoji: '🤢',
+                    icon: Icons.sick_rounded,
+                    iconColor: AppColors.coral,
                     title: 'Stomach Issues',
                     color: Color(0xFFFFE8E4),
                     borderColor: AppColors.coral,
                     symptom: 'Pet mein dard aur ulti hai',
                   ),
                   _SymptomCard(
-                    emoji: '🧠',
+                    icon: Icons.psychology_rounded,
+                    iconColor: Color(0xFF7B61FF),
                     title: 'Mental Health',
                     color: Color(0xFFEDE9FF),
                     borderColor: Color(0xFF7B61FF),
@@ -742,7 +747,7 @@ class _HomeTab extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Your data is safe 🔒',
+                            'Your data is safe',
                             style: TextStyle(
                               fontSize: context.sp(14),
                               fontWeight: FontWeight.w700,
@@ -774,14 +779,16 @@ class _HomeTab extends StatelessWidget {
 }
 
 class _SymptomCard extends StatelessWidget {
-  final String emoji;
+  final IconData icon;
+  final Color iconColor;
   final String title;
   final Color color;
   final Color borderColor;
   final String symptom;
 
   const _SymptomCard({
-    required this.emoji,
+    required this.icon,
+    required this.iconColor,
     required this.title,
     required this.color,
     required this.borderColor,
@@ -803,13 +810,13 @@ class _SymptomCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(context.r(16)),
-          border: Border.all(color: borderColor.withOpacity(0.3)),
+          border: Border.all(color: borderColor.withValues(alpha:0.3)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(emoji, style: TextStyle(fontSize: context.sp(28))),
+            Icon(icon, size: context.r(28), color: iconColor),
             Text(
               title,
               style: TextStyle(
@@ -824,3 +831,5 @@ class _SymptomCard extends StatelessWidget {
     );
   }
 }
+
+

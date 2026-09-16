@@ -1,8 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/chat_controller.dart';
 import '../models/chat_message_model.dart';
-import '../resources/AppTheme.dart';
+import '../../../resources/app_theme.dart';
 import '../resources/responsive.dart';
 import '../widgets/assesment_card.dart';
 import '../widgets/message_bubble.dart';
@@ -122,7 +122,11 @@ class _ChatScreenState extends State<ChatScreen> {
               borderRadius: BorderRadius.circular(context.r(10)),
             ),
             child: Center(
-              child: Text('🩺', style: TextStyle(fontSize: context.sp(18))),
+              child: Icon(
+                Icons.health_and_safety_rounded,
+                size: context.r(22),
+                color: Colors.white,
+              ),
             ),
           ),
           SizedBox(width: context.wp(2.5).clamp(8.0, 14.0)),
@@ -255,7 +259,7 @@ class _ChatScreenState extends State<ChatScreen> {
         color: AppColors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha:0.06),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -336,7 +340,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         ? []
                         : [
                       BoxShadow(
-                        color: AppColors.primary.withOpacity(0.35),
+                        color: AppColors.primary.withValues(alpha:0.35),
                         blurRadius: 10,
                         offset: const Offset(0, 3),
                       ),
@@ -368,3 +372,5 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 }
+
+
