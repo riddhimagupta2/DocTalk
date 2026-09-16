@@ -1,40 +1,107 @@
+import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
 import '../models/anonymous_chat_model.dart';
 import '../services/community_servic.dart';
-import 'package:flutter/foundation.dart';
 
 class CommunityController extends GetxController {
   final CommunityService _service = CommunityService();
   final AuthController _authController = Get.find<AuthController>();
 
   final Rx<PostCategory?> selectedCategory = Rx<PostCategory?>(null);
+  final RxList<AnonymousPost> _allPosts = <AnonymousPost>[].obs;
   final RxList<AnonymousPost> posts = <AnonymousPost>[].obs;
   final RxBool isLoading = false.obs;
   final RxString searchQuery = ''.obs;
+  final RxBool isSearchOpen = false.obs;
+  final TextEditingController searchTextController = TextEditingController();
+
+  StreamSubscription<List<AnonymousPost>>? _postsSubscription;
 
   @override
   void onInit() {
     super.onInit();
     _listenToPosts();
+    ever(_allPosts, (_) => _applyFilter());
+    ever(selectedCategory, (_) => _applyFilter());
+    ever(searchQuery, (_) => _applyFilter());
+  }
+
+  @override
+  void onClose() {
+    _postsSubscription?.cancel();
+    searchTextController.dispose();
+    super.onClose();
   }
 
   void _listenToPosts() {
-    ever(selectedCategory, (_) {
-      _loadPosts();
-    });
-    _loadPosts();
+    isLoading.value = true;
+    _postsSubscription?.cancel();
+    _postsSubscription = _service.getPostsStream().listen(
+      (loadedPosts) {
+        _allPosts.value = loadedPosts;
+        _applyFilter();
+        isLoading.value = false;
+      },
+      onError: (error) {
+        debugPrint('Error loading posts: $error');
+        isLoading.value = false;
+      },
+    );
   }
 
-  void _loadPosts() {
-    isLoading.value = true;
-    _service.getPostsStream(category: selectedCategory.value).listen((loadedPosts) {
-      posts.value = loadedPosts;
-      isLoading.value = false;
-    }, onError: (error) {
-      debugPrint('Error loading posts: $error');
-      isLoading.value = false;
-    });
+  void _applyFilter() {
+    List<AnonymousPost> result = List.from(_allPosts);
+
+    // 1. Filter by category
+    if (selectedCategory.value != null) {
+      result = result.where((p) => p.category == selectedCategory.value).toList();
+    }
+
+    // 2. Filter by search query
+    final query = searchQuery.value.trim().toLowerCase();
+    if (query.isNotEmpty) {
+      result = result.where((p) {
+        final title = p.title.toLowerCase();
+        final content = p.content.toLowerCase();
+        final cat = p.category.label.toLowerCase();
+        final name = p.anonymousName.toLowerCase();
+        return title.contains(query) ||
+            content.contains(query) ||
+            cat.contains(query) ||
+            name.contains(query);
+      }).toList();
+    }
+
+    posts.value = result;
+  }
+
+  void openSearch() {
+    isSearchOpen.value = true;
+  }
+
+  void closeSearch() {
+    isSearchOpen.value = false;
+    searchTextController.clear();
+    searchQuery.value = '';
+  }
+
+  void clearSearchQuery() {
+    searchTextController.clear();
+    searchQuery.value = '';
+  }
+
+  void filterByCategory(PostCategory? category) {
+    if (selectedCategory.value == category) {
+      selectedCategory.value = null;
+    } else {
+      selectedCategory.value = category;
+    }
+  }
+
+  void clearFilter() {
+    selectedCategory.value = null;
   }
 
   Future<void> createPost({
@@ -73,29 +140,9 @@ class CommunityController extends GetxController {
     }
   }
 
-  void filterByCategory(PostCategory? category) {
-    selectedCategory.value = category;
-  }
-
-  void clearFilter() {
-    selectedCategory.value = null;
-  }
-
   Future<void> searchPosts(String query) async {
-    if (query.trim().isEmpty) {
-      _loadPosts();
-      return;
-    }
-
-    try {
-      isLoading.value = true;
-      final results = await _service.searchPosts(query);
-      posts.value = results;
-      isLoading.value = false;
-    } catch (e) {
-      debugPrint('Search error: $e');
-      isLoading.value = false;
-    }
+    searchQuery.value = query;
+    _applyFilter();
   }
 }
 

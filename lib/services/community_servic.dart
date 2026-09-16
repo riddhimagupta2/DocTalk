@@ -36,16 +36,16 @@ class CommunityService {
     Query query = _db
         .collection('community_posts')
         .orderBy('createdAt', descending: true)
-        .limit(50);
-
-    if (category != null) {
-      query = query.where('category', isEqualTo: category.name);
-    }
+        .limit(100);
 
     return query.snapshots().map((snapshot) {
-      return snapshot.docs
+      var posts = snapshot.docs
           .map((doc) => AnonymousPost.fromFirestore(doc))
           .toList();
+      if (category != null) {
+        posts = posts.where((p) => p.category == category).toList();
+      }
+      return posts;
     });
   }
 

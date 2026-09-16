@@ -86,7 +86,12 @@ class AnonymousPost {
       title: data['title'] ?? '',
       content: data['content'] ?? '',
       category: PostCategory.values.firstWhere(
-            (c) => c.name == data['category'],
+        (c) {
+          final cat = (data['category'] ?? '').toString().trim().toLowerCase();
+          return c.name.toLowerCase() == cat ||
+              c.label.toLowerCase() == cat ||
+              c.name.toLowerCase() == cat.replaceAll(' ', '');
+        },
         orElse: () => PostCategory.other,
       ),
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),

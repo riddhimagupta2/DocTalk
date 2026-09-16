@@ -1,7 +1,8 @@
-﻿import 'package:doctalk/screens/AnonymousChat/post_detail_scrren.dart';
+import 'package:doctalk/screens/AnonymousChat/post_detail_scrren.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../controllers/auth_controller.dart';
 import '../../controllers/community_controller.dart';
 import '../../models/anonymous_chat_model.dart';
 import '../../resources/responsive.dart';
@@ -14,197 +15,331 @@ class CommunityScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(CommunityController());
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF1A1A2E),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0F0F1E),
-        elevation: 0,
-        title: Text(
-          'Anonymous Community',
-          style: TextStyle(
-            fontSize: context.sp(18),
-            fontWeight: FontWeight.w800,
-            color: Colors.white,
-          ),
-        ),
-        leading: Navigator.canPop(context)
-            ? IconButton(
-                icon: Icon(Icons.arrow_back_ios_new_rounded,
-                    color: Colors.white, size: context.r(20)),
-                onPressed: () => Get.back(),
-              )
-            : null,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.search_rounded, color: Colors.white, size: context.r(22)),
-            onPressed: () => _showSearchDialog(context, controller),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // Privacy Banner
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(
-              horizontal: context.wp(4).clamp(12.0, 20.0),
-              vertical: context.hp(1.2).clamp(8.0, 14.0),
-            ),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF9B59B6), Color(0xFF8E44AD)],
-              ),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.shield_outlined, color: Colors.white, size: context.r(16)),
-                SizedBox(width: context.wp(2).clamp(6.0, 10.0)),
-                Expanded(
-                  child: Text(
-                    'Share experiences anonymously. Your identity is protected.',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: context.sp(12),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+    return Obx(() {
+      final isSearch = controller.isSearchOpen.value;
 
-          // Category Filter
-          Container(
-            height: context.hp(7.5).clamp(52.0, 68.0),
-            color: const Color(0xFF0F0F1E),
-            child: Obx(() => ListView(
-              scrollDirection: Axis.horizontal,
-              padding: EdgeInsets.symmetric(
-                horizontal: context.wp(4).clamp(12.0, 20.0),
-                vertical: context.hp(1.0).clamp(6.0, 10.0),
-              ),
-              children: [
-                _CategoryChip(
-                  label: 'All',
-                  isSelected: controller.selectedCategory.value == null,
-                  onTap: () => controller.clearFilter(),
-                ),
-                ...PostCategory.values.map(
-                      (cat) => _CategoryChip(
-                    label: cat.label,
-                    isSelected: controller.selectedCategory.value == cat,
-                    onTap: () => controller.filterByCategory(cat),
-                  ),
-                ),
-              ],
-            )),
-          ),
-
-          // Posts List
-          Expanded(
-            child: Obx(() {
-              if (controller.isLoading.value && controller.posts.isEmpty) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF9B59B6)),
-                  ),
-                );
-              }
-
-              if (controller.posts.isEmpty) {
-                return _buildEmptyState(context);
-              }
-
-              return ListView.builder(
+      return PopScope(
+        canPop: !isSearch,
+        onPopInvokedWithResult: (didPop, _) {
+          if (didPop) return;
+          if (controller.isSearchOpen.value) {
+            controller.closeSearch();
+          }
+        },
+        child: Scaffold(
+          backgroundColor: const Color(0xFF1A1A2E),
+          appBar: _buildAppBar(context, controller, isSearch),
+          body: Column(
+            children: [
+              // Privacy Banner
+              Container(
+                width: double.infinity,
                 padding: EdgeInsets.symmetric(
                   horizontal: context.wp(4).clamp(12.0, 20.0),
-                  vertical: context.hp(1.5).clamp(10.0, 18.0),
+                  vertical: context.hp(1.2).clamp(8.0, 14.0),
                 ),
-                itemCount: controller.posts.length,
-                itemBuilder: (context, index) {
-                  return _PostCard(
-                    post: controller.posts[index],
-                    onTap: () => Get.to(
-                          () => PostDetailScreen(post: controller.posts[index]),
-                      transition: Transition.rightToLeft,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF9B59B6), Color(0xFF8E44AD)],
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.shield_outlined, color: Colors.white, size: context.r(16)),
+                    SizedBox(width: context.wp(2).clamp(6.0, 10.0)),
+                    Expanded(
+                      child: Text(
+                        'Share experiences anonymously. Your identity is protected.',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: context.sp(12),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ),
-                    onUpvote: () => controller.upvotePost(controller.posts[index]),
+                  ],
+                ),
+              ),
+
+              // Category Filter
+              Container(
+                height: context.hp(7.5).clamp(52.0, 68.0),
+                color: const Color(0xFF0F0F1E),
+                child: Obx(() => ListView(
+                  scrollDirection: Axis.horizontal,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: context.wp(4).clamp(12.0, 20.0),
+                    vertical: context.hp(1.0).clamp(6.0, 10.0),
+                  ),
+                  children: [
+                    _CategoryChip(
+                      label: 'All',
+                      isSelected: controller.selectedCategory.value == null,
+                      onTap: () => controller.clearFilter(),
+                    ),
+                    ...PostCategory.values.map(
+                      (cat) => _CategoryChip(
+                        label: cat.label,
+                        icon: cat.icon,
+                        isSelected: controller.selectedCategory.value == cat,
+                        onTap: () => controller.filterByCategory(cat),
+                      ),
+                    ),
+                  ],
+                )),
+              ),
+
+              // Active search/filter indicator
+              Obx(() {
+                final hasSearch = controller.searchQuery.value.trim().isNotEmpty;
+                final selectedCat = controller.selectedCategory.value;
+
+                if (!hasSearch && selectedCat == null) {
+                  return const SizedBox.shrink();
+                }
+
+                return Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: context.wp(4).clamp(12.0, 20.0),
+                    vertical: 6,
+                  ),
+                  color: const Color(0xFF161628),
+                  child: Row(
+                    children: [
+                      Icon(Icons.filter_list_rounded,
+                          color: const Color(0xFF9B59B6), size: context.r(14)),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          [
+                            if (selectedCat != null) 'Category: ${selectedCat.label}',
+                            if (hasSearch) 'Search: "${controller.searchQuery.value}"',
+                          ].join(' • '),
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: context.sp(11.5),
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          controller.clearFilter();
+                          controller.clearSearchQuery();
+                        },
+                        child: Text(
+                          'Clear all',
+                          style: TextStyle(
+                            color: const Color(0xFF9B59B6),
+                            fontSize: context.sp(11.5),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+
+              // Posts List
+              Expanded(
+                child: Obx(() {
+                  if (controller.isLoading.value && controller.posts.isEmpty) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF9B59B6)),
+                      ),
+                    );
+                  }
+
+                  if (controller.posts.isEmpty) {
+                    return _buildEmptyState(context, controller);
+                  }
+
+                  return ListView.builder(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: context.wp(4).clamp(12.0, 20.0),
+                      vertical: context.hp(1.5).clamp(10.0, 18.0),
+                    ),
+                    itemCount: controller.posts.length,
+                    itemBuilder: (context, index) {
+                      return _PostCard(
+                        post: controller.posts[index],
+                        onTap: () => Get.to(
+                          () => PostDetailScreen(post: controller.posts[index]),
+                          transition: Transition.rightToLeft,
+                        ),
+                        onUpvote: () => controller.upvotePost(controller.posts[index]),
+                      );
+                    },
                   );
-                },
-              );
-            }),
+                }),
+              ),
+            ],
           ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Get.to(
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () => Get.to(
               () => const CreatePostScreen(),
-          transition: Transition.downToUp,
-        ),
-        backgroundColor: const Color(0xFF9B59B6),
-        label: Text('Share Your Story', style: TextStyle(fontSize: context.sp(14))),
-        icon: Icon(Icons.add_rounded, size: context.r(22)),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.forum_outlined, size: context.r(60), color: Colors.white24),
-          SizedBox(height: context.hp(2)),
-          Text(
-            'No discussions found',
-            style: TextStyle(fontSize: context.sp(16), color: Colors.white70, fontWeight: FontWeight.bold),
+              transition: Transition.downToUp,
+            ),
+            backgroundColor: const Color(0xFF9B59B6),
+            label: Text('Share Your Story', style: TextStyle(fontSize: context.sp(14))),
+            icon: Icon(Icons.add_rounded, size: context.r(22)),
           ),
-        ],
-      ),
-    );
+        ),
+      );
+    });
   }
 
-  void _showSearchDialog(BuildContext context, CommunityController controller) {
-    final searchCtrl = TextEditingController();
-    Get.defaultDialog(
-      title: 'Search Discussions',
-      titleStyle: TextStyle(color: Colors.black, fontSize: context.sp(16), fontWeight: FontWeight.bold),
-      content: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: TextField(
-          controller: searchCtrl,
+  PreferredSizeWidget _buildAppBar(
+      BuildContext context, CommunityController controller, bool isSearch) {
+    if (isSearch) {
+      return AppBar(
+        backgroundColor: const Color(0xFF0F0F1E),
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded,
+              color: Colors.white, size: context.r(20)),
+          onPressed: () => controller.closeSearch(),
+        ),
+        title: TextField(
+          controller: controller.searchTextController,
+          autofocus: true,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: context.sp(15),
+          ),
+          cursorColor: const Color(0xFF9B59B6),
           decoration: InputDecoration(
-            hintText: 'Type to search...',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+            hintText: 'Search discussions, topics...',
+            hintStyle: TextStyle(
+              color: Colors.white38,
+              fontSize: context.sp(14),
+            ),
+            border: InputBorder.none,
           ),
-          onSubmitted: (val) {
+          onChanged: (val) {
             controller.searchQuery.value = val;
-            Get.back();
           },
         ),
+        actions: [
+          if (controller.searchQuery.value.isNotEmpty)
+            IconButton(
+              icon: Icon(Icons.close_rounded,
+                  color: Colors.white70, size: context.r(20)),
+              onPressed: () => controller.clearSearchQuery(),
+            ),
+        ],
+      );
+    }
+
+    return AppBar(
+      backgroundColor: const Color(0xFF0F0F1E),
+      elevation: 0,
+      title: Text(
+        'Anonymous Community',
+        style: TextStyle(
+          fontSize: context.sp(18),
+          fontWeight: FontWeight.w800,
+          color: Colors.white,
+        ),
       ),
+      leading: Navigator.canPop(context)
+          ? IconButton(
+              icon: Icon(Icons.arrow_back_ios_new_rounded,
+                  color: Colors.white, size: context.r(20)),
+              onPressed: () => Get.back(),
+            )
+          : null,
       actions: [
-        TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
-        ElevatedButton(
-          onPressed: () {
-            controller.searchQuery.value = searchCtrl.text;
-            Get.back();
-          },
-          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF9B59B6)),
-          child: const Text('Search', style: TextStyle(color: Colors.white)),
+        IconButton(
+          icon: Icon(Icons.search_rounded,
+              color: Colors.white, size: context.r(22)),
+          onPressed: () => controller.openSearch(),
         ),
       ],
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context, CommunityController controller) {
+    final hasSearch = controller.searchQuery.value.trim().isNotEmpty;
+    final hasCat = controller.selectedCategory.value != null;
+
+    String title = 'No discussions found';
+    String subtitle = 'Be the first to share your story!';
+
+    if (hasSearch && hasCat) {
+      title = 'No matches found';
+      subtitle = 'Try searching in "All" or using different keywords';
+    } else if (hasSearch) {
+      title = 'No results for "${controller.searchQuery.value}"';
+      subtitle = 'Try searching with different keywords';
+    } else if (hasCat) {
+      title = 'No posts in ${controller.selectedCategory.value!.label}';
+      subtitle = 'Be the first to share in this category!';
+    }
+
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(context.r(24)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              hasSearch ? Icons.search_off_rounded : Icons.forum_outlined,
+              size: context.r(56),
+              color: Colors.white24,
+            ),
+            SizedBox(height: context.hp(2)),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: context.sp(16),
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: context.hp(0.8)),
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: context.sp(13),
+                color: Colors.white54,
+              ),
+            ),
+            if (hasSearch || hasCat) ...[
+              SizedBox(height: context.hp(2)),
+              TextButton.icon(
+                onPressed: () {
+                  controller.clearFilter();
+                  controller.clearSearchQuery();
+                },
+                icon: const Icon(Icons.refresh_rounded, color: Color(0xFF9B59B6)),
+                label: const Text(
+                  'Reset Filters',
+                  style: TextStyle(color: Color(0xFF9B59B6), fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }
 
 class _CategoryChip extends StatelessWidget {
   final String label;
+  final IconData? icon;
   final bool isSelected;
   final VoidCallback onTap;
 
   const _CategoryChip({
     required this.label,
+    this.icon,
     required this.isSelected,
     required this.onTap,
   });
@@ -215,7 +350,7 @@ class _CategoryChip extends StatelessWidget {
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(right: 8),
-        padding: EdgeInsets.symmetric(horizontal: context.r(14), vertical: context.hp(0.8)),
+        padding: EdgeInsets.symmetric(horizontal: context.r(12), vertical: context.hp(0.6)),
         decoration: BoxDecoration(
           color: isSelected ? const Color(0xFF9B59B6) : const Color(0xFF1E1E38),
           borderRadius: BorderRadius.circular(20),
@@ -223,15 +358,26 @@ class _CategoryChip extends StatelessWidget {
             color: isSelected ? const Color(0xFF9B59B6) : Colors.white12,
           ),
         ),
-        child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? Colors.white : Colors.white70,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              fontSize: context.sp(13),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: context.r(14),
+                color: isSelected ? Colors.white : Colors.white60,
+              ),
+              const SizedBox(width: 6),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.white : Colors.white70,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                fontSize: context.sp(12.5),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -251,6 +397,9 @@ class _PostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authController = Get.find<AuthController>();
+    final isUpvoted = post.upvoters.contains(authController.currentUserId);
+
     return Container(
       margin: EdgeInsets.only(bottom: context.hp(1.5).clamp(8.0, 14.0)),
       decoration: BoxDecoration(
@@ -273,7 +422,7 @@ class _PostCard extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: context.r(14),
-                      backgroundColor: const Color(0xFF9B59B6).withValues(alpha:0.3),
+                      backgroundColor: const Color(0xFF9B59B6).withValues(alpha: 0.3),
                       child: Icon(Icons.person_outline_rounded, color: Colors.white, size: context.r(16)),
                     ),
                     SizedBox(width: context.wp(2.5)),
@@ -289,7 +438,7 @@ class _PostCard extends StatelessWidget {
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: context.r(8), vertical: 3),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha:0.08),
+                        color: Colors.white.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -326,9 +475,20 @@ class _PostCard extends StatelessWidget {
                       onTap: onUpvote,
                       child: Row(
                         children: [
-                          Icon(Icons.arrow_upward_rounded, color: const Color(0xFF9B59B6), size: context.r(16)),
+                          Icon(
+                            isUpvoted ? Icons.arrow_upward_rounded : Icons.arrow_upward_outlined,
+                            color: isUpvoted ? const Color(0xFF9B59B6) : Colors.white60,
+                            size: context.r(16),
+                          ),
                           const SizedBox(width: 4),
-                          Text('', style: TextStyle(color: Colors.white70, fontSize: context.sp(12))),
+                          Text(
+                            '${post.upvoteCount}',
+                            style: TextStyle(
+                              color: isUpvoted ? const Color(0xFF9B59B6) : Colors.white70,
+                              fontWeight: isUpvoted ? FontWeight.bold : FontWeight.normal,
+                              fontSize: context.sp(12),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -337,7 +497,10 @@ class _PostCard extends StatelessWidget {
                       children: [
                         Icon(Icons.mode_comment_outlined, color: Colors.white38, size: context.r(15)),
                         const SizedBox(width: 4),
-                        Text('', style: TextStyle(color: Colors.white70, fontSize: context.sp(12))),
+                        Text(
+                          '${post.replyCount}',
+                          style: TextStyle(color: Colors.white70, fontSize: context.sp(12)),
+                        ),
                       ],
                     ),
                   ],
