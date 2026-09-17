@@ -11,8 +11,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:doctalk/main.dart';
 
 void main() {
-  testWidgets('App smoke test - verifies MediSaathiApp initializes', (WidgetTester tester) async {
-    expect(const MediSaathiApp(), isNotNull);
+  testWidgets('App smoke test - verifies DocTalkApp initializes', (WidgetTester tester) async {
+    expect(const DocTalkApp(), isNotNull);
   });
 }
 

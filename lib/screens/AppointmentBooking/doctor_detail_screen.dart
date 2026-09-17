@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../models/doctor_model.dart';
-import '../../resources/app_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../resources/app_routes.dart';
+import '../../models/doctor_model.dart';
+import '../../resources/app_colors.dart';
+import '../../resources/app_routes.dart';
 import '../../resources/responsive.dart';
 
-class DoctorDetailsScreen extends StatelessWidget {
+class DoctorDetailsScreen extends StatefulWidget {
   const DoctorDetailsScreen({super.key});
+
+  @override
+  State<DoctorDetailsScreen> createState() => _DoctorDetailsScreenState();
+}
+
+class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
+  bool _isFavorite = false;
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +63,7 @@ class DoctorDetailsScreen extends StatelessWidget {
       backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
-          // â”€â”€ Hero header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          // ── Hero header ─────────────────────────────────────────
           SliverAppBar(
             expandedHeight: context.hp(28).clamp(200.0, 280.0),
             pinned: true,
@@ -65,7 +72,7 @@ class DoctorDetailsScreen extends StatelessWidget {
               icon: Container(
                 padding: EdgeInsets.all(context.r(8)),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha:0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.arrow_back_ios_new_rounded,
@@ -73,6 +80,32 @@ class DoctorDetailsScreen extends StatelessWidget {
               ),
               onPressed: () => Get.back(),
             ),
+            actions: [
+              IconButton(
+                icon: Container(
+                  padding: EdgeInsets.all(context.r(8)),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    _isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                    color: _isFavorite ? Colors.redAccent : Colors.white,
+                    size: context.r(18),
+                  ),
+                ),
+                onPressed: () {
+                  setState(() => _isFavorite = !_isFavorite);
+                  Get.snackbar(
+                    _isFavorite ? 'Saved to Favorites' : 'Removed from Favorites',
+                    _isFavorite ? '${doc.name} saved to your favorite doctors.' : '',
+                    snackPosition: SnackPosition.BOTTOM,
+                    duration: const Duration(seconds: 2),
+                  );
+                },
+              ),
+              const SizedBox(width: 8),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: const BoxDecoration(
@@ -91,63 +124,65 @@ class DoctorDetailsScreen extends StatelessWidget {
                         width: avatarSize,
                         height: avatarSize,
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha:0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                           border: Border.all(
-                              color: Colors.white.withValues(alpha:0.45), width: 2.5),
+                              color: Colors.white.withValues(alpha: 0.45), width: 2.5),
                         ),
                         child: Icon(Icons.person_rounded,
                             color: Colors.white, size: context.r(44)),
                       ),
                       SizedBox(height: context.hp(1.2)),
                       Text(
-                        doctor.name,
+                        doc.name,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: context.sp(20),
                           fontWeight: FontWeight.w800,
-                          fontFamily: 'Lato',
+                          fontFamily: 'Poppins',
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        doctor.specialization,
+                        doc.specialization,
                         style: TextStyle(
-                            color: Colors.white.withValues(alpha:0.85),
-                            fontSize: context.sp(14)),
+                            color: Colors.white.withValues(alpha: 0.85),
+                            fontSize: context.sp(14),
+                            fontFamily: 'Poppins'),
                       ),
                       SizedBox(height: context.hp(1)),
                       Container(
                         padding: EdgeInsets.symmetric(
                             horizontal: context.r(14), vertical: context.hp(0.6)),
                         decoration: BoxDecoration(
-                          color: doctor.isAvailableToday
-                              ? Colors.green.withValues(alpha:0.25)
-                              : Colors.red.withValues(alpha:0.25),
+                          color: doc.isDocTalkVerified
+                              ? Colors.green.withValues(alpha: 0.3)
+                              : Colors.blueGrey.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: doctor.isAvailableToday
-                                ? Colors.greenAccent.withValues(alpha:0.5)
-                                : Colors.redAccent.withValues(alpha:0.5),
+                            color: doc.isDocTalkVerified
+                                ? Colors.greenAccent
+                                : Colors.white.withValues(alpha: 0.5),
                           ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              doctor.isAvailableToday ? Icons.check_circle_outline : Icons.cancel_outlined,
+                              doc.isDocTalkVerified ? Icons.verified_rounded : Icons.map_rounded,
                               color: Colors.white,
                               size: context.sp(14),
                             ),
-                            SizedBox(width: 4),
+                            const SizedBox(width: 5),
                             Text(
-                              doctor.isAvailableToday
-                                  ? 'Available Today'
-                                  : 'Not Available Today',
+                              doc.isDocTalkVerified
+                                  ? 'Verified by DocTalk'
+                                  : 'Google Maps Doctor',
                               style: TextStyle(
                                   color: Colors.white,
                                   fontSize: context.sp(12),
-                                  fontWeight: FontWeight.w600),
+                                  fontWeight: FontWeight.w700,
+                                  fontFamily: 'Poppins'),
                             ),
                           ],
                         ),
@@ -168,34 +203,112 @@ class DoctorDetailsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // â”€â”€ Stats row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-                  _StatsRow(doctor: doctor),
+                  // If NOT verified: Show exact requirement banner
+                  if (!doc.isDocTalkVerified) ...[
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(context.r(14)),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF9E6),
+                        borderRadius: BorderRadius.circular(context.r(14)),
+                        border: Border.all(color: const Color(0xFFFFD54F), width: 1.2),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.info_outline_rounded,
+                              color: const Color(0xFFF57F17), size: context.r(24)),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Online appointment is available only for DocTalk Verified Doctors.',
+                                  style: TextStyle(
+                                    color: const Color(0xFF5D4037),
+                                    fontSize: context.sp(13.5),
+                                    fontWeight: FontWeight.w700,
+                                    fontFamily: 'Poppins',
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'You can view profile, call clinic directly, message via WhatsApp, or navigate using Google Maps.',
+                                  style: TextStyle(
+                                    color: const Color(0xFF795548),
+                                    fontSize: context.sp(12),
+                                    height: 1.35,
+                                    fontFamily: 'Poppins',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: context.hp(1.8)),
+                  ],
+
+                  // Stats row
+                  _StatsRow(doctor: doc),
                   SizedBox(height: context.hp(2)),
 
-                  // â”€â”€ Info card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                  // Primary Info Card
                   _InfoCard(children: [
-                    _InfoRow(
-                        icon: Icons.location_on_outlined,
-                        text: doctor.address),
+                    _InfoRow(icon: Icons.location_on_outlined, text: doc.address),
                     const _Divider(),
                     _InfoRow(
                         icon: Icons.phone_outlined,
-                        text: doctor.phone.isEmpty
-                            ? 'Phone not available'
-                            : doctor.phone),
+                        text: doc.phone.isEmpty ? 'Phone not listed on Maps' : doc.phone),
+                    if (doc.website.isNotEmpty) ...[
+                      const _Divider(),
+                      _InfoRow(icon: Icons.language_rounded, text: doc.website),
+                    ],
+                    const _Divider(),
+                    _InfoRow(
+                        icon: Icons.access_time_rounded,
+                        text: 'Hours: ${doc.openingHours}'),
                     const _Divider(),
                     _InfoRow(
                         icon: Icons.currency_rupee,
-                        text:
-                        'Consultation Fee: ₹${doctor.consultationFee.toInt()}'),
-                    const _Divider(),
-                    _InfoRow(
-                        icon: Icons.workspace_premium_outlined,
-                        text: 'Experience: ${doctor.experience}'),
+                        text: 'Consultation Fee: ₹${doc.consultationFee.toInt()}'),
                   ]),
 
-                  // â”€â”€ Available Slots â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-                  if (doctor.availableSlots.isNotEmpty) ...[
+                  // Verified Doctor Credentials
+                  if (doc.isDocTalkVerified && doc.certificates.isNotEmpty) ...[
+                    SizedBox(height: context.hp(2.5)),
+                    const _SectionTitle(
+                      icon: Icons.verified_user_outlined,
+                      title: 'Doctor Credentials & Verification',
+                    ),
+                    SizedBox(height: context.hp(1.0)),
+                    ...doc.certificates.map((cert) => Padding(
+                          padding: const EdgeInsets.only(bottom: 6.0),
+                          child: Row(
+                            children: [
+                              Icon(Icons.check_circle_rounded,
+                                  color: AppColors.success, size: context.r(16)),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  cert,
+                                  style: TextStyle(
+                                    fontSize: context.sp(12.5),
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.textPrimary,
+                                    fontFamily: 'Poppins',
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )),
+                  ],
+
+                  // Available Slots (ONLY for DocTalk Verified Partners)
+                  if (doc.isDocTalkVerified && doc.availableSlots.isNotEmpty) ...[
                     SizedBox(height: context.hp(2.5)),
                     const _SectionTitle(
                       icon: Icons.access_time_rounded,
@@ -205,7 +318,7 @@ class DoctorDetailsScreen extends StatelessWidget {
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: doctor.availableSlots.map((slot) {
+                      children: doc.availableSlots.map((slot) {
                         return Container(
                           padding: EdgeInsets.symmetric(
                               horizontal: context.r(14), vertical: context.hp(1)),
@@ -213,7 +326,7 @@ class DoctorDetailsScreen extends StatelessWidget {
                             color: AppColors.primaryLight,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                                color: AppColors.primary.withValues(alpha:0.3)),
+                                color: AppColors.primary.withValues(alpha: 0.3)),
                           ),
                           child: Text(
                             slot,
@@ -221,7 +334,7 @@ class DoctorDetailsScreen extends StatelessWidget {
                               color: AppColors.primaryDark,
                               fontWeight: FontWeight.w600,
                               fontSize: context.sp(13),
-                              fontFamily: 'Lato',
+                              fontFamily: 'Poppins',
                             ),
                           ),
                         );
@@ -229,90 +342,131 @@ class DoctorDetailsScreen extends StatelessWidget {
                     ),
                   ],
 
-                  SizedBox(height: context.hp(3.5)),
+                  SizedBox(height: context.hp(3.0)),
 
-                  // Navigate in Google Maps button
-                  SizedBox(
-                    width: double.infinity,
-                    height: context.hp(6.5).clamp(48.0, 56.0),
-                    child: OutlinedButton.icon(
-                      onPressed: () async {
-                        final lat = doc.latitude;
-                        final lng = doc.longitude;
-                        final name = Uri.encodeComponent(doc.name);
-                        final uri = Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng&query_place_id=${doc.placeId}');
-                        final fallbackUri = Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
-                        final geoUri = Uri.parse('geo:$lat,$lng?q=$lat,$lng($name)');
+                  // ── Action Buttons for Google Maps Only Clinics ──
+                  if (!doc.isDocTalkVerified) ...[
+                    Row(
+                      children: [
+                        // Call Doctor
+                        Expanded(
+                          child: SizedBox(
+                            height: context.hp(5.8).clamp(44.0, 52.0),
+                            child: ElevatedButton.icon(
+                              onPressed: () async {
+                                final phone = doc.phone.replaceAll(RegExp(r'[^0-9+]'), '');
+                                if (phone.isNotEmpty) {
+                                  final uri = Uri.parse('tel:$phone');
+                                  if (await canLaunchUrl(uri)) {
+                                    await launchUrl(uri);
+                                  }
+                                } else {
+                                  Get.snackbar('Contact', 'Phone number not available for this listing.',
+                                      snackPosition: SnackPosition.BOTTOM);
+                                }
+                              },
+                              icon: Icon(Icons.phone_in_talk_rounded, size: context.r(18)),
+                              label: Text('Call Doctor',
+                                  style: TextStyle(fontSize: context.sp(13), fontWeight: FontWeight.w700, fontFamily: 'Poppins')),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF1565C0),
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
 
-                        try {
-                          if (await canLaunchUrl(geoUri)) {
-                            await launchUrl(geoUri, mode: LaunchMode.externalApplication);
-                          } else if (await canLaunchUrl(uri)) {
+                        // WhatsApp button
+                        Expanded(
+                          child: SizedBox(
+                            height: context.hp(5.8).clamp(44.0, 52.0),
+                            child: ElevatedButton.icon(
+                              onPressed: () async {
+                                final raw = doc.whatsapp.isNotEmpty ? doc.whatsapp : doc.phone;
+                                final phone = raw.replaceAll(RegExp(r'[^0-9]'), '');
+                                if (phone.isNotEmpty) {
+                                  final uri = Uri.parse('https://wa.me/$phone');
+                                  if (await canLaunchUrl(uri)) {
+                                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                  }
+                                } else {
+                                  Get.snackbar('WhatsApp', 'WhatsApp contact not available for this clinic.',
+                                      snackPosition: SnackPosition.BOTTOM);
+                                }
+                              },
+                              icon: Icon(Icons.chat_bubble_outline_rounded, size: context.r(18)),
+                              label: Text('WhatsApp',
+                                  style: TextStyle(fontSize: context.sp(13), fontWeight: FontWeight.w700, fontFamily: 'Poppins')),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF25D366),
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: context.hp(1.2)),
+
+                    // Navigate using Google Maps
+                    SizedBox(
+                      width: double.infinity,
+                      height: context.hp(5.8).clamp(44.0, 52.0),
+                      child: OutlinedButton.icon(
+                        onPressed: () async {
+                          final uri = Uri.parse(
+                              'https://www.google.com/maps/search/?api=1&query=${doc.latitude},${doc.longitude}&query_place_id=${doc.placeId}');
+                          if (await canLaunchUrl(uri)) {
                             await launchUrl(uri, mode: LaunchMode.externalApplication);
-                          } else if (await canLaunchUrl(fallbackUri)) {
-                            await launchUrl(fallbackUri, mode: LaunchMode.externalApplication);
-                          } else {
-                            Get.snackbar(
-                              'Maps Unavailable',
-                              'Could not open Google Maps navigation.',
-                              snackPosition: SnackPosition.BOTTOM,
-                            );
                           }
-                        } catch (e) {
-                          Get.snackbar(
-                            'Navigation Error',
-                            'Could not launch maps: $e',
-                            snackPosition: SnackPosition.BOTTOM,
+                        },
+                        icon: Icon(Icons.directions_rounded, size: context.r(18)),
+                        label: Text(
+                          'Navigate with Google Maps',
+                          style: TextStyle(fontSize: context.sp(13), fontWeight: FontWeight.w700, fontFamily: 'Poppins'),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFF1565C0),
+                          side: const BorderSide(color: Color(0xFF1565C0), width: 1.4),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                    ),
+                  ] else ...[
+                    // ── Action Buttons for DocTalk Verified Doctors ──
+                    SizedBox(
+                      width: double.infinity,
+                      height: context.hp(6.2).clamp(48.0, 56.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Get.toNamed(
+                            AppRoutes.booking,
+                            arguments: {'doctor': doc},
                           );
-                        }
-                      },
-                      icon: Icon(Icons.directions, size: context.r(20)),
-                      label: Text(
-                        'Navigate (Google Maps)',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: context.sp(15),
-                          fontFamily: 'Lato',
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(context.r(14))),
                         ),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.primary,
-                        side: const BorderSide(color: AppColors.primary, width: 1.5),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(context.r(14))),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: context.hp(1.5)),
-
-                  // Book button
-                  SizedBox(
-                    width: double.infinity,
-                    height: context.hp(6.5).clamp(48.0, 56.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Get.toNamed(
-                          AppRoutes.booking,
-                          arguments: {'doctor': doctor},
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(context.r(14))),
-                      ),
-                      child: Text(
-                        'Book Appointment',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: context.sp(16),
-                          fontFamily: 'Lato',
+                        child: Text(
+                          'Book Appointment',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: context.sp(15),
+                            fontFamily: 'Poppins',
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                  ],
                   SizedBox(height: context.hp(2.5)),
                 ],
               ),
@@ -324,8 +478,7 @@ class DoctorDetailsScreen extends StatelessWidget {
   }
 }
 
-// â”€â”€ Sub-widgets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
+// Sub-widgets
 class _StatsRow extends StatelessWidget {
   final DoctorModel doctor;
   const _StatsRow({required this.doctor});
@@ -339,7 +492,7 @@ class _StatsRow extends StatelessWidget {
         borderRadius: BorderRadius.circular(context.r(16)),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha:0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 8,
               offset: const Offset(0, 2)),
         ],
@@ -369,8 +522,7 @@ class _StatsRow extends StatelessWidget {
     );
   }
 
-  Widget _vDivider() =>
-      Container(width: 1, height: 40, color: AppColors.border);
+  Widget _vDivider() => Container(width: 1, height: 40, color: AppColors.border);
 }
 
 class _StatItem extends StatelessWidget {
@@ -379,10 +531,7 @@ class _StatItem extends StatelessWidget {
   final String label;
   final Color color;
   const _StatItem(
-      {required this.icon,
-        required this.value,
-        required this.label,
-        required this.color});
+      {required this.icon, required this.value, required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -394,10 +543,9 @@ class _StatItem extends StatelessWidget {
               color: color,
               fontWeight: FontWeight.w700,
               fontSize: context.sp(15),
-              fontFamily: 'Lato')),
+              fontFamily: 'Poppins')),
       Text(label,
-          style: TextStyle(
-              color: AppColors.textSecondary, fontSize: context.sp(11.5))),
+          style: TextStyle(color: AppColors.textSecondary, fontSize: context.sp(11.5), fontFamily: 'Poppins')),
     ]);
   }
 }
@@ -415,14 +563,12 @@ class _InfoCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(context.r(16)),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha:0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 8,
               offset: const Offset(0, 2)),
         ],
       ),
-      child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: children),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
     );
   }
 }
@@ -443,7 +589,7 @@ class _InfoRow extends StatelessWidget {
                   color: AppColors.textPrimary,
                   fontSize: context.sp(13.5),
                   height: 1.4,
-                  fontFamily: 'Lato'))),
+                  fontFamily: 'Poppins'))),
     ]);
   }
 }
@@ -451,8 +597,7 @@ class _InfoRow extends StatelessWidget {
 class _Divider extends StatelessWidget {
   const _Divider();
   @override
-  Widget build(BuildContext context) =>
-      const Padding(
+  Widget build(BuildContext context) => const Padding(
         padding: EdgeInsets.symmetric(vertical: 10),
         child: Divider(height: 1, color: AppColors.border),
       );
@@ -473,9 +618,7 @@ class _SectionTitle extends StatelessWidget {
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w700,
               fontSize: context.sp(14.5),
-              fontFamily: 'Lato')),
+              fontFamily: 'Poppins')),
     ]);
   }
 }
-
-

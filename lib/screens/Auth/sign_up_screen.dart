@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/auth_controller.dart';
 import '../../resources/app_theme.dart';
@@ -108,7 +108,7 @@ class _SignupScreenState extends State<SignupScreen>
 
                   // Title
                   Text(
-                    'Join\nMediSaathi ',
+                    'Join\nDocTalk',
                     style: TextStyle(
                       fontSize: context.sp(34),
                       fontWeight: FontWeight.w800,

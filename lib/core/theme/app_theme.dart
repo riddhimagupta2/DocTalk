@@ -96,10 +96,10 @@ class AppTheme {
 }
 
 class AppStrings {
-  static const appName = 'MediSaathi';
+  static const appName = 'DocTalk';
   static const tagline = 'Your AI Health Companion';
   static const splashTagline =
-      'Doctors give you a diagnosis.\\nMediSaathi gives you a Saathi.';
+      'Doctors give you a diagnosis.\nDocTalk gives you a Saathi.';
 
   // Auth
   static const login = 'Login';
@@ -109,10 +109,10 @@ class AppStrings {
   static const confirmPassword = 'Confirm Password';
   static const fullName = 'Full Name';
   static const loginTitle = 'Welcome Back!';
-  static const loginSubtitle = 'Login to your MediSaathi account';
+  static const loginSubtitle = 'Login to your DocTalk account';
   static const signupTitle = 'Create Account';
   static const signupSubtitle =
-      'Join MediSaathi and take charge of your health';
+      'Join DocTalk and take charge of your health';
   static const dontHaveAccount = "Don't have an account? ";
   static const alreadyHaveAccount = 'Already have an account? ';
 

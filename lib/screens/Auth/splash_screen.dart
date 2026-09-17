@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/auth_controller.dart';
 import '../../resources/app_routes.dart';
@@ -80,9 +80,9 @@ class _SplashScreenState extends State<SplashScreen>
     if (Get.currentRoute == AppRoutes.splash) {
       final authController = Get.find<AuthController>();
       if (authController.isLoggedIn) {
-        Get.offAllNamed(AppRoutes.home);
+        authController.redirectBasedOnRole();
       } else {
-        Get.offAllNamed(AppRoutes.login);
+        Get.offAllNamed(AppRoutes.roleSelection);
       }
     }
   }

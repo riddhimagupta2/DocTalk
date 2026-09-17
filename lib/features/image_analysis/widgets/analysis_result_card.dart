@@ -62,10 +62,10 @@ class AnalysisResultCard extends StatelessWidget {
         SizedBox(height: context.hp(2)),
         
         _buildSectionHeader(context, 'Possible Conditions'),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: result.possibleConditions.map((e) => _buildConditionChip(context, e)).toList(),
+        Column(
+          children: result.possibleConditions
+              .map((e) => _buildConditionChip(context, e))
+              .toList(),
         ),
         
         if (result.possibleCauses.isNotEmpty) ...[
@@ -121,21 +121,30 @@ class AnalysisResultCard extends StatelessWidget {
           const Divider(),
           SizedBox(height: context.hp(2)),
           _buildSectionHeader(context, 'Recommended Specialist'),
-          Wrap(
-            spacing: 12,
-            runSpacing: 8,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            alignment: WrapAlignment.spaceBetween,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Chip(
-                label: Text(result.doctorSpeciality, style: TextStyle(fontWeight: FontWeight.bold, fontSize: context.sp(13))),
-                backgroundColor: AppColors.primary.withValues(alpha:0.1),
+                label: Text(result.doctorSpeciality),
+                backgroundColor:
+                AppColors.primary.withValues(alpha: 0.1),
               ),
-              GestureDetector(
-                onTap: () => Get.toNamed('/doctor-finder', arguments: {'specialist': result.doctorSpeciality}),
-                child: Text(
-                  'Find Nearby',
-                  style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: context.sp(13)),
+
+              SizedBox(height: context.hp(1.2)),
+
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Get.toNamed(
+                      '/doctor-finder',
+                      arguments: {
+                        'specialist': result.doctorSpeciality,
+                      },
+                    );
+                  },
+                  icon: const Icon(Icons.location_on),
+                  label: const Text("Find Nearby Doctors"),
                 ),
               ),
             ],
@@ -158,37 +167,77 @@ class AnalysisResultCard extends StatelessWidget {
     );
   }
 
-  Widget _buildConditionChip(BuildContext context, PossibleCondition condition) {
+  Widget _buildConditionChip(
+      BuildContext context,
+      PossibleCondition condition,
+      ) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: context.r(12), vertical: context.hp(0.9)),
+      width: double.infinity,
+      margin: EdgeInsets.only(bottom: context.hp(1)),
+      padding: EdgeInsets.all(context.r(12)),
       decoration: BoxDecoration(
         color: AppColors.background,
-        borderRadius: BorderRadius.circular(context.r(12)),
+        borderRadius: BorderRadius.circular(context.r(14)),
         border: Border.all(color: AppColors.border),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.circle, size: context.r(10), color: condition.likelihoodColor),
-          SizedBox(width: context.r(8)),
-          Text(condition.name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: context.sp(13))),
-          SizedBox(width: context.r(8)),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: context.r(6), vertical: 2),
-            decoration: BoxDecoration(
-              color: condition.likelihoodColor.withValues(alpha:0.1),
-              borderRadius: BorderRadius.circular(context.r(8)),
+          Padding(
+            padding: EdgeInsets.only(top: context.hp(0.4)),
+            child: Icon(
+              Icons.circle,
+              size: context.r(10),
+              color: condition.likelihoodColor,
             ),
-            child: Text(
-              condition.likelihood,
-              style: TextStyle(fontSize: context.sp(10), color: condition.likelihoodColor, fontWeight: FontWeight.bold),
+          ),
+
+          SizedBox(width: context.r(10)),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  condition.name,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: context.sp(14),
+                  ),
+                  softWrap: true,
+                ),
+
+                SizedBox(height: context.hp(0.8)),
+
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: context.r(8),
+                      vertical: context.hp(0.5),
+                    ),
+                    decoration: BoxDecoration(
+                      color: condition.likelihoodColor.withValues(alpha: 0.1),
+                      borderRadius:
+                      BorderRadius.circular(context.r(8)),
+                    ),
+                    child: Text(
+                      condition.likelihood,
+                      style: TextStyle(
+                        color: condition.likelihoodColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: context.sp(11),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
     );
   }
-
   Widget _buildBulletPoint(BuildContext context, String text, {IconData? icon, Color? color}) {
     return Padding(
       padding: EdgeInsets.only(bottom: context.hp(1.0)),

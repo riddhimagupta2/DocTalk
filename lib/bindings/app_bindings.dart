@@ -3,10 +3,14 @@ import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/chat_controller.dart';
 import '../controllers/nav_controller.dart';
+import '../services/fcm_service.dart';
 
 class AppBindings extends Bindings {
   @override
   void dependencies() {
+    // FCM Service - permanent for background/foreground push notifications
+    Get.put<FCMService>(FCMService(), permanent: true);
+
     // Auth controller - permanent, lives throughout app life
     Get.put<AuthController>(AuthController(), permanent: true);
 
@@ -21,4 +25,3 @@ class ChatBindings extends Bindings {
     Get.put<ChatController>(ChatController());
   }
 }
-

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../../../resources/app_theme.dart';
 import 'package:doctalk/resources/responsive.dart';
 
@@ -7,12 +7,12 @@ class SeverityBadge extends StatelessWidget {
 
   const SeverityBadge({super.key, required this.severity});
 
-  String get _emoji {
+  IconData get _icon {
     final s = severity.toLowerCase();
-    if (s.contains('emergency')) return '\u{1F6A8}';
-    if (s.contains('high')) return '\u{26A0}\u{FE0F}';
-    if (s.contains('medium')) return '\u{26A0}\u{FE0F}';
-    return '\u{2705}';
+    if (s.contains('emergency')) return Icons.error_rounded;
+    if (s.contains('high')) return Icons.warning_rounded;
+    if (s.contains('medium')) return Icons.report_problem_rounded;
+    return Icons.check_circle_rounded;
   }
 
   Color get _color {
@@ -36,14 +36,21 @@ class SeverityBadge extends StatelessWidget {
         color: _color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(context.r(20)),
       ),
-      child: Text(
-        "$_emoji $_label",
-        style: TextStyle(
-          color: _color,
-          fontSize: context.sp(12),
-          fontWeight: FontWeight.bold,
-          fontFamily: 'Lato',
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(_icon, size: context.r(14), color: _color),
+          const SizedBox(width: 4),
+          Text(
+            _label,
+            style: TextStyle(
+              color: _color,
+              fontSize: context.sp(12),
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Lato',
+            ),
+          ),
+        ],
       ),
     );
   }

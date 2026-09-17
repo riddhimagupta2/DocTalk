@@ -287,18 +287,32 @@ class ImageAnalysisScreen extends StatelessWidget {
         padding: EdgeInsets.all(context.r(24)),
         child: Column(
           children: [
-            Icon(Icons.error_outline, size: context.r(48), color: AppColors.error),
+            Container(
+              padding: EdgeInsets.all(context.r(16)),
+              decoration: BoxDecoration(
+                color: AppColors.error.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.cloud_off_rounded, size: context.r(44), color: AppColors.error),
+            ),
             SizedBox(height: context.hp(2)),
             Text(
-              controller.errorMessage.value,
+              'Analysis Failed',
+              style: TextStyle(fontSize: context.sp(17), fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+            ),
+            SizedBox(height: context.hp(1)),
+            Text(
+              controller.errorMessage.value.isNotEmpty
+                  ? controller.errorMessage.value
+                  : 'Unable to complete AI image analysis. Please check your internet connection and retry.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: context.sp(15)),
+              style: TextStyle(fontSize: context.sp(13.5), color: AppColors.textSecondary, height: 1.4),
             ),
             SizedBox(height: context.hp(3)),
             SizedBox(
               width: double.infinity,
-              height: context.hp(6).clamp(46.0, 52.0),
-              child: ElevatedButton(
+              height: context.hp(5.8).clamp(44.0, 52.0),
+              child: ElevatedButton.icon(
                 onPressed: () {
                   if (controller.selectedImage.value != null) {
                     controller.submitAnalysis();
@@ -306,13 +320,34 @@ class ImageAnalysisScreen extends StatelessWidget {
                     controller.reset();
                   }
                 },
+                icon: Icon(Icons.refresh_rounded, size: context.r(18)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.r(14))),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.r(12))),
                 ),
-                child: Text(
-                  'Try Again',
-                  style: TextStyle(color: Colors.white, fontSize: context.sp(15), fontWeight: FontWeight.bold),
+                label: Text(
+                  'Retry Analysis',
+                  style: TextStyle(fontSize: context.sp(14), fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            SizedBox(height: context.hp(1.2)),
+            SizedBox(
+              width: double.infinity,
+              height: context.hp(5.4).clamp(40.0, 48.0),
+              child: OutlinedButton.icon(
+                onPressed: controller.reset,
+                icon: Icon(Icons.photo_library_outlined, size: context.r(18)),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  side: const BorderSide(color: AppColors.primary, width: 1.2),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.r(12))),
+                ),
+                label: Text(
+                  'Choose Different Photo',
+                  style: TextStyle(fontSize: context.sp(13.5), fontWeight: FontWeight.w600),
                 ),
               ),
             ),

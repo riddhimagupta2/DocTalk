@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../models/appointment_model.dart';
@@ -175,7 +175,7 @@ class _BookingConfirmationScreenState
                   SizedBox(height: context.hp(1.2)),
                   _RowItem('Specialization', doctor.specialization),
                   SizedBox(height: context.hp(1.2)),
-                  _RowItem('Date', DateFormat('dd MMM yyyy').format(appt.date)),
+                  _RowItem('Date', DateFormat('dd MMM yyyy').format(appt.dateTime)),
                   SizedBox(height: context.hp(1.2)),
                   _RowItem('Time Slot', appt.timeSlot),
                   SizedBox(height: context.hp(1.2)),

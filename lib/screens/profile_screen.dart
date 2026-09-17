@@ -4,6 +4,7 @@ import '../controllers/auth_controller.dart';
 import '../controllers/nav_controller.dart';
 import '../../../resources/app_theme.dart';
 import '../resources/responsive.dart';
+import '../resources/app_routes.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -94,6 +95,14 @@ class ProfileScreen extends StatelessWidget {
             SizedBox(height: context.hp(2.5)),
 
             // Menu items
+            _ProfileMenuTile(
+              icon: Icons.medical_services_rounded,
+              title: 'Doctor Workspace',
+              subtitle: 'Consultations, digital Rx & clinic schedule',
+              onTap: () {
+                Get.toNamed(AppRoutes.doctorDashboard);
+              },
+            ),
             _ProfileMenuTile(
               icon: Icons.history_rounded,
               title: 'Consultation History',

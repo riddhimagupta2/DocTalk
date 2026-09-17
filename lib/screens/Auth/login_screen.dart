@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/auth_controller.dart';
 import '../../../resources/app_theme.dart';
@@ -99,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen>
                   ),
                   SizedBox(height: context.hp(1)),
                   Text(
-                    'Login to your MediSaathi account',
+                    'Login to your DocTalk account',
                     style: TextStyle(
                       fontSize: context.sp(15),
                       color: AppColors.textSecondary,
@@ -265,7 +265,7 @@ class _LoginScreenState extends State<LoginScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'MediSaathi',
+              'DocTalk',
               style: TextStyle(
                 fontSize: context.sp(18),
                 fontWeight: FontWeight.w800,

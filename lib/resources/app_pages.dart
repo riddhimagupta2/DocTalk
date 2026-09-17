@@ -12,8 +12,22 @@ import 'package:doctalk/screens/doctor_finder_screen.dart';
 import '../screens/AppointmentBooking/booking_confirmation_screen.dart';
 import '../screens/AppointmentBooking/booking_screen.dart';
 import '../screens/AppointmentBooking/doctor_detail_screen.dart';
+import '../screens/AppointmentBooking/patient_appointments_screen.dart';
 import '../features/image_analysis/screens/image_analysis_history_screen.dart';
 import '../features/image_analysis/bindings/image_analysis_binding.dart';
+
+import '../features/doctor_portal/bindings/doctor_portal_binding.dart';
+import '../features/doctor_portal/screens/doctor_login_registration_screen.dart';
+import '../features/doctor_portal/screens/doctor_verification_pending_screen.dart';
+import '../features/doctor_portal/screens/doctor_dashboard_screen.dart';
+import '../features/doctor_portal/screens/doctor_schedule_screen.dart';
+import '../features/doctor_portal/screens/doctor_prescription_screen.dart';
+import '../features/doctor_portal/screens/doctor_patient_detail_screen.dart';
+import '../features/admin/screens/admin_dashboard_screen.dart';
+
+import '../middleware/role_middleware.dart';
+
+import 'package:doctalk/screens/Auth/role_selection_screen.dart';
 
 class AppPages {
   static final pages = [
@@ -22,6 +36,14 @@ class AppPages {
       name: AppRoutes.splash,
       page: () => const SplashScreen(),
       transition: Transition.fadeIn,
+    ),
+
+    /// Role Selection
+    GetPage(
+      name: AppRoutes.roleSelection,
+      page: () => const RoleSelectionScreen(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
 
     /// Login
@@ -96,6 +118,14 @@ class AppPages {
       transitionDuration: const Duration(milliseconds: 350),
     ),
 
+    /// Patient Appointments
+    GetPage(
+      name: AppRoutes.patientAppointments,
+      page: () => const PatientAppointmentsScreen(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+
     /// Image Analysis
     GetPage(
       name: AppRoutes.imageAnalysis,
@@ -113,6 +143,73 @@ class AppPages {
       transition: Transition.rightToLeft,
       transitionDuration: const Duration(milliseconds: 300),
     ),
+
+    /// Doctor Portal: Registration
+    GetPage(
+      name: AppRoutes.doctorRegistration,
+      page: () => const DoctorLoginRegistrationScreen(),
+      binding: DoctorPortalBinding(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+
+    /// Doctor Portal: Verification Pending
+    GetPage(
+      name: AppRoutes.doctorPending,
+      page: () => const DoctorVerificationPendingScreen(),
+      binding: DoctorPortalBinding(),
+      middlewares: [DoctorMiddleware()],
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+
+    /// Doctor Portal: Dashboard
+    GetPage(
+      name: AppRoutes.doctorDashboard,
+      page: () => const DoctorDashboardScreen(),
+      binding: DoctorPortalBinding(),
+      middlewares: [DoctorMiddleware()],
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+
+    /// Doctor Portal: Schedule
+    GetPage(
+      name: AppRoutes.doctorSchedule,
+      page: () => const DoctorScheduleScreen(),
+      binding: DoctorPortalBinding(),
+      middlewares: [DoctorMiddleware()],
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 280),
+    ),
+
+    /// Doctor Portal: Prescription
+    GetPage(
+      name: AppRoutes.doctorPrescription,
+      page: () => const DoctorPrescriptionScreen(),
+      binding: DoctorPortalBinding(),
+      middlewares: [DoctorMiddleware()],
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 280),
+    ),
+
+    /// Doctor Portal: Patient Detail
+    GetPage(
+      name: AppRoutes.doctorPatientDetail,
+      page: () => const DoctorPatientDetailScreen(),
+      binding: DoctorPortalBinding(),
+      middlewares: [DoctorMiddleware()],
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 280),
+    ),
+
+    /// Admin Panel Dashboard
+    GetPage(
+      name: AppRoutes.adminDashboard,
+      page: () => const AdminDashboardScreen(),
+      middlewares: [AdminMiddleware()],
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
   ];
 }
-

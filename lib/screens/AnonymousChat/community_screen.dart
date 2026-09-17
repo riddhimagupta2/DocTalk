@@ -198,38 +198,75 @@ class CommunityScreen extends StatelessWidget {
       return AppBar(
         backgroundColor: const Color(0xFF0F0F1E),
         elevation: 0,
+        leadingWidth: 44,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new_rounded,
-              color: Colors.white, size: context.r(20)),
+              color: Colors.white, size: context.r(18)),
           onPressed: () => controller.closeSearch(),
         ),
-        title: TextField(
-          controller: controller.searchTextController,
-          autofocus: true,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: context.sp(15),
-          ),
-          cursorColor: const Color(0xFF9B59B6),
-          decoration: InputDecoration(
-            hintText: 'Search discussions, topics...',
-            hintStyle: TextStyle(
-              color: Colors.white38,
-              fontSize: context.sp(14),
+        title: Center(
+          child: Container(
+            height: 36,
+            constraints: BoxConstraints(
+              maxWidth: context.wp(58).clamp(150.0, 230.0),
             ),
-            border: InputBorder.none,
+            decoration: BoxDecoration(
+              color: const Color(0xFF222238),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: const Color(0xFF3D3D60), width: 1),
+            ),
+            child: TextField(
+              controller: controller.searchTextController,
+              autofocus: true,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: context.sp(13.5),
+              ),
+              cursorColor: const Color(0xFFB388FF),
+              textAlignVertical: TextAlignVertical.center,
+              decoration: InputDecoration(
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                hintText: 'Search topics...',
+                hintStyle: TextStyle(
+                  color: Colors.white54,
+                  fontSize: context.sp(13),
+                ),
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                prefixIcon: Icon(
+                  Icons.search_rounded,
+                  color: const Color(0xFFB388FF),
+                  size: context.r(18),
+                ),
+                prefixIconConstraints: const BoxConstraints(
+                  minWidth: 32,
+                  minHeight: 32,
+                ),
+                suffixIcon: Obx(() => controller.searchQuery.value.isNotEmpty
+                    ? GestureDetector(
+                        onTap: () => controller.clearSearchQuery(),
+                        child: Icon(
+                          Icons.close_rounded,
+                          color: Colors.white70,
+                          size: context.r(16),
+                        ),
+                      )
+                    : const SizedBox.shrink()),
+                suffixIconConstraints: const BoxConstraints(
+                  minWidth: 28,
+                  minHeight: 28,
+                ),
+              ),
+              onChanged: (val) {
+                controller.searchQuery.value = val;
+              },
+            ),
           ),
-          onChanged: (val) {
-            controller.searchQuery.value = val;
-          },
         ),
-        actions: [
-          if (controller.searchQuery.value.isNotEmpty)
-            IconButton(
-              icon: Icon(Icons.close_rounded,
-                  color: Colors.white70, size: context.r(20)),
-              onPressed: () => controller.clearSearchQuery(),
-            ),
+        actions: const [
+          SizedBox(width: 8),
         ],
       );
     }

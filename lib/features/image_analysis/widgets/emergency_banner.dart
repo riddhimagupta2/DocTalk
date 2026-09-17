@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../../resources/app_theme.dart';
 import 'package:doctalk/resources/responsive.dart';
@@ -18,15 +18,15 @@ class EmergencyBanner extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('\u{26A0}\u{FE0F}', style: TextStyle(fontSize: context.sp(24))),
+            Icon(Icons.warning_amber_rounded, color: Colors.white, size: context.r(26)),
             SizedBox(width: context.wp(3).clamp(8.0, 14.0)),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '\u{26A0}\u{FE0F} EMERGENCY',
-                    style: TextStyle(color: Colors.white, fontSize: context.sp(18), fontWeight: FontWeight.bold),
+                    'EMERGENCY ALERT',
+                    style: TextStyle(color: Colors.white, fontSize: context.sp(17), fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 4),
                   Text(

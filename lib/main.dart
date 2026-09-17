@@ -29,11 +29,11 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(const MediSaathiApp());
+  runApp(const DocTalkApp());
 }
 
-class MediSaathiApp extends StatelessWidget {
-  const MediSaathiApp({super.key});
+class DocTalkApp extends StatelessWidget {
+  const DocTalkApp({super.key});
 
   @override
   Widget build(BuildContext context) {

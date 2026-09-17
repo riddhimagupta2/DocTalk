@@ -1,0 +1,74 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (request.auth.token.admin == true ||
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+    }
+
+    function isVerifiedDoctor(doctorId) {
+      return get(/databases/$(database)/documents/doctors/$(doctorId)).data.verified == true;
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId) || isAdmin();
+    }
+
+    // Doctors Profile Collection
+    match /doctors/{doctorId} {
+      allow read: if true; // Public read for patient doctor discovery
+      allow create, update: if isOwner(doctorId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Doctor Slots & Schedule Collection
+    match /doctor_slots/{doctorId} {
+      allow read: if true; // Public read to view available appointment slots
+      allow write: if isOwner(doctorId) || isAdmin();
+    }
+
+    // Appointments Collection
+    match /appointments/{appointmentId} {
+      // Patient can read own appointment; Doctor can read assigned appointments; Admin full read
+      allow read: if isAuthenticated() &&
+        (request.auth.uid == resource.data.patientId ||
+         request.auth.uid == resource.data.doctorId ||
+         isAdmin());
+
+      // Create: Patient can create appointment ONLY for verified doctors
+      allow create: if isAuthenticated() &&
+        request.auth.uid == request.resource.data.patientId &&
+        isVerifiedDoctor(request.resource.data.doctorId);
+
+      // Update: Patient can cancel/reschedule; Doctor can accept/reject/complete; Admin full
+      allow update: if isAuthenticated() &&
+        (request.auth.uid == resource.data.patientId ||
+         request.auth.uid == resource.data.doctorId ||
+         isAdmin());
+
+      allow delete: if isAdmin();
+    }
+
+    // Notifications Collection
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() &&
+        (request.auth.uid == resource.data.recipientId || isAdmin());
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() &&
+        (request.auth.uid == resource.data.recipientId || isAdmin());
+    }
+  }
+}

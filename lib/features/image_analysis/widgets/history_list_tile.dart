@@ -69,10 +69,11 @@ class HistoryListTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  Row(
+                  Wrap(
+                    spacing: 4,
+                    runSpacing: 4,
                     children: [
                       SeverityBadge(severity: analysis.severity),
-                      const SizedBox(width: 4),
                       ConfidenceBadge(confidence: analysis.confidence),
                     ],
                   ),

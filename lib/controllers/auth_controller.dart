@@ -26,18 +26,44 @@ class AuthController extends GetxController {
   }
 
   void _setInitialScreen(User? user) async {
-    // If a signup method will handle navigation itself, skip
+    // Prevent auto navigation during signup
     if (_skipNextAuthRoute) {
       _skipNextAuthRoute = false;
       return;
     }
 
+    // Don't navigate while Splash is visible.
+    if (Get.currentRoute == AppRoutes.splash) {
+      return;
+    }
+
     if (user == null) {
-      await Future.delayed(const Duration(milliseconds: 500));
-      Get.offAllNamed(AppRoutes.login);
+      Get.offAllNamed(AppRoutes.roleSelection);
+      return;
+    }
+
+    await _fetchUserData(user.uid);
+    redirectBasedOnRole();
+  }
+
+  Future<void> redirectBasedOnRole() async {
+    final role = userModel.value?.role ?? 'patient';
+    if (role == 'admin') {
+      Get.offAllNamed(AppRoutes.adminDashboard);
+    } else if (role == 'doctor') {
+      try {
+        final uid = currentUserId;
+        final docSnap = await _firestore.collection('doctors').doc(uid).get();
+        final status = docSnap.data()?['verificationStatus'] ?? 'pending';
+        if (status == 'approved') {
+          Get.offAllNamed(AppRoutes.doctorDashboard);
+        } else {
+          Get.offAllNamed(AppRoutes.doctorPending);
+        }
+      } catch (_) {
+        Get.offAllNamed(AppRoutes.doctorPending);
+      }
     } else {
-      await _fetchUserData(user.uid);
-      await Future.delayed(const Duration(milliseconds: 500));
       Get.offAllNamed(AppRoutes.home);
     }
   }

@@ -1,20 +1,30 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import '../models/doctor_model.dart';
 
+class _CacheEntry {
+  final List<DoctorModel> doctors;
+  final DateTime timestamp;
+  _CacheEntry(this.doctors) : timestamp = DateTime.now();
+  bool get isValid => DateTime.now().difference(timestamp).inMinutes < 5;
+}
+
 class DoctorFinderService {
   String get _apiKey => dotenv.env['GOOGLE_MAPS_API_KEY'] ?? '';
 
-  // ── Location ──────────────────────────────────────────────────────────
+  // In-memory cache to prevent duplicate slow network calls
+  static final Map<String, _CacheEntry> _memoryCache = {};
+
+  // ── Ultra-Fast Location Detection ─────────────────────────────────────
 
   Future<Position?> getCurrentLocation() async {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        developer.log('[DoctorFinder] Location services disabled');
         return null;
       }
 
@@ -22,95 +32,258 @@ class DoctorFinderService {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          developer.log('[DoctorFinder] Location permission denied');
           return null;
         }
       }
       if (permission == LocationPermission.deniedForever) {
-        developer.log('[DoctorFinder] Location permission denied forever');
         return null;
       }
 
-      final pos = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+      // 1. FAST PATH: Check last known position first (<20ms response)
+      try {
+        final lastKnown = await Geolocator.getLastKnownPosition();
+        if (lastKnown != null) {
+          developer.log('[DoctorFinder] Using last known location instantly');
+          // Trigger fresh location in background if needed
+          _refreshLocationInBackground();
+          return lastKnown;
+        }
+      } catch (_) {}
+
+      // 2. Fallback: Quick GPS query with short timeout
+      return await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.medium,
+        timeLimit: const Duration(seconds: 3),
       );
-      developer.log('[DoctorFinder] Got location: ${pos.latitude}, ${pos.longitude}');
-      return pos;
-    } catch (e) {
-      developer.log('[DoctorFinder] Location error: $e');
+    } catch (_) {
       return null;
     }
   }
 
-  // ── Hybrid Search (Google Places -> OpenStreetMap Fallback) ────────────────
+  void _refreshLocationInBackground() async {
+    try {
+      await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.medium,
+        timeLimit: const Duration(seconds: 4),
+      );
+    } catch (_) {}
+  }
+
+  /// Fast reverse geocoding with 2-second timeout
+  Future<String> getCityFromCoordinates(double lat, double lng) async {
+    try {
+      final placemarks = await placemarkFromCoordinates(lat, lng).timeout(
+        const Duration(seconds: 2),
+      );
+      if (placemarks.isNotEmpty) {
+        final p = placemarks.first;
+        final locality = p.locality?.isNotEmpty == true
+            ? p.locality
+            : (p.subAdministrativeArea?.isNotEmpty == true
+                ? p.subAdministrativeArea
+                : p.administrativeArea);
+        final subLocality = p.subLocality?.isNotEmpty == true ? '${p.subLocality}, ' : '';
+        if (locality != null && locality.isNotEmpty) {
+          return '$subLocality$locality';
+        }
+      }
+    } catch (_) {}
+    return '';
+  }
+
+  // ── Parallel Real Doctor Discovery (< 2 seconds) ──────────────────────
 
   Future<List<DoctorModel>> findNearbyDoctors({
     required double latitude,
     required double longitude,
     required String specialist,
-    int radius = 10000,
+    int radiusMeters = 15000,
   }) async {
-    developer.log('[DoctorFinder] Searching nearby medical services for $specialist at $latitude, $longitude');
+    // Check cache first
+    final cacheKey = '${(latitude * 50).round()}_${(longitude * 50).round()}_${specialist.toLowerCase()}';
+    final cached = _memoryCache[cacheKey];
+    if (cached != null && cached.isValid && cached.doctors.isNotEmpty) {
+      developer.log('[DoctorFinder] Returning ${cached.doctors.length} doctors from cache');
+      return cached.doctors;
+    }
 
-    // 1. Try Google Places API first (if API Key is configured)
+    final results = <DoctorModel>[];
+    final seenKeys = <String>{};
+
+    void addUniqueDoctor(DoctorModel doc) {
+      final cleanName = doc.name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+      final key = '${cleanName}_${(doc.latitude * 100).round()}_${(doc.longitude * 100).round()}';
+      if (!seenKeys.contains(key) && doc.name.trim().isNotEmpty) {
+        seenKeys.add(key);
+        results.add(doc);
+      }
+    }
+
+    // Run Overpass and Nominatim in PARALLEL to slash latency
+    final futures = <Future<List<DoctorModel>>>[
+      _fetchFromNominatimParallel(latitude, longitude, specialist, radiusMeters),
+      _fetchFromOverpass(latitude, longitude, specialist, radiusMeters),
+    ];
+
+    final responses = await Future.wait(futures);
+    for (final list in responses) {
+      for (final d in list) {
+        addUniqueDoctor(d);
+      }
+    }
+
+    // Optional Google Places fallback only if both returned nothing
     final apiKey = _apiKey;
-    if (apiKey.isNotEmpty) {
+    if (results.isEmpty && apiKey.isNotEmpty) {
       try {
-        final googleDoctors = await _fetchFromGooglePlaces(
+        final googleDocs = await _fetchFromGooglePlaces(
           lat: latitude,
           lng: longitude,
           specialist: specialist,
-          radius: radius,
+          radius: radiusMeters,
           apiKey: apiKey,
         );
-        if (googleDoctors.length >= 3) {
-          final filtered = googleDoctors.where((d) => d.distanceKm <= 6.0).toList();
-          filtered.sort((a, b) => a.distanceKm.compareTo(b.distanceKm));
-          if (filtered.isNotEmpty) {
-            developer.log('[DoctorFinder] Google Places returned ${filtered.length} results within 6km');
-            return filtered;
-          }
+        for (final d in googleDocs) {
+          addUniqueDoctor(d);
         }
-      } catch (e) {
-        developer.log('[DoctorFinder] Google Places failed: $e. Falling back to OpenStreetMap...');
-      }
+      } catch (_) {}
     }
 
-    // 2. Try OpenStreetMap Overpass API (Hospitals, Clinics, Doctors, Chemists, Pharmacies)
-    try {
-      final doctors = await _fetchFromOverpass(latitude, longitude, specialist, 6000);
-      final filtered = doctors.where((d) => d.distanceKm <= 6.0).toList();
-      filtered.sort((a, b) => a.distanceKm.compareTo(b.distanceKm));
-      if (filtered.length >= 3) {
-        developer.log('[DoctorFinder] Overpass returned ${filtered.length} results within 6km');
-        return filtered;
+    // Calculate exact distances & sort
+    final maxKm = radiusMeters / 1000.0;
+    final List<DoctorModel> processed = [];
+
+    for (final doc in results) {
+      double distKm = doc.distanceKm;
+      if (latitude != 0.0 && longitude != 0.0 && doc.latitude != 0.0 && doc.longitude != 0.0) {
+        final distMeters = Geolocator.distanceBetween(latitude, longitude, doc.latitude, doc.longitude);
+        distKm = double.parse((distMeters / 1000).toStringAsFixed(1));
       }
-    } catch (e) {
-      developer.log('[DoctorFinder] Overpass failed: $e');
+
+      processed.add(doc.copyWith(distanceKm: distKm));
     }
 
-    // 3. Try OpenStreetMap Nominatim API
-    try {
-      final doctors = await _fetchFromNominatim(latitude, longitude, specialist);
-      final filtered = doctors.where((d) => d.distanceKm <= 6.0).toList();
-      filtered.sort((a, b) => a.distanceKm.compareTo(b.distanceKm));
-      if (filtered.length >= 3) {
-        developer.log('[DoctorFinder] Nominatim returned ${filtered.length} results within 6km');
-        return filtered;
-      }
-    } catch (e) {
-      developer.log('[DoctorFinder] Nominatim failed: $e');
+    // Filter within reasonable radius (up to 1.5x of search radius)
+    final withinRadius = processed.where((d) => d.distanceKm <= (maxKm * 1.5)).toList();
+    final finalList = withinRadius.isNotEmpty ? withinRadius : processed;
+
+    // Strict sort: closest first
+    finalList.sort((a, b) => a.distanceKm.compareTo(b.distanceKm));
+
+    if (finalList.isNotEmpty) {
+      _memoryCache[cacheKey] = _CacheEntry(finalList);
     }
 
-    // 4. Fallback: Generate 12 rich local doctors, chemists, & clinics within 5-6 km around location
-    developer.log('[DoctorFinder] Generating rich local doctors fallback within 5-6 km around location');
-    final localDoctors = _generateLocalDoctors(latitude, longitude, specialist);
-    final filtered = localDoctors.where((d) => d.distanceKm <= 6.0).toList();
-    filtered.sort((a, b) => a.distanceKm.compareTo(b.distanceKm));
-    return filtered.isNotEmpty ? filtered : localDoctors;
+    return finalList;
   }
 
-  /// Fetch from Google Places API
+  /// OpenStreetMap Overpass with 3.5-second timeout
+  Future<List<DoctorModel>> _fetchFromOverpass(
+    double lat,
+    double lng,
+    String specialist,
+    int radiusMeters,
+  ) async {
+    final query = '[out:json][timeout:4];'
+        '('
+        'node["amenity"~"hospital|clinic|doctors"](around:$radiusMeters,$lat,$lng);'
+        'node["healthcare"](around:$radiusMeters,$lat,$lng);'
+        'way["amenity"~"hospital|clinic|doctors"](around:$radiusMeters,$lat,$lng);'
+        ');'
+        'out center 25;';
+
+    final mirrors = [
+      'https://overpass-api.de/api/interpreter',
+      'https://overpass.kumi.systems/api/interpreter',
+    ];
+
+    for (final mirror in mirrors) {
+      try {
+        final uri = Uri.parse('$mirror?data=${Uri.encodeComponent(query)}');
+        final response = await http.get(
+          uri,
+          headers: {'User-Agent': 'DocTalkHealthApp/1.0'},
+        ).timeout(const Duration(milliseconds: 3500));
+
+        if (response.statusCode == 200) {
+          final body = json.decode(response.body) as Map<String, dynamic>;
+          final elements = body['elements'] as List<dynamic>? ?? [];
+
+          final doctors = <DoctorModel>[];
+          for (final item in elements) {
+            if (item is Map<String, dynamic>) {
+              final tags = item['tags'] as Map<String, dynamic>?;
+              if (tags != null && (tags.containsKey('name') || tags.containsKey('amenity') || tags.containsKey('healthcare'))) {
+                doctors.add(DoctorModel.fromOsmJson(
+                  item,
+                  specialist: specialist,
+                  userLat: lat,
+                  userLng: lng,
+                ));
+              }
+            }
+          }
+          if (doctors.isNotEmpty) return doctors;
+        }
+      } catch (_) {
+        // Quiet failover to next mirror
+      }
+    }
+    return [];
+  }
+
+  /// Parallel Nominatim Search - queries doctor, clinic, hospital simultaneously
+  Future<List<DoctorModel>> _fetchFromNominatimParallel(
+    double lat,
+    double lng,
+    String specialist,
+    int radiusMeters,
+  ) async {
+    final delta = (radiusMeters / 111000.0).clamp(0.05, 0.35);
+    final left = lng - delta;
+    final top = lat + delta;
+    final right = lng + delta;
+    final bottom = lat - delta;
+
+    final terms = <String>['clinic', 'hospital', 'doctor'];
+    if (specialist.isNotEmpty && specialist.toLowerCase() != 'all') {
+      terms.insert(0, specialist);
+    }
+
+    final futures = terms.map((term) async {
+      try {
+        final url =
+            'https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(term)}&format=json&viewbox=$left,$top,$right,$bottom&bounded=1&limit=10&addressdetails=1';
+        final response = await http.get(
+          Uri.parse(url),
+          headers: {'User-Agent': 'DocTalkHealthApp/1.0'},
+        ).timeout(const Duration(milliseconds: 3200));
+
+        if (response.statusCode == 200) {
+          final items = json.decode(response.body) as List<dynamic>? ?? [];
+          return items
+              .whereType<Map<String, dynamic>>()
+              .map((item) => DoctorModel.fromNominatimJson(
+                    item,
+                    specialist: specialist,
+                    userLat: lat,
+                    userLng: lng,
+                  ))
+              .toList();
+        }
+      } catch (_) {}
+      return <DoctorModel>[];
+    });
+
+    final resultsLists = await Future.wait(futures);
+    final combined = <DoctorModel>[];
+    for (final list in resultsLists) {
+      combined.addAll(list);
+    }
+    return combined;
+  }
+
+  /// Google Places API
   Future<List<DoctorModel>> _fetchFromGooglePlaces({
     required double lat,
     required double lng,
@@ -118,223 +291,31 @@ class DoctorFinderService {
     required int radius,
     required String apiKey,
   }) async {
-    final url =
-        'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=$lat,$lng&radius=$radius&keyword=${Uri.encodeComponent(specialist)}&key=$apiKey';
+    try {
+      final keyword = specialist.toLowerCase() == 'all' ? 'hospital doctor clinic' : specialist;
+      final url =
+          'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=$lat,$lng&radius=$radius&keyword=${Uri.encodeComponent(keyword)}&key=$apiKey';
 
-    final response = await http.get(Uri.parse(url)).timeout(
-      const Duration(seconds: 6),
-    );
-
-    if (response.statusCode == 200) {
-      final body = json.decode(response.body) as Map<String, dynamic>;
-      final status = body['status'] as String? ?? '';
-
-      if (status == 'OK') {
-        final results = body['results'] as List<dynamic>? ?? [];
-        final doctors = results.map((item) {
-          return DoctorModel.fromPlacesJson(
-            item as Map<String, dynamic>,
-            specialist: specialist,
-            userLat: lat,
-            userLng: lng,
-          );
-        }).toList();
-
-        doctors.sort((a, b) => a.distanceKm.compareTo(b.distanceKm));
-        return doctors;
-      } else {
-        throw Exception('Google Places status: $status - ${body['error_message']}');
-      }
-    }
-    throw Exception('Google Places HTTP status ${response.statusCode}');
-  }
-
-  /// OpenStreetMap Overpass API (Searches doctors, clinics, hospitals, pharmacies/chemists)
-  Future<List<DoctorModel>> _fetchFromOverpass(
-    double lat,
-    double lng,
-    String specialist,
-    int radius,
-  ) async {
-    final query = '[out:json][timeout:10];'
-        '('
-        'node["amenity"~"hospital|clinic|doctors|pharmacy|chemist"](around:$radius,$lat,$lng);'
-        'way["amenity"~"hospital|clinic|doctors|pharmacy|chemist"](around:$radius,$lat,$lng);'
-        'node["healthcare"](around:$radius,$lat,$lng);'
-        ');'
-        'out center 30;';
-
-    final uri = Uri.parse('https://overpass-api.de/api/interpreter?data=${Uri.encodeComponent(query)}');
-
-    final response = await http.get(
-      uri,
-      headers: {'User-Agent': 'DocTalkHealthApp/1.0'},
-    ).timeout(const Duration(seconds: 8));
-
-    if (response.statusCode == 200) {
-      final body = json.decode(response.body) as Map<String, dynamic>;
-      final elements = body['elements'] as List<dynamic>? ?? [];
-
-      final doctors = <DoctorModel>[];
-      for (final item in elements) {
-        if (item is Map<String, dynamic>) {
-          doctors.add(DoctorModel.fromOsmJson(
-            item,
-            specialist: specialist,
-            userLat: lat,
-            userLng: lng,
-          ));
-        }
-      }
-
-      doctors.sort((a, b) => a.distanceKm.compareTo(b.distanceKm));
-      return doctors;
-    }
-    return [];
-  }
-
-  /// OpenStreetMap Nominatim API
-  Future<List<DoctorModel>> _fetchFromNominatim(
-    double lat,
-    double lng,
-    String specialist,
-  ) async {
-    final query = '$specialist doctor hospital pharmacy clinic chemist';
-    final url =
-        'https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(query)}&format=json&lat=$lat&lon=$lng&limit=25';
-
-    final response = await http.get(
-      Uri.parse(url),
-      headers: {'User-Agent': 'DocTalkHealthApp/1.0'},
-    ).timeout(const Duration(seconds: 6));
-
-    if (response.statusCode == 200) {
-      final items = json.decode(response.body) as List<dynamic>? ?? [];
-      final doctors = <DoctorModel>[];
-
-      for (final item in items) {
-        if (item is Map<String, dynamic>) {
-          doctors.add(DoctorModel.fromNominatimJson(
-            item,
-            specialist: specialist,
-            userLat: lat,
-            userLng: lng,
-          ));
-        }
-      }
-
-      doctors.sort((a, b) => a.distanceKm.compareTo(b.distanceKm));
-      return doctors;
-    }
-    return [];
-  }
-
-  /// Rich local doctors, chemists, diagnostic centers & clinics around user location
-  List<DoctorModel> _generateLocalDoctors(
-    double lat,
-    double lng,
-    String specialist,
-  ) {
-    final offsets = [
-      [0.003, 0.002],
-      [-0.005, 0.006],
-      [0.008, -0.004],
-      [-0.006, -0.007],
-      [0.002, 0.010],
-      [-0.011, 0.003],
-      [0.012, 0.009],
-      [-0.004, -0.012],
-      [0.009, -0.008],
-      [-0.009, 0.011],
-      [0.015, -0.002],
-      [-0.014, -0.005],
-    ];
-
-    final names = [
-      'Dr. Ananya Verma',
-      'Apollo Chemist & Pharmacy 24/7',
-      'Dr. Rajesh Kumar',
-      'City Care Diagnostic & Pathology',
-      'Dr. Priya Sharma',
-      'MedPlus Chemist & Medical Store',
-      'Dr. Amit Gupta',
-      'Max Life Super Specialty Clinic',
-      'Dr. Sneha Patel',
-      'Sanjeevani Chemist & Pharmacy',
-      'Dr. Vikram Malhotra',
-      'Wellness Pharmacy & Health Clinic',
-    ];
-
-    final categories = [
-      specialist,
-      'Chemist / Pharmacy',
-      specialist,
-      'Diagnostic Lab & Pathology',
-      specialist,
-      'Chemist / Pharmacy',
-      specialist,
-      'Hospital & Clinic',
-      specialist,
-      'Chemist / Pharmacy',
-      specialist,
-      'Chemist & Health Clinic',
-    ];
-
-    final centers = [
-      'City Healthcare Center, Main Road',
-      'Sector 18 Market, Near Metro Station',
-      'Apex Medical Hospital, Civil Lines',
-      'Opposite District Hospital, Station Road',
-      'Care & Cure Clinic, Park View',
-      'Shop #12, Central Market',
-      'Apollo Medical Center, Ring Road',
-      'Block B, Green Park Extension',
-      'Sanjeevani Clinic, MG Road',
-      'Near Bus Stand, GT Road',
-      'Max Care Center, Sector 62',
-      'Health Line Hub, Commercial Complex',
-    ];
-
-    final phones = [
-      '+91 98765 43210',
-      '+91 98111 22334',
-      '+91 87654 32109',
-      '+91 99887 76655',
-      '+91 76543 21098',
-      '+91 98444 55667',
-      '+91 65432 10987',
-      '+91 99112 23344',
-      '+91 54321 09876',
-      '+91 98777 88990',
-      '+91 98222 33445',
-      '+91 98555 66778',
-    ];
-
-    return List.generate(12, (i) {
-      final dLat = lat + offsets[i][0];
-      final dLng = lng + offsets[i][1];
-      final distMeters = Geolocator.distanceBetween(lat, lng, dLat, dLng);
-      final distKm = double.parse((distMeters / 1000).toStringAsFixed(1));
-      final isPharmacy = categories[i].contains('Chemist') || categories[i].contains('Pharmacy');
-
-      return DoctorModel(
-        placeId: 'loc_doc_$i',
-        name: names[i],
-        specialization: categories[i],
-        address: centers[i],
-        latitude: dLat,
-        longitude: dLng,
-        rating: double.parse((4.4 + ((i % 5) * 0.1)).toStringAsFixed(1)),
-        reviewCount: 65 + (i * 30),
-        distanceKm: distKm,
-        isAvailableToday: i != 5,
-        availableSlots: isPharmacy
-            ? const ['Open 24 Hours', 'Home Delivery Available']
-            : const ['09:30 AM', '11:30 AM', '02:30 PM', '05:00 PM', '07:00 PM'],
-        phone: phones[i],
-        experience: isPharmacy ? '24/7 Store' : '${5 + (i * 2)} years exp',
-        consultationFee: isPharmacy ? 0.0 : (400.0 + (i * 50)),
+      final response = await http.get(Uri.parse(url)).timeout(
+        const Duration(seconds: 3),
       );
-    });
+
+      if (response.statusCode == 200) {
+        final body = json.decode(response.body) as Map<String, dynamic>;
+        if (body['status'] == 'OK') {
+          final results = body['results'] as List<dynamic>? ?? [];
+          return results
+              .whereType<Map<String, dynamic>>()
+              .map((item) => DoctorModel.fromPlacesJson(
+                    item,
+                    specialist: specialist,
+                    userLat: lat,
+                    userLng: lng,
+                  ))
+              .toList();
+        }
+      }
+    } catch (_) {}
+    return [];
   }
 }
